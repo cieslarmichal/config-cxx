@@ -1,0 +1,61 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+**/cmake-build-debug
+**/build
+**/CMakeFiles
+**/.idea
+**/dist
+.vscode
+cmake-build-*
+.idea
+**.zip
+.env
+.DS_Store
+src/.DS_Store
+src/modules/.DS_Store
+src/modules/location/.DS_Store
+
+html/
+latex/
+
+CMakeSettings.json
+.vs/
+out/
+build-linux-gxx
+build-linux-clang
+#clangd index files
+.cache/
+#vim swap files
+*.sw?
+build
