@@ -21,10 +21,13 @@ set(LIBRARY_NAME config-cxx)
 
 set(SOURCES
     src/Config.cpp
+    src/ConfigDirectoryPathResolver.cpp
+    src/EnvironmentParser.cpp
 )
 
 set(UT_SOURCES
     src/ConfigTest.cpp
+    src/EnvironmentParserTest.cpp
 )
 
 add_library(${LIBRARY_NAME} ${SOURCES})
