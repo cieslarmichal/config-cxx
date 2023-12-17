@@ -20,11 +20,11 @@ endif ()
 set(LIBRARY_NAME config-cxx)
 
 set(SOURCES
-    src/Dummy.cpp
+    src/Config.cpp
 )
 
 set(UT_SOURCES
-    src/Dummy.cpp
+    src/ConfigTest.cpp
 )
 
 add_library(${LIBRARY_NAME} ${SOURCES})
@@ -58,7 +58,7 @@ if (BUILD_CONFIG_CXX_TESTS)
 
     add_executable(${LIBRARY_NAME}-UT ${UT_SOURCES})
 
-    target_link_libraries(${LIBRARY_NAME}-UT PRIVATE gtest_main gmock_main
+    target_link_libraries(${LIBRARY_NAME}-UT PRIVATE gmock_main
         config-cxx)
 
     target_include_directories(
