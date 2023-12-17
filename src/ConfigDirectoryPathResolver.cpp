@@ -1,5 +1,8 @@
 #include "ConfigDirectoryPathResolver.h"
 
+#include <filesystem>
+
+#include "EnvironmentParser.h"
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -12,7 +15,30 @@ namespace config
 
 std::string ConfigDirectoryPathResolver::getConfigDirectoryPath()
 {
-    return std::string();
+    const auto envConfigPath = EnvironmentParser::parseString("CXX_CONFIG_DIR");
+
+    if (envConfigPath)
+    {
+        return *envConfigPath;
+    }
+
+    const auto executablePath = getExecutablePath();
+
+    std::filesystem::path path(executablePath);
+
+    while (path.has_parent_path())
+    {
+        std::filesystem::path potentialConfigPath = path / "config";
+
+        if (std::filesystem::exists(potentialConfigPath) && std::filesystem::is_directory(potentialConfigPath))
+        {
+            return potentialConfigPath.string();
+        }
+
+        path = path.parent_path();
+    }
+
+    throw std::runtime_error("Config directory not found");
 }
 
 std::string ConfigDirectoryPathResolver::getExecutablePath()
