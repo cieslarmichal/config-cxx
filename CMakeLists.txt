@@ -35,13 +35,7 @@ add_library(${LIBRARY_NAME} ${SOURCES})
 target_include_directories(
     ${LIBRARY_NAME}
     INTERFACE "${CMAKE_CURRENT_LIST_DIR}/include"
-    PRIVATE "${CMAKE_CURRENT_LIST_DIR}/include" ${FMT_INCLUDE_DIR})
-
-add_subdirectory(externals/fmt)
-
-set(FMT_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/externals/fmt/include")
-
-target_link_libraries(${LIBRARY_NAME} PRIVATE fmt)
+    PRIVATE "${CMAKE_CURRENT_LIST_DIR}/include")
 
 if (BUILD_CONFIG_CXX_TESTS)
     add_subdirectory(externals/googletest)
@@ -66,7 +60,7 @@ if (BUILD_CONFIG_CXX_TESTS)
 
     target_include_directories(
         ${LIBRARY_NAME}-UT
-        PRIVATE ${FMT_INCLUDE_DIR} ${GTEST_INCLUDE_DIR} ${GMOCK_INCLUDE_DIR}
+        PRIVATE ${GTEST_INCLUDE_DIR} ${GMOCK_INCLUDE_DIR}
         ${CMAKE_CURRENT_LIST_DIR})
 
     add_test(

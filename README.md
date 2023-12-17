@@ -63,7 +63,6 @@ https://cieslarmichal.github.io/config-cxx/
 ## Dependencies
 
 - GTest (```BUILD_CONFIG_CXX_TESTS=OFF``` CMake flag to disable)
-- fmt
 
 ## ✨ Contributing
 
