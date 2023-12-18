@@ -31,7 +31,7 @@ TEST_F(EnvironmentParserTest, returnsValueIfEnvVariableExists)
 
 #ifdef _WIN32
     SetEnvironmentVariableA(envName, expectedEnvValue);
-#elif __MINGW32__
+#elif __MINGW64__ || __MINGW32__
     char s[] = "CONFIG_CXX_TEST_PATH=test";
     putenv(s);
 #else
