@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 
 #ifdef _WIN32
-#include <processenv.h>
+#include <windows.h>
 #endif
 
 using namespace ::testing;
@@ -39,6 +39,8 @@ TEST_F(EnvironmentParserTest, returnsValueIfEnvVariableExists)
 #endif
 
     const auto envValue = EnvironmentParser::parseString(envName);
+
+    std::cerr << envValue.value() << std::endl;
 
     ASSERT_TRUE(envValue);
     ASSERT_EQ(envValue, expectedEnvValue);
