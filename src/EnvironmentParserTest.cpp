@@ -4,6 +4,10 @@
 
 #include "gtest/gtest.h"
 
+#ifdef _WIN32
+#include <processenv.h>
+#endif
+
 using namespace ::testing;
 using namespace config;
 
@@ -25,7 +29,14 @@ TEST_F(EnvironmentParserTest, returnsValueIfEnvVariableExists)
 
     const auto expectedEnvValue = "test";
 
+#ifdef _WIN32
+    SetEnvironmentVariableA(envName, expectedEnvValue);
+#elif __MINGW32__
+    char s[] = "CONFIG_CXX_TEST_PATH=test";
+    putenv(s);
+#else
     setenv(envName, expectedEnvValue, 1);
+#endif
 
     const auto envValue = EnvironmentParser::parseString(envName);
 
