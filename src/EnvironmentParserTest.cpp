@@ -26,7 +26,7 @@ TEST_F(EnvironmentParserTest, returnsValueIfEnvVariableExists)
     const auto expectedEnvValue = "test";
 
 #if defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__)
-    _putenv_s("CONFIG_CXX_TEST_PATH=test");
+    _putenv_s("CONFIG_CXX_TEST_PATH=test", 1);
 #else
     setenv(envName, expectedEnvValue, 1);
 #endif
