@@ -26,13 +26,6 @@ var NAVTREE =
 [
   [ "Config C++", "index.html", [
     [ "API", "annotated.html", [
-      [ "🎯 Goal", "index.html#autotoc_md0", null ],
-      [ "Usage", "index.html#autotoc_md1", null ],
-      [ "📖 Documentation", "index.html#autotoc_md2", null ],
-      [ "Consuming library with CMake (CMake 3.22 or newer)", "index.html#autotoc_md3", null ],
-      [ "Compiler support", "index.html#autotoc_md4", null ],
-      [ "Dependencies", "index.html#autotoc_md5", null ],
-      [ "✨ Contributing", "index.html#autotoc_md6", null ],
       [ "Modules", "annotated.html", "annotated_dup" ]
     ] ]
   ] ]

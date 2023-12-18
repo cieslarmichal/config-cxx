@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['22_20or_20newer_0',['Consuming library with CMake (CMake 3.22 or newer)',['../index.html#autotoc_md3',1,'']]]
+  ['c_0',['Config C++',['../index.html',1,'']]],
+  ['config_1',['Config',['../classconfig_1_1Config.html',1,'config']]],
+  ['config_20c_2',['Config C++',['../index.html',1,'']]]
 ];
