@@ -7,19 +7,33 @@
 #include <windows.h>
 #else
 #include <climits>
+#include <iostream>
 #include <unistd.h>
 #endif
 
 namespace config
 {
-
 std::string ConfigDirectoryPathResolver::getConfigDirectoryPath()
 {
-    const auto envConfigPath = EnvironmentParser::parseString("CXX_CONFIG_DIR");
+    const auto configDirectoryPath = EnvironmentParser::parseString("CXX_CONFIG_DIR");
 
-    if (envConfigPath)
+    if (configDirectoryPath)
     {
-        return *envConfigPath;
+        const auto configDirectoryFsPath = std::filesystem::path{*configDirectoryPath};
+
+        const auto envConfigPathExists = exists(std::filesystem::path{configDirectoryFsPath});
+
+        if (!envConfigPathExists)
+        {
+            throw std::runtime_error("Config directory not found");
+        }
+
+        if (!configDirectoryPath->ends_with("config"))
+        {
+            throw std::runtime_error("Config directory must be named `config`");
+        }
+        
+        return *configDirectoryPath;
     }
 
     const auto executablePath = getExecutablePath();

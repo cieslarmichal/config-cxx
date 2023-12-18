@@ -27,6 +27,7 @@ set(SOURCES
 
 set(UT_SOURCES
     src/ConfigTest.cpp
+    src/ConfigDirectoryPathResolverTest.cpp
     src/EnvironmentParserTest.cpp
     src/tests/EnvironmentSetter.cpp
 )
