@@ -28,6 +28,7 @@ set(SOURCES
 set(UT_SOURCES
     src/ConfigTest.cpp
     src/EnvironmentParserTest.cpp
+    src/tests/EnvironmentSetter.cpp
 )
 
 add_library(${LIBRARY_NAME} ${SOURCES})

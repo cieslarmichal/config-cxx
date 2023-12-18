@@ -1,11 +1,12 @@
 #include "EnvironmentParser.h"
 
-#include <cstdlib>
-
 #include "gtest/gtest.h"
+
+#include "tests/EnvironmentSetter.h"
 
 using namespace ::testing;
 using namespace config;
+using namespace config::tests;
 
 class EnvironmentParserTest : public Test
 {
@@ -25,15 +26,9 @@ TEST_F(EnvironmentParserTest, returnsValueIfEnvVariableExists)
 
     const auto expectedEnvValue = "test";
 
-#if defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__)
-    _putenv_s(envName, expectedEnvValue);
-#else
-    setenv(envName, expectedEnvValue, 1);
-#endif
+    EnvironmentSetter::setEnvironmentVariable(envName, expectedEnvValue);
 
     const auto envValue = EnvironmentParser::parseString(envName);
-
-    std::cerr << envValue.value() << std::endl;
 
     ASSERT_TRUE(envValue);
     ASSERT_EQ(envValue, expectedEnvValue);
