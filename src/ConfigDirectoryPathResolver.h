@@ -8,8 +8,5 @@ class ConfigDirectoryPathResolver
 {
 public:
     static std::string getConfigDirectoryPath();
-
-private:
-    static std::string getExecutablePath();
 };
 };

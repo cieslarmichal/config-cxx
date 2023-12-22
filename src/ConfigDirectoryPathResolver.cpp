@@ -2,20 +2,14 @@
 
 #include <filesystem>
 
-#include "EnvironmentParser.h"
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <climits>
-#include <iostream>
-#include <unistd.h>
-#endif
+#include "environment/EnvironmentParser.h"
+#include "filesystem/ExecutableFinder.h"
 
 namespace config
 {
 std::string ConfigDirectoryPathResolver::getConfigDirectoryPath()
 {
-    const auto configDirectoryPath = EnvironmentParser::parseString("CXX_CONFIG_DIR");
+    const auto configDirectoryPath = environment::EnvironmentParser::parseString("CXX_CONFIG_DIR");
 
     if (configDirectoryPath)
     {
@@ -32,11 +26,11 @@ std::string ConfigDirectoryPathResolver::getConfigDirectoryPath()
         {
             throw std::runtime_error("Config directory must be named `config`");
         }
-        
+
         return *configDirectoryPath;
     }
 
-    const auto executablePath = getExecutablePath();
+    const auto executablePath = filesystem::ExecutableFinder::getExecutablePath();
 
     std::filesystem::path path(executablePath);
 
@@ -53,26 +47,6 @@ std::string ConfigDirectoryPathResolver::getConfigDirectoryPath()
     }
 
     throw std::runtime_error("Config directory not found");
-}
-
-std::string ConfigDirectoryPathResolver::getExecutablePath()
-{
-#ifdef _WIN32
-    wchar_t path[MAX_PATH] = {0};
-
-    GetModuleFileNameW(NULL, path, MAX_PATH);
-
-    std::wstring wpath(path);
-
-    return std::string(wpath.begin(), wpath.end());
-#else
-    char result[PATH_MAX];
-
-    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-
-    // TODO: check if works with curly braces
-    return std::string{result, (count > 0) ? static_cast<unsigned long>(count) : 0};
-#endif
 }
 
 }

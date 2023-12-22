@@ -1,30 +1,31 @@
-#include <filesystem>
-#include <fstream>
+#include "ExecutableFinder.h"
 
-#include "errors/FileNotFound.h"
-#include "FileSystemService.h"
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <climits>
+#include <unistd.h>
+#endif
 
 namespace config::filesystem
 {
-std::string FileSystemService::read(const std::string& absolutePath) const
+std::string ExecutableFinder::getExecutablePath()
 {
-    std::ifstream fileStream{absolutePath};
+#ifdef _WIN32
+    wchar_t path[MAX_PATH] = {0};
 
-    std::stringstream buffer;
+    GetModuleFileNameW(NULL, path, MAX_PATH);
 
-    if (!fileStream.is_open())
-    {
-        throw errors::FileNotFoundError("File not found: " + absolutePath);
-    }
+    std::wstring wpath(path);
 
-    buffer << fileStream.rdbuf();
+    return std::string(wpath.begin(), wpath.end());
+#else
+    char result[PATH_MAX];
 
-    return buffer.str();
+    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+
+    // TODO: check if works with curly braces
+    return std::string{result, (count > 0) ? static_cast<unsigned long>(count) : 0};
+#endif
 }
-
-bool FileSystemService::exists(const std::string& absolutePath) const
-{
-    return std::filesystem::exists(absolutePath);
-}
-
 }

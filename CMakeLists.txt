@@ -25,6 +25,7 @@ set(SOURCES
     src/environment/EnvironmentParser.cpp
     src/environment/EnvironmentSetter.cpp
     src/filesystem/FileSystemService.cpp
+    src/filesystem/ExecutableFinder.cpp
 )
 
 set(UT_SOURCES
@@ -33,6 +34,7 @@ set(UT_SOURCES
     src/environment/EnvironmentParserTest.cpp
     src/environment/EnvironmentSetterTest.cpp
     src/filesystem/FileSystemServiceTest.cpp
+    src/tests/ProjectRootFinder.cpp
 )
 
 add_library(${LIBRARY_NAME} ${SOURCES})

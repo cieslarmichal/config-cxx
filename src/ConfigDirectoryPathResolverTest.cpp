@@ -4,7 +4,7 @@
 
 #include "gtest/gtest.h"
 
-#include "EnvironmentSetter.h"
+#include "environment/EnvironmentSetter.h"
 
 using namespace ::testing;
 using namespace config;
@@ -37,7 +37,7 @@ TEST_F(ConfigDirectoryPathResolverTest, givenNotExistingPathInConfigDirectory_th
 
     const auto configDirectoryPath = "test";
 
-    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, configDirectoryPath);
+    environment::EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, configDirectoryPath);
 
     ASSERT_THROW(ConfigDirectoryPathResolver::getConfigDirectoryPath(), std::runtime_error);
 }
@@ -48,7 +48,7 @@ TEST_F(ConfigDirectoryPathResolverTest, givenExistingPathNamedConfigInConfigDire
 
     const auto configDirectoryPath = "../config";
 
-    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, configDirectoryPath);
+    environment::EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, configDirectoryPath);
 
     const auto path = ConfigDirectoryPathResolver::getConfigDirectoryPath();
 
@@ -61,7 +61,7 @@ TEST_F(ConfigDirectoryPathResolverTest, givenExistingPathNamedAsNotConfigInConfi
 
     const auto configDirectoryPath = "../cmake";
 
-    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, configDirectoryPath);
+    environment::EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, configDirectoryPath);
 
     ASSERT_THROW(ConfigDirectoryPathResolver::getConfigDirectoryPath(), std::runtime_error);
 }
