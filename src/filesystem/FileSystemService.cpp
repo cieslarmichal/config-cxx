@@ -2,8 +2,7 @@
 
 #include <filesystem>
 #include <fstream>
-
-#include "errors/FileNotFound.h"
+#include <stdexcept>
 
 namespace config::filesystem
 {
@@ -15,7 +14,7 @@ std::string FileSystemService::read(const std::string& absolutePath) const
 
     if (!fileStream.is_open())
     {
-        throw errors::FileNotFoundError("File not found: " + absolutePath);
+        throw std::runtime_error("File not found: " + absolutePath);
     }
 
     buffer << fileStream.rdbuf();
