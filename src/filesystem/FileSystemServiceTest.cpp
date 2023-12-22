@@ -21,40 +21,39 @@ const std::string invalidPath = "/invalid";
 class FileSystemServiceTest : public Test
 {
 public:
-    FileSystemService fileSystemService;
 };
 
 TEST_F(FileSystemServiceTest, givenCorrectPath_shouldReturnContentOfFile)
 {
     const std::string expectedFileContent = "example data\n";
 
-    const auto actualFileContent = fileSystemService.read(testDirectory + "/testReading.txt");
+    const auto actualFileContent = FileSystemService::read(testDirectory + "/testReading.txt");
 
     ASSERT_EQ(actualFileContent, expectedFileContent);
 }
 
 TEST_F(FileSystemServiceTest, givenIncorrectPath_shouldThrowException)
 {
-    ASSERT_THROW(fileSystemService.read(invalidPath), std::runtime_error);
+    ASSERT_THROW(FileSystemService::read(invalidPath), std::runtime_error);
 }
 
 TEST_F(FileSystemServiceTest, givenCorrectPath_shouldReturnTrue)
 {
-    const auto exists = fileSystemService.exists(testDirectory);
+    const auto exists = FileSystemService::exists(testDirectory);
 
     ASSERT_TRUE(exists);
 }
 
 TEST_F(FileSystemServiceTest, givenIncorrectPath_shouldReturnFalse)
 {
-    const auto exists = fileSystemService.exists(invalidPath);
+    const auto exists = FileSystemService::exists(invalidPath);
 
     ASSERT_FALSE(exists);
 }
 
 TEST_F(FileSystemServiceTest, givenCorrectPath_shouldReturnListOfFiles)
 {
-    const auto actualFileList = fileSystemService.listFiles(testDirectory);
+    const auto actualFileList = FileSystemService::listFiles(testDirectory);
 
     ASSERT_EQ(actualFileList.size(), 3);
 
@@ -71,5 +70,5 @@ TEST_F(FileSystemServiceTest, givenCorrectPath_shouldReturnListOfFiles)
 
 TEST_F(FileSystemServiceTest, givenIncorrectPath_shouldThrowExceptionWhenListingFiles)
 {
-    ASSERT_THROW(fileSystemService.listFiles(invalidPath), std::runtime_error);
+    ASSERT_THROW(FileSystemService::listFiles(invalidPath), std::runtime_error);
 }

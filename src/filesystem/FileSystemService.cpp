@@ -6,7 +6,7 @@
 
 namespace config::filesystem
 {
-std::string FileSystemService::read(const std::string& absolutePath) const
+std::string FileSystemService::read(const std::string& absolutePath)
 {
     std::ifstream fileStream{absolutePath};
 
@@ -22,12 +22,12 @@ std::string FileSystemService::read(const std::string& absolutePath) const
     return buffer.str();
 }
 
-bool FileSystemService::exists(const std::string& absolutePath) const
+bool FileSystemService::exists(const std::string& absolutePath)
 {
     return std::filesystem::exists(absolutePath);
 }
 
-std::vector<std::string> FileSystemService::listFiles(const std::string& absolutePath) const
+std::vector<std::string> FileSystemService::listFiles(const std::string& absolutePath)
 {
     std::vector<std::string> files;
 
