@@ -3,7 +3,7 @@
 #include "gtest/gtest.h"
 
 using namespace ::testing;
-using namespace config;
+using namespace config::environment;
 
 class EnvironmentSetterTest : public Test
 {

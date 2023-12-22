@@ -5,7 +5,7 @@
 #include "EnvironmentSetter.h"
 
 using namespace ::testing;
-using namespace config;
+using namespace config::environment;
 
 class EnvironmentParserTest : public Test
 {

@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <stdexcept>
 
-namespace config
+namespace config::environment
 {
 void EnvironmentSetter::setEnvironmentVariable(const std::string& envName, const std::string& envValue)
 {

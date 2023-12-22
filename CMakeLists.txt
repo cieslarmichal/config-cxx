@@ -22,16 +22,16 @@ set(LIBRARY_NAME config-cxx)
 set(SOURCES
     src/Config.cpp
     src/ConfigDirectoryPathResolver.cpp
-    src/EnvironmentParser.cpp
-    src/EnvironmentSetter.cpp
+    src/environment/EnvironmentParser.cpp
+    src/environment/EnvironmentSetter.cpp
     src/filesystem/FileSystemService.cpp
 )
 
 set(UT_SOURCES
     src/ConfigTest.cpp
     src/ConfigDirectoryPathResolverTest.cpp
-    src/EnvironmentParserTest.cpp
-    src/EnvironmentSetterTest.cpp
+    src/environment/EnvironmentParserTest.cpp
+    src/environment/EnvironmentSetterTest.cpp
     src/filesystem/FileSystemServiceTest.cpp
 )
 

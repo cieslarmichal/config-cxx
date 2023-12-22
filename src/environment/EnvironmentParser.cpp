@@ -1,6 +1,6 @@
 #include "EnvironmentParser.h"
 
-namespace config
+namespace config::environment
 {
 std::optional<std::string> EnvironmentParser::parseString(const std::string& envName)
 {
