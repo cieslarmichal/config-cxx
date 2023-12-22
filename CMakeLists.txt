@@ -24,6 +24,7 @@ set(SOURCES
     src/ConfigDirectoryPathResolver.cpp
     src/EnvironmentParser.cpp
     src/EnvironmentSetter.cpp
+    src/filesystem/FileSystemService.cpp
 )
 
 set(UT_SOURCES
@@ -31,6 +32,7 @@ set(UT_SOURCES
     src/ConfigDirectoryPathResolverTest.cpp
     src/EnvironmentParserTest.cpp
     src/EnvironmentSetterTest.cpp
+    src/filesystem/FileSystemServiceTest.cpp
 )
 
 add_library(${LIBRARY_NAME} ${SOURCES})
