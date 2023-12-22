@@ -61,8 +61,11 @@ if (BUILD_CONFIG_CXX_TESTS)
 
     target_include_directories(
         ${LIBRARY_NAME}-UT
-        PRIVATE ${GTEST_INCLUDE_DIR} ${GMOCK_INCLUDE_DIR}
-        ${CMAKE_CURRENT_LIST_DIR})
+        PRIVATE ${GTEST_INCLUDE_DIR}
+        ${GMOCK_INCLUDE_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}
+        "${CMAKE_CURRENT_LIST_DIR}/include"
+        )
 
     add_test(
         NAME ${LIBRARY_NAME}-UT
