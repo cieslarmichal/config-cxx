@@ -23,13 +23,14 @@ set(SOURCES
     src/Config.cpp
     src/ConfigDirectoryPathResolver.cpp
     src/EnvironmentParser.cpp
+    src/EnvironmentSetter.cpp
 )
 
 set(UT_SOURCES
     src/ConfigTest.cpp
     src/ConfigDirectoryPathResolverTest.cpp
     src/EnvironmentParserTest.cpp
-    src/tests/EnvironmentSetter.cpp
+    src/EnvironmentSetterTest.cpp
 )
 
 add_library(${LIBRARY_NAME} ${SOURCES})
@@ -55,17 +56,16 @@ if (BUILD_CONFIG_CXX_TESTS)
 
     add_code_coverage_all_targets()
 
-    add_executable(${LIBRARY_NAME}-UT ${SOURCES} ${UT_SOURCES})
+    add_executable(${LIBRARY_NAME}-UT ${UT_SOURCES})
 
-    target_link_libraries(${LIBRARY_NAME}-UT PRIVATE gmock_main)
+    target_link_libraries(${LIBRARY_NAME}-UT PRIVATE ${LIBRARY_NAME} gmock_main)
 
     target_include_directories(
         ${LIBRARY_NAME}-UT
         PRIVATE ${GTEST_INCLUDE_DIR}
         ${GMOCK_INCLUDE_DIR}
         ${CMAKE_CURRENT_LIST_DIR}
-        "${CMAKE_CURRENT_LIST_DIR}/include"
-        )
+    )
 
     add_test(
         NAME ${LIBRARY_NAME}-UT
