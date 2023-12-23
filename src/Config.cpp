@@ -2,11 +2,22 @@
 
 #include <vector>
 
+#include "ConfigDirectoryPathResolver.h"
+#include "environment/EnvironmentParser.h"
+#include "filesystem/FileSystemService.h"
+
 namespace config
 {
 template <typename T>
 T Config::get(const std::string& path)
 {
+    // TODO: change all classes to non static and use dependency injection
+    //    const auto cxxEnv = environment::EnvironmentParser::parseString("CXX_ENV");
+    //
+    //    const auto configDirectory = ConfigDirectoryPathResolver::getConfigDirectoryPath();
+    //
+    //    const auto configFiles = filesystem::FileSystemService::listFiles(configDirectory);
+
     return std::any_cast<T>(path);
 }
 
