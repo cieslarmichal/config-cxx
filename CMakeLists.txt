@@ -39,6 +39,10 @@ set(UT_SOURCES
 
 add_library(${LIBRARY_NAME} ${SOURCES})
 
+add_subdirectory(externals/json)
+
+target_link_libraries(${LIBRARY_NAME} PRIVATE nlohmann_json)
+
 target_include_directories(
     ${LIBRARY_NAME}
     INTERFACE "${CMAKE_CURRENT_LIST_DIR}/include"
@@ -62,7 +66,7 @@ if (BUILD_CONFIG_CXX_TESTS)
 
     add_executable(${LIBRARY_NAME}-UT ${UT_SOURCES})
 
-    target_link_libraries(${LIBRARY_NAME}-UT PRIVATE ${LIBRARY_NAME} gmock_main)
+    target_link_libraries(${LIBRARY_NAME}-UT PRIVATE ${LIBRARY_NAME} gmock_main nlohmann_json)
 
     target_include_directories(
         ${LIBRARY_NAME}-UT

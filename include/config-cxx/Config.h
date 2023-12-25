@@ -3,13 +3,13 @@
 #include <any>
 #include <string>
 
+#include "nlohmann/json.hpp"
+
 namespace config
 {
 class Config
 {
 public:
-    Config();
-    
     /**
      * @brief Get a config value by path.
      *
@@ -40,5 +40,10 @@ public:
      * @endcode
      */
     std::any get(const std::string& keyPath);
+
+private:
+    void initialize();
+
+    std::optional<nlohmann::json> config;
 };
 }
