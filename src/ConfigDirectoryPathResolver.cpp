@@ -19,12 +19,12 @@ std::string ConfigDirectoryPathResolver::getConfigDirectoryPath()
 
         if (!envConfigPathExists)
         {
-            throw std::runtime_error("Config directory not found");
+            throw std::runtime_error("Config directory not found: CXX_CONFIG_DIR=" + *configDirectoryPath);
         }
 
         if (!configDirectoryPath->ends_with("config"))
         {
-            throw std::runtime_error("Config directory must be named `config`");
+            throw std::runtime_error("Config directory must be named `config`: CXX_CONFIG_DIR=" + *configDirectoryPath);
         }
 
         return *configDirectoryPath;
@@ -46,7 +46,7 @@ std::string ConfigDirectoryPathResolver::getConfigDirectoryPath()
         path = path.parent_path();
     }
 
-    throw std::runtime_error("Config directory not found");
+    throw std::runtime_error("Config directory not found.");
 }
 
 }

@@ -8,6 +8,8 @@ namespace config
 class Config
 {
 public:
+    Config();
+    
     /**
      * @brief Get a config value by path.
      *
@@ -23,7 +25,7 @@ public:
      * @endcode
      */
     template <typename T>
-    static T get(const std::string& keyPath);
+    T get(const std::string& keyPath);
 
     /**
      * @brief Get a config value by path.
@@ -37,6 +39,6 @@ public:
      * Config::get("db.port") // 3306
      * @endcode
      */
-    static std::any get(const std::string& keyPath);
+    std::any get(const std::string& keyPath);
 };
 }
