@@ -1,6 +1,7 @@
 #include "FileSystemService.h"
 
 #include <algorithm>
+#include <filesystem>
 #include <fstream>
 
 #include "gtest/gtest.h"
@@ -13,21 +14,45 @@ using namespace config::tests;
 
 namespace
 {
-const std::string projectRoot = ProjectRootFinder::getProjectRoot();
-const std::string testDirectory = projectRoot + "/src/filesystem/testData";
-const std::string invalidPath = "/invalid";
+const std::filesystem::path projectRootPath = ProjectRootFinder::getProjectRoot();
+const std::filesystem::path testDirectoryPath = projectRootPath / "src" / "filesystem" / "testData";
+const std::filesystem::path testReadingFilePath = testDirectoryPath / "testReading.txt";
+const std::filesystem::path testListingFilePath = testDirectoryPath / "testListing.txt";
+const std::string invalidPath = "invalid";
 }
 
 class FileSystemServiceTest : public Test
 {
 public:
+    void SetUp() override
+    {
+        std::filesystem::remove_all(testDirectoryPath);
+
+        std::filesystem::create_directory(testDirectoryPath);
+
+        std::ofstream testReadingFile{testReadingFilePath};
+
+        testReadingFile << "example data";
+
+        std::ofstream testListingFile{testListingFilePath};
+
+        testListingFile << "data";
+    }
+
+    void TearDown() override
+    {
+        if (std::filesystem::exists(testDirectoryPath))
+        {
+            std::filesystem::remove_all(testDirectoryPath);
+        }
+    }
 };
 
 TEST_F(FileSystemServiceTest, givenCorrectPath_shouldReturnContentOfFile)
 {
-    const std::string expectedFileContent = "example data\n";
+    const std::string expectedFileContent = "example data";
 
-    const auto actualFileContent = FileSystemService::read(testDirectory + "/testReading.txt");
+    const auto actualFileContent = FileSystemService::read(testReadingFilePath);
 
     ASSERT_EQ(actualFileContent, expectedFileContent);
 }
@@ -39,7 +64,7 @@ TEST_F(FileSystemServiceTest, givenIncorrectPath_shouldThrowException)
 
 TEST_F(FileSystemServiceTest, givenCorrectPath_shouldReturnTrue)
 {
-    const auto exists = FileSystemService::exists(testDirectory);
+    const auto exists = FileSystemService::exists(testDirectoryPath);
 
     ASSERT_TRUE(exists);
 }
@@ -53,18 +78,15 @@ TEST_F(FileSystemServiceTest, givenIncorrectPath_shouldReturnFalse)
 
 TEST_F(FileSystemServiceTest, givenCorrectPath_shouldReturnListOfFiles)
 {
-    const auto actualFileList = FileSystemService::listFiles(testDirectory);
+    const auto actualFileList = FileSystemService::listFiles(testDirectoryPath);
 
-    ASSERT_EQ(actualFileList.size(), 3);
+    ASSERT_EQ(actualFileList.size(), 2);
 
     ASSERT_EQ(std::any_of(actualFileList.begin(), actualFileList.end(),
-                          [](const std::string& path) { return path == testDirectory + "/testReading.txt"; }),
+                          [](const std::string& path) { return path == testReadingFilePath; }),
               true);
     ASSERT_EQ(std::any_of(actualFileList.begin(), actualFileList.end(),
-                          [](const std::string& path) { return path == testDirectory + "/testListing1.txt"; }),
-              true);
-    ASSERT_EQ(std::any_of(actualFileList.begin(), actualFileList.end(),
-                          [](const std::string& path) { return path == testDirectory + "/testListing2.txt"; }),
+                          [](const std::string& path) { return path == testListingFilePath; }),
               true);
 }
 

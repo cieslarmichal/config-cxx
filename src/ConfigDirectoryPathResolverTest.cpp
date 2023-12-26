@@ -29,7 +29,7 @@ public:
         }
     }
 
-    const std::string existingConfigDirectoryPath = "../config";
+    std::filesystem::path existingConfigDirectoryPath = "../config";
 };
 
 TEST_F(ConfigDirectoryPathResolverTest, givenNotExistingPathInConfigDirectory_throws)
@@ -47,22 +47,20 @@ TEST_F(ConfigDirectoryPathResolverTest, givenExistingPathNamedConfigInConfigDire
 {
     const auto configDirectoryEnvName = "CXX_CONFIG_DIR";
 
-    const auto configDirectoryPath = "../config";
+    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, existingConfigDirectoryPath);
 
-    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, configDirectoryPath);
+    const auto configDirectoryPath = ConfigDirectoryPathResolver::getConfigDirectoryPath();
 
-    const auto path = ConfigDirectoryPathResolver::getConfigDirectoryPath();
-
-    ASSERT_EQ(path, configDirectoryPath);
+    ASSERT_EQ(configDirectoryPath, existingConfigDirectoryPath);
 }
 
 TEST_F(ConfigDirectoryPathResolverTest, givenExistingPathNamedAsNotConfigInConfigDirectory_returnsPath)
 {
     const auto configDirectoryEnvName = "CXX_CONFIG_DIR";
 
-    const auto configDirectoryPath = "../cmake";
+    std::filesystem::path invalidConfigDirectoryPath = "../cmake";
 
-    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, configDirectoryPath);
+    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, invalidConfigDirectoryPath);
 
     ASSERT_THROW(ConfigDirectoryPathResolver::getConfigDirectoryPath(), std::runtime_error);
 }

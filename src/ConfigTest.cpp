@@ -13,9 +13,9 @@ using namespace config::tests;
 
 namespace
 {
-const std::string projectRoot = ProjectRootFinder::getProjectRoot();
-const std::string testDirectory = projectRoot + "/testData1";
-const std::string testConfigDirectory = testDirectory + "/config";
+const std::string projectRootPath = ProjectRootFinder::getProjectRoot();
+const std::string testDirectoryPath = projectRootPath + "/testData1";
+const std::string testConfigDirectory = testDirectoryPath + "/config";
 
 const std::string testJson = R"(
 {
@@ -41,7 +41,7 @@ class ConfigTest : public Test
 public:
     void SetUp() override
     {
-        std::filesystem::remove_all(testDirectory);
+        std::filesystem::remove_all(testDirectoryPath);
 
         std::filesystem::create_directories(testConfigDirectory);
 
@@ -56,9 +56,9 @@ public:
 
     void TearDown() override
     {
-        if (std::filesystem::exists(testDirectory))
+        if (std::filesystem::exists(testDirectoryPath))
         {
-            std::filesystem::remove_all(testDirectory);
+            std::filesystem::remove_all(testDirectoryPath);
         }
     }
 
