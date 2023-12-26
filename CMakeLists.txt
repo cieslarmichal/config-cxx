@@ -23,6 +23,7 @@ set(SOURCES
     src/Config.cpp
     src/ConfigDirectoryPathResolver.cpp
     src/environment/EnvironmentParser.cpp
+    src/environment/ConfigProvider.cpp
     src/filesystem/FileSystemService.cpp
     src/filesystem/ExecutableFinder.cpp
 )

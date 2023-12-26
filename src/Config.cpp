@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "ConfigDirectoryPathResolver.h"
-#include "environment/EnvironmentParser.h"
+#include "environment/ConfigProvider.h"
 #include "filesystem/FileSystemService.h"
 #include "nlohmann/json.hpp"
 
@@ -36,7 +36,7 @@ std::any Config::get(const std::string& path)
 
 void Config::initialize()
 {
-    const auto cxxEnv = environment::EnvironmentParser::parseString("CXX_ENV");
+    const auto cxxEnv = environment::ConfigProvider::getCxxEnv();
 
     std::cerr << "CXX_ENV: " << *cxxEnv << std::endl;
 
@@ -51,21 +51,28 @@ void Config::initialize()
 
     const auto configFiles = filesystem::FileSystemService::listFiles(configDirectory);
 
-    const auto defaultConfigFile = configDirectory + (configDirectory.ends_with("/") ? "" : "/") + "default.json";
+    const auto defaultConfigFilePath = configDirectory + (configDirectory.ends_with("/") ? "" : "/") + "default.json";
 
-    const auto cxxEnvConfigFile = configDirectory + (configDirectory.ends_with("/") ? "" : "/") + *cxxEnv + ".json";
+    const auto cxxEnvConfigFilePath = configDirectory + (configDirectory.ends_with("/") ? "" : "/") + *cxxEnv + ".json";
 
-    const auto anyConfigProvided = std::any_of(configFiles.begin(), configFiles.end(), [&](const auto& file)
-                                               { return file == defaultConfigFile || file == cxxEnvConfigFile; });
+    const auto customEnvironmentsConfigFilePath =
+        configDirectory + (configDirectory.ends_with("/") ? "" : "/") + "custom-environment-variables.json";
+
+    const auto anyConfigProvided = std::any_of(configFiles.begin(), configFiles.end(),
+                                               [&](const auto& file) {
+                                                   return file == defaultConfigFilePath ||
+                                                          file == cxxEnvConfigFilePath ||
+                                                          file == customEnvironmentsConfigFilePath;
+                                               });
 
     if (!anyConfigProvided)
     {
         throw std::runtime_error("No config file provided.");
     }
 
-    std::cerr << "Default config file: " << defaultConfigFile << std::endl;
+    std::cerr << "Default config file: " << defaultConfigFilePath << std::endl;
 
-    const auto defaultConfigContent = filesystem::FileSystemService::read(defaultConfigFile);
+    const auto defaultConfigContent = filesystem::FileSystemService::read(defaultConfigFilePath);
 
     const auto flattenedDefaultConfig = nlohmann::json::parse(defaultConfigContent).flatten();
 

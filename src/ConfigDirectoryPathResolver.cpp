@@ -2,14 +2,14 @@
 
 #include <filesystem>
 
-#include "environment/EnvironmentParser.h"
+#include "environment/ConfigProvider.h"
 #include "filesystem/ExecutableFinder.h"
 
 namespace config
 {
 std::string ConfigDirectoryPathResolver::getConfigDirectoryPath()
 {
-    const auto configDirectoryPath = environment::EnvironmentParser::parseString("CXX_CONFIG_DIR");
+    const auto configDirectoryPath = environment::ConfigProvider::getCxxConfigDir();
 
     if (configDirectoryPath)
     {
