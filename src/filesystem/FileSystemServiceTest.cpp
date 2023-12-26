@@ -15,7 +15,7 @@ using namespace config::tests;
 namespace
 {
 const std::filesystem::path projectRootPath = ProjectRootFinder::getProjectRoot();
-const std::filesystem::path testDirectoryPath = projectRootPath / "src" / "filesystem" / "testData";
+const std::filesystem::path testDirectoryPath = projectRootPath / "tests" / "filesystemData";
 const std::filesystem::path testReadingFilePath = testDirectoryPath / "testReading.txt";
 const std::filesystem::path testListingFilePath = testDirectoryPath / "testListing.txt";
 const std::string invalidPath = "invalid";
@@ -41,10 +41,7 @@ public:
 
     void TearDown() override
     {
-        if (std::filesystem::exists(testDirectoryPath))
-        {
-            std::filesystem::remove_all(testDirectoryPath);
-        }
+        std::filesystem::remove_all(testDirectoryPath);
     }
 };
 

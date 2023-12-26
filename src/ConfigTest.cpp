@@ -13,9 +13,11 @@ using namespace config::tests;
 
 namespace
 {
-const std::string projectRootPath = ProjectRootFinder::getProjectRoot();
-const std::string testDirectoryPath = projectRootPath + "/testData1";
-const std::string testConfigDirectory = testDirectoryPath + "/config";
+const std::filesystem::path projectRootPath = ProjectRootFinder::getProjectRoot();
+const std::filesystem::path testDirectoryPath = projectRootPath / "tests" / "configData";
+const std::filesystem::path testConfigDirectory = testDirectoryPath / "config";
+const std::filesystem::path testEnvConfigFilePath = testConfigDirectory / "test.json";
+const std::filesystem::path defaultConfigFilePath = testConfigDirectory / "default.json";
 
 const std::string testJson = R"(
 {
@@ -45,21 +47,18 @@ public:
 
         std::filesystem::create_directories(testConfigDirectory);
 
-        std::ofstream testConfigFile{testConfigDirectory + "/test.json"};
+        std::ofstream testEnvConfigFile{testEnvConfigFilePath};
 
-        testConfigFile << testJson;
+        testEnvConfigFile << testJson;
 
-        std::ofstream defaultConfigFile{testConfigDirectory + "/default.json"};
+        std::ofstream defaultConfigFile{defaultConfigFilePath};
 
         defaultConfigFile << defaultJson;
     }
 
     void TearDown() override
     {
-        if (std::filesystem::exists(testDirectoryPath))
-        {
-            std::filesystem::remove_all(testDirectoryPath);
-        }
+        std::filesystem::remove_all(testDirectoryPath);
     }
 
     Config config;
