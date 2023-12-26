@@ -1,5 +1,6 @@
 #include "config-cxx/Config.h"
 
+#include <filesystem>
 #include <fstream>
 
 #include "gtest/gtest.h"

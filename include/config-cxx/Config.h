@@ -1,9 +1,9 @@
 #pragma once
 
 #include <any>
+#include <optional>
 #include <string>
-
-#include "nlohmann/json.hpp"
+#include <unordered_map>
 
 namespace config
 {
@@ -44,6 +44,7 @@ public:
 private:
     void initialize();
 
-    std::optional<nlohmann::json> config;
+    bool initialized = false;
+    std::unordered_map<std::string, std::any> values;
 };
 }

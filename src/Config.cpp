@@ -16,7 +16,7 @@ namespace config
 template <typename T>
 T Config::get(const std::string& path)
 {
-    if (!config)
+    if (!initialized)
     {
         initialize();
     }
@@ -26,7 +26,7 @@ T Config::get(const std::string& path)
 
 std::any Config::get(const std::string& path)
 {
-    if (!config)
+    if (!initialized)
     {
         initialize();
     }
@@ -67,9 +67,25 @@ void Config::initialize()
 
     const auto defaultConfigContent = filesystem::FileSystemService::read(defaultConfigFile);
 
-    std::cerr << "Default config content: " << defaultConfigContent << std::endl;
+    const auto flattenedDefaultConfig = nlohmann::json::parse(defaultConfigContent).flatten();
 
-    config = nlohmann::json::parse(defaultConfigContent);
+    const auto normalizeConfigKey = [](const std::string& str)
+    {
+        auto result = str.substr(1);
+
+        std::replace(result.begin(), result.end(), '/', '.');
+
+        return result;
+    };
+
+    for (const auto& [key, value] : flattenedDefaultConfig.items())
+    {
+        const auto normalizedKey = normalizeConfigKey(key);
+
+        values[normalizedKey] = value;
+    }
+
+    initialized = true;
 }
 
 template int Config::get<int>(const std::string&);
