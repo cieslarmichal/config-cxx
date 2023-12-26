@@ -2,8 +2,6 @@
 
 #include "gtest/gtest.h"
 
-#include "boost/algorithm/string/predicate.hpp"
-
 using namespace ::testing;
 using namespace config::tests;
 
