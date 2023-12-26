@@ -45,7 +45,7 @@ public:
 private:
     void initialize();
     void loadConfigFiles(const std::vector<std::string>& configFilesPaths);
-    void loadConfigEnvironmentVariables();
+    void loadConfigEnvironmentVariablesFile(const std::string& configEnvironmentVariablesFilePath);
 
     bool initialized = false;
     std::unordered_map<std::string, std::any> values;

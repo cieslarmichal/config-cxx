@@ -7,6 +7,7 @@
 
 #include "ConfigDirectoryPathResolver.h"
 #include "environment/ConfigProvider.h"
+#include "environment/EnvironmentParser.h"
 #include "filesystem/FileSystemService.h"
 #include "nlohmann/json.hpp"
 
@@ -85,19 +86,17 @@ void Config::initialize()
 
     const auto customEnvironmentsConfigExists = filesystem::FileSystemService::exists(customEnvironmentsConfigFilePath);
 
-    if (customEnvironmentsConfigExists)
-    {
-        configFilesPaths.push_back(customEnvironmentsConfigFilePath);
-    }
-
-    if (configFilesPaths.empty())
+    if (configFilesPaths.empty() && !customEnvironmentsConfigExists)
     {
         throw std::runtime_error("No config files provided.");
     }
 
     loadConfigFiles(configFilesPaths);
 
-    loadConfigEnvironmentVariables();
+    if (customEnvironmentsConfigExists)
+    {
+        loadConfigEnvironmentVariablesFile(customEnvironmentsConfigFilePath);
+    }
 
     initialized = true;
 }
@@ -119,7 +118,26 @@ void Config::loadConfigFiles(const std::vector<std::string>& configFilesPaths)
     }
 }
 
-void Config::loadConfigEnvironmentVariables() {}
+void Config::loadConfigEnvironmentVariablesFile(const std::string& configEnvironmentVariablesFilePath)
+{
+    const auto configEnvironmentVariablesJson = filesystem::FileSystemService::read(configEnvironmentVariablesFilePath);
+
+    const auto configEnvironmentVariables = nlohmann::json::parse(configEnvironmentVariablesJson);
+
+    for (const auto& [key, value] : configEnvironmentVariables.items())
+    {
+        const auto normalizedKey = normalizeConfigKey(key);
+
+        const auto envValue = environment::EnvironmentParser::parseString(value.get<std::string>());
+
+        if (!envValue)
+        {
+            throw std::runtime_error("Environment variable " + value.get<std::string>() + " not set.");
+        }
+
+        values[normalizedKey] = envValue;
+    }
+}
 
 template int Config::get<int>(const std::string&);
 template float Config::get<float>(const std::string&);
