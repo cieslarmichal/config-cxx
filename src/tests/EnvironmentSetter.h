@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace config::environment
+namespace config::tests
 {
 class EnvironmentSetter
 {

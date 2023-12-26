@@ -2,10 +2,11 @@
 
 #include "gtest/gtest.h"
 
-#include "EnvironmentSetter.h"
+#include "../tests/EnvironmentSetter.h"
 
 using namespace ::testing;
 using namespace config::environment;
+using namespace config::tests;
 
 class EnvironmentParserTest : public Test
 {

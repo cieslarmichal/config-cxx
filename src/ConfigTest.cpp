@@ -4,8 +4,8 @@
 
 #include "gtest/gtest.h"
 
-#include "src/environment/EnvironmentSetter.h"
-#include "src/tests/ProjectRootFinder.h"
+#include "tests/EnvironmentSetter.h"
+#include "tests/ProjectRootFinder.h"
 
 using namespace ::testing;
 using namespace config;
@@ -67,9 +67,9 @@ public:
 
 TEST_F(ConfigTest, returnsKeyPath)
 {
-    environment::EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
+    EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
 
-    environment::EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory);
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory);
 
     const std::string keyPath = "db.host";
 

@@ -23,7 +23,6 @@ set(SOURCES
     src/Config.cpp
     src/ConfigDirectoryPathResolver.cpp
     src/environment/EnvironmentParser.cpp
-    src/environment/EnvironmentSetter.cpp
     src/filesystem/FileSystemService.cpp
     src/filesystem/ExecutableFinder.cpp
 )
@@ -32,8 +31,9 @@ set(UT_SOURCES
     src/ConfigTest.cpp
     src/ConfigDirectoryPathResolverTest.cpp
     src/environment/EnvironmentParserTest.cpp
-    src/environment/EnvironmentSetterTest.cpp
     src/filesystem/FileSystemServiceTest.cpp
+    src/tests/EnvironmentSetter.cpp
+    src/tests/EnvironmentSetterTest.cpp
     src/tests/ProjectRootFinder.cpp
 )
 

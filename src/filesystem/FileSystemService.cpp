@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 #include <stdexcept>
 
 namespace config::filesystem
