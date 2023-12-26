@@ -24,8 +24,7 @@ std::string ExecutableFinder::getExecutablePath()
 
     ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
 
-    // TODO: check if works with curly braces
-    return std::string{result, (count > 0) ? static_cast<unsigned long>(count) : 0};
+    return {result, (count > 0) ? static_cast<unsigned long>(count) : 0};
 #endif
 }
 }

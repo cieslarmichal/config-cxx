@@ -1,12 +1,12 @@
 #pragma once
 
-#include <string>
+#include <filesystem>
 
 namespace config
 {
 class ConfigDirectoryPathResolver
 {
 public:
-    static std::string getConfigDirectoryPath();
+    static std::filesystem::path getConfigDirectoryPath();
 };
 };

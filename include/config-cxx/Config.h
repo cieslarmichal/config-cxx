@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace config
 {
@@ -43,6 +44,8 @@ public:
 
 private:
     void initialize();
+    void loadConfigFiles(const std::vector<std::string>& configFilesPaths);
+    void loadConfigEnvironmentVariables();
 
     bool initialized = false;
     std::unordered_map<std::string, std::any> values;

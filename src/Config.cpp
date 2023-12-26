@@ -12,6 +12,17 @@
 
 namespace config
 {
+namespace
+{
+const auto normalizeConfigKey = [](const std::string& str)
+{
+    auto result = str.substr(1);
+
+    std::replace(result.begin(), result.end(), '/', '.');
+
+    return result;
+};
+}
 
 template <typename T>
 T Config::get(const std::string& path)
@@ -38,8 +49,6 @@ void Config::initialize()
 {
     const auto cxxEnv = environment::ConfigProvider::getCxxEnv();
 
-    std::cerr << "CXX_ENV: " << *cxxEnv << std::endl;
-
     if (!cxxEnv)
     {
         throw std::runtime_error("CXX_ENV environment variable not set.");
@@ -49,51 +58,68 @@ void Config::initialize()
 
     std::cerr << "Config directory: " << configDirectory << std::endl;
 
-    const auto configFiles = filesystem::FileSystemService::listFiles(configDirectory);
+    std::vector<std::string> configFilesPaths;
 
-    const auto defaultConfigFilePath = configDirectory + (configDirectory.ends_with("/") ? "" : "/") + "default.json";
+    const auto defaultConfigFilePath = configDirectory / "default.json";
 
-    const auto cxxEnvConfigFilePath = configDirectory + (configDirectory.ends_with("/") ? "" : "/") + *cxxEnv + ".json";
+    const auto defaultConfigExists = filesystem::FileSystemService::exists(defaultConfigFilePath);
 
-    const auto customEnvironmentsConfigFilePath =
-        configDirectory + (configDirectory.ends_with("/") ? "" : "/") + "custom-environment-variables.json";
-
-    const auto anyConfigProvided = std::any_of(configFiles.begin(), configFiles.end(),
-                                               [&](const auto& file) {
-                                                   return file == defaultConfigFilePath ||
-                                                          file == cxxEnvConfigFilePath ||
-                                                          file == customEnvironmentsConfigFilePath;
-                                               });
-
-    if (!anyConfigProvided)
+    if (defaultConfigExists)
     {
-        throw std::runtime_error("No config file provided.");
+        configFilesPaths.push_back(defaultConfigFilePath);
     }
 
-    std::cerr << "Default config file: " << defaultConfigFilePath << std::endl;
-
-    const auto defaultConfigContent = filesystem::FileSystemService::read(defaultConfigFilePath);
-
-    const auto flattenedDefaultConfig = nlohmann::json::parse(defaultConfigContent).flatten();
-
-    const auto normalizeConfigKey = [](const std::string& str)
+    if (cxxEnv)
     {
-        auto result = str.substr(1);
+        const auto cxxEnvConfigFilePath = (configDirectory / *cxxEnv).replace_extension(".json");
 
-        std::replace(result.begin(), result.end(), '/', '.');
+        const auto cxxEnvConfigExists = filesystem::FileSystemService::exists(cxxEnvConfigFilePath);
 
-        return result;
-    };
-
-    for (const auto& [key, value] : flattenedDefaultConfig.items())
-    {
-        const auto normalizedKey = normalizeConfigKey(key);
-
-        values[normalizedKey] = value;
+        if (cxxEnvConfigExists)
+        {
+            configFilesPaths.push_back(cxxEnvConfigFilePath);
+        }
     }
+
+    const auto customEnvironmentsConfigFilePath = configDirectory / "custom-environment-variables.json";
+
+    const auto customEnvironmentsConfigExists = filesystem::FileSystemService::exists(customEnvironmentsConfigFilePath);
+
+    if (customEnvironmentsConfigExists)
+    {
+        configFilesPaths.push_back(customEnvironmentsConfigFilePath);
+    }
+
+    if (configFilesPaths.empty())
+    {
+        throw std::runtime_error("No config files provided.");
+    }
+
+    loadConfigFiles(configFilesPaths);
+
+    loadConfigEnvironmentVariables();
 
     initialized = true;
 }
+
+void Config::loadConfigFiles(const std::vector<std::string>& configFilesPaths)
+{
+    for (const auto& configFilePath : configFilesPaths)
+    {
+        const auto configJson = filesystem::FileSystemService::read(configFilePath);
+
+        const auto config = nlohmann::json::parse(configJson);
+
+        for (const auto& [key, value] : config.items())
+        {
+            const auto normalizedKey = normalizeConfigKey(key);
+
+            values[normalizedKey] = value;
+        }
+    }
+}
+
+void Config::loadConfigEnvironmentVariables() {}
 
 template int Config::get<int>(const std::string&);
 template float Config::get<float>(const std::string&);

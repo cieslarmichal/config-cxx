@@ -7,7 +7,7 @@
 
 namespace config
 {
-std::string ConfigDirectoryPathResolver::getConfigDirectoryPath()
+std::filesystem::path ConfigDirectoryPathResolver::getConfigDirectoryPath()
 {
     const auto configDirectoryPath = environment::ConfigProvider::getCxxConfigDir();
 
@@ -40,7 +40,7 @@ std::string ConfigDirectoryPathResolver::getConfigDirectoryPath()
 
         if (std::filesystem::exists(potentialConfigPath) && std::filesystem::is_directory(potentialConfigPath))
         {
-            return potentialConfigPath.string();
+            return potentialConfigPath;
         }
 
         path = path.parent_path();
