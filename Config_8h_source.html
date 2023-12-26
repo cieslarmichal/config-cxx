@@ -107,9 +107,9 @@ $(function(){initNavTree('Config_8h_source.html',''); initResizable(); });
 <div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span> </div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &lt;any&gt;</span></div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &lt;string&gt;</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span> </div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;nlohmann/json.hpp&quot;</span></div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &lt;optional&gt;</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;string&gt;</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &lt;unordered_map&gt;</span></div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="keyword">namespace </span>config</div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>{</div>
@@ -125,10 +125,11 @@ $(function(){initNavTree('Config_8h_source.html',''); initResizable(); });
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keyword">private</span>:</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keywordtype">void</span> initialize();</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    std::optional&lt;nlohmann::json&gt; config;</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>};</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keywordtype">bool</span> initialized = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    std::unordered_map&lt;std::string, std::any&gt; values;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>};</div>
 </div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>}</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>}</div>
 <div class="ttc" id="aclassconfig_1_1Config_html"><div class="ttname"><a href="classconfig_1_1Config.html">config::Config</a></div><div class="ttdef"><b>Definition</b> Config.h:11</div></div>
 <div class="ttc" id="aclassconfig_1_1Config_html_a6b305fe5b7e228fb5b00e0d122f45144"><div class="ttname"><a href="classconfig_1_1Config.html#a6b305fe5b7e228fb5b00e0d122f45144">config::Config::get</a></div><div class="ttdeci">std::any get(const std::string &amp;keyPath)</div><div class="ttdoc">Get a config value by path.</div></div>
 <div class="ttc" id="aclassconfig_1_1Config_html_abb460d8a4c536d5d0015423065a74f71"><div class="ttname"><a href="classconfig_1_1Config.html#abb460d8a4c536d5d0015423065a74f71">config::Config::get</a></div><div class="ttdeci">T get(const std::string &amp;keyPath)</div><div class="ttdoc">Get a config value by path.</div></div>
