@@ -15,9 +15,9 @@ class ProjectRootFinderTest : public Test
 public:
 };
 
-TEST(GetProjectPathTest, givenValidProjectName_shouldReturnProjectPath)
+TEST_F(ProjectRootFinderTest, shouldReturnProjectRootPath)
 {
-    const auto projectPath = ProjectRootFinder::getProjectRoot();
+    const auto projectRootPath = ProjectRootFinder::getProjectRoot();
 
-    ASSERT_TRUE(projectPath.ends_with(projectName));
+    ASSERT_TRUE(projectRootPath.ends_with(projectName));
 }
