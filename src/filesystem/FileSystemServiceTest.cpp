@@ -15,9 +15,10 @@ using namespace config::tests;
 namespace
 {
 const std::filesystem::path projectRootPath = ProjectRootFinder::getProjectRoot();
-const std::filesystem::path testDirectoryPath = projectRootPath / "tests" / "filesystemData";
-const std::filesystem::path testReadingFilePath = testDirectoryPath / "testReading.txt";
-const std::filesystem::path testListingFilePath = testDirectoryPath / "testListing.txt";
+const std::filesystem::path testDirectoryPath = projectRootPath / "tests";
+const std::filesystem::path filesystemTestDirectoryPath = testDirectoryPath / "filesystemData";
+const std::filesystem::path testReadingFilePath = filesystemTestDirectoryPath / "testReading.txt";
+const std::filesystem::path testListingFilePath = filesystemTestDirectoryPath / "testListing.txt";
 const std::string invalidPath = "invalid";
 }
 
@@ -28,7 +29,7 @@ public:
     {
         std::filesystem::remove_all(testDirectoryPath);
 
-        std::filesystem::create_directory(testDirectoryPath);
+        std::filesystem::create_directories(filesystemTestDirectoryPath);
 
         std::ofstream testReadingFile{testReadingFilePath};
 
@@ -75,7 +76,7 @@ TEST_F(FileSystemServiceTest, givenIncorrectPath_shouldReturnFalse)
 
 TEST_F(FileSystemServiceTest, givenCorrectPath_shouldReturnListOfFiles)
 {
-    const auto actualFileList = FileSystemService::listFiles(testDirectoryPath);
+    const auto actualFileList = FileSystemService::listFiles(filesystemTestDirectoryPath);
 
     ASSERT_EQ(actualFileList.size(), 2);
 
