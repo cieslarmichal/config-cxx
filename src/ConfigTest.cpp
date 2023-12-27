@@ -129,11 +129,25 @@ TEST_F(ConfigTest, returnsKeyValues)
     ASSERT_EQ(authEnabledValue, true);
 };
 
-// TEST_F(ConfigTest, returnsKeyPathAsAny)
-//{
-//     const std::string path = "db.host";
-//
-//     const auto configValue = config.get<std::string>(path);
-//
-//     ASSERT_EQ(std::any_cast<std::string>(configValue), path);
-// }
+TEST_F(ConfigTest, givenNotExistingKey_shouldThrow)
+{
+    const std::string notExistingKey = "not.existing.key";
+
+    ASSERT_THROW(config.get<int>(notExistingKey), std::runtime_error);
+}
+
+TEST_F(ConfigTest, returnsKeyValueAsAny)
+{
+    const std::string path = "db.host";
+
+    const auto configValue = config.get(path);
+
+    ASSERT_EQ(std::any_cast<std::string>(configValue), "localhost");
+}
+
+TEST_F(ConfigTest, getAny_givenNotExistingKey_shouldThrow)
+{
+    const std::string notExistingKey = "not.existing.key";
+
+    ASSERT_THROW(config.get(notExistingKey), std::runtime_error);
+}
