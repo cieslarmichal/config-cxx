@@ -53,19 +53,17 @@ std::any Config::get(const std::string& keyPath)
     const auto keyOccurrences = std::count_if(values.begin(), values.end(), [&](auto& value)
                                               { return value.first.find(keyPath) != std::string::npos; });
 
+    if (keyOccurrences == 0)
+    {
+        throw std::runtime_error("Config key " + keyPath + " not found.");
+    }
+
     if (keyOccurrences > 1)
     {
         return getArray(keyPath);
     }
 
-    const auto value = values[keyPath];
-    throw std::runtime_error("Config key " + keyPath + " is ambiguous.");
-    if (!value.has_value())
-    {
-        throw std::runtime_error("Config key " + keyPath + " not found.");
-    }
-
-    return value;
+    return values[keyPath];
 }
 
 std::vector<std::string> Config::getArray(const std::string& keyPath)
