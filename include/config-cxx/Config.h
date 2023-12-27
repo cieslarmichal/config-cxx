@@ -44,9 +44,11 @@ public:
     std::any get(const std::string& keyPath);
 
 private:
+    std::vector<std::string> getArray(const std::string& keyPath);
     void initialize();
 
     bool initialized = false;
+
     std::unordered_map<std::string, std::any> values;
 };
 }

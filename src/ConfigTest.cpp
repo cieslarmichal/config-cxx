@@ -34,7 +34,11 @@ const std::string testJson = R"(
     },
     "auth": {
         "expiresIn": 3600,
-        "enabled": true
+        "enabled": true,
+        "roles": [
+            "admin",
+            "user"
+        ]
     }
 }
 )";
@@ -111,6 +115,7 @@ TEST_F(ConfigTest, givenCxxEnvAndConfigDir_returnsKeyValues)
     const std::string awsRegionKey = "aws.region";
     const std::string authExpiresInKey = "auth.expiresIn";
     const std::string authEnabledKey = "auth.enabled";
+    const std::string authRolesKey = "auth.roles";
 
     const auto dbHostValue = config.get<std::string>(dbHostKey);
     const auto dbPortValue = config.get<int>(dbPortKey);
@@ -119,6 +124,9 @@ TEST_F(ConfigTest, givenCxxEnvAndConfigDir_returnsKeyValues)
     const auto awsRegionValue = config.get<std::string>(awsRegionKey);
     const auto authExpiresInValue = config.get<int>(authExpiresInKey);
     const auto authEnabledValue = config.get<bool>(authEnabledKey);
+    const auto authRolesValue = config.get<std::vector<std::string>>(authRolesKey);
+
+    const auto expectedAuthRoles = std::vector<std::string>{"admin", "user"};
 
     ASSERT_EQ(dbHostValue, "localhost");
     ASSERT_EQ(dbPortValue, 1996);
@@ -127,6 +135,7 @@ TEST_F(ConfigTest, givenCxxEnvAndConfigDir_returnsKeyValues)
     ASSERT_EQ(awsRegionValue, "eu-central-1");
     ASSERT_EQ(authExpiresInValue, 3600);
     ASSERT_EQ(authEnabledValue, true);
+    ASSERT_EQ(authRolesValue, expectedAuthRoles);
 };
 
 TEST_F(ConfigTest, givenNotExistingKey_shouldThrow)

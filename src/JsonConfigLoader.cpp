@@ -1,5 +1,7 @@
 #include "JsonConfigLoader.h"
 
+#include <iostream>
+
 #include "environment/EnvironmentParser.h"
 #include "filesystem/FileSystemService.h"
 #include "nlohmann/json.hpp"
@@ -27,6 +29,8 @@ void JsonConfigLoader::loadConfigFile(const std::string& configFilePath,
     const auto config = nlohmann::json::parse(configJson);
 
     const auto flattenedConfig = config.flatten();
+
+    std::cout << flattenedConfig << std::endl;
 
     for (auto it = flattenedConfig.begin(); it != flattenedConfig.end(); ++it)
     {
@@ -96,15 +100,6 @@ std::any normalizeConfigValue(const nlohmann::json& jsonObject)
     else if (jsonObject.is_null())
     {
         normalizedValue = nullptr;
-    }
-    else if (jsonObject.is_array())
-    {
-        if (jsonObject.empty())
-        {
-            throw std::runtime_error("Empty array config value.");
-        }
-
-        normalizedValue = jsonObject.get<std::vector<std::string>>();
     }
     else
     {

@@ -17,6 +17,11 @@ T Config::get(const std::string& keyPath)
         initialize();
     }
 
+    if constexpr (std::is_same_v<T, std::vector<std::string>>)
+    {
+        return getArray(keyPath);
+    }
+
     const auto value = values[keyPath];
 
     if (!value.has_value())
@@ -45,14 +50,54 @@ std::any Config::get(const std::string& keyPath)
         initialize();
     }
 
-    const auto value = values[keyPath];
+    const auto keyOccurrences = std::count_if(values.begin(), values.end(), [&](auto& value)
+                                              { return value.first.find(keyPath) != std::string::npos; });
 
+    if (keyOccurrences > 1)
+    {
+        return getArray(keyPath);
+    }
+
+    const auto value = values[keyPath];
+    throw std::runtime_error("Config key " + keyPath + " is ambiguous.");
     if (!value.has_value())
     {
         throw std::runtime_error("Config key " + keyPath + " not found.");
     }
 
     return value;
+}
+
+std::vector<std::string> Config::getArray(const std::string& keyPath)
+{
+    std::vector<std::string> result;
+
+    for (const auto& pair : values)
+    {
+        const std::string& key = pair.first;
+        const std::any& value = pair.second;
+
+        if (key.find(keyPath) == 0)
+        {
+            try
+            {
+                result.push_back(std::any_cast<std::string>(value));
+            }
+            catch (const std::bad_any_cast& e)
+            {
+                throw std::runtime_error("Config key " + keyPath + " has not valid type.");
+            }
+
+            std::cout << std::endl;
+        }
+    }
+
+    if (result.empty())
+    {
+        throw std::runtime_error("Config key " + keyPath + " not found.");
+    }
+
+    return result;
 }
 
 void Config::initialize()
@@ -76,7 +121,6 @@ void Config::initialize()
 }
 
 template int Config::get<int>(const std::string&);
-template float Config::get<float>(const std::string&);
 template bool Config::get<bool>(const std::string&);
 template std::string Config::get<std::string>(const std::string&);
 template std::vector<std::string> Config::get<std::vector<std::string>>(const std::string&);
