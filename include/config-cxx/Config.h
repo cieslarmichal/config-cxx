@@ -1,10 +1,13 @@
 #pragma once
 
 #include <any>
+#include <functional>
 #include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include "JsonConfigLoader.h"
 
 namespace config
 {
@@ -44,10 +47,9 @@ public:
 
 private:
     void initialize();
-    void loadConfigFiles(const std::vector<std::string>& configFilesPaths);
-    void loadConfigEnvironmentVariablesFile(const std::string& configEnvironmentVariablesFilePath);
 
     bool initialized = false;
     std::unordered_map<std::string, std::any> values;
+    std::shared_ptr<JsonConfigLoader> jsonConfigLoader;
 };
 }

@@ -93,7 +93,7 @@ public:
     Config config;
 };
 
-TEST_F(ConfigTest, returnsKeyValues)
+TEST_F(ConfigTest, givenCxxEnvAndConfigDir_returnsKeyValues)
 {
     EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
     EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory);

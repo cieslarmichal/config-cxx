@@ -4,9 +4,16 @@
 
 namespace config::environment
 {
-std::optional<std::string> ConfigProvider::getCxxEnv()
+std::string ConfigProvider::getCxxEnv()
 {
-    return EnvironmentParser::parseString("CXX_ENV");
+    const auto cxxEnv = EnvironmentParser::parseString("CXX_ENV");
+
+    if (!cxxEnv)
+    {
+        return "development";
+    }
+
+    return *cxxEnv;
 }
 
 std::optional<std::string> ConfigProvider::getCxxConfigDir()

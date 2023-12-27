@@ -8,7 +8,7 @@ namespace config::environment
 class ConfigProvider
 {
 public:
-    static std::optional<std::string> getCxxEnv();
+    static std::string getCxxEnv();
     static std::optional<std::string> getCxxConfigDir();
 };
 }

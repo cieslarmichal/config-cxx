@@ -26,6 +26,7 @@ set(SOURCES
     src/environment/ConfigProvider.cpp
     src/filesystem/FileSystemService.cpp
     src/filesystem/ExecutableFinder.cpp
+    src/JsonConfigLoader.cpp
 )
 
 set(UT_SOURCES
