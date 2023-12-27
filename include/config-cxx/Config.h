@@ -7,8 +7,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "JsonConfigLoader.h"
-
 namespace config
 {
 class Config
@@ -50,6 +48,5 @@ private:
 
     bool initialized = false;
     std::unordered_map<std::string, std::any> values;
-    std::shared_ptr<JsonConfigLoader> jsonConfigLoader;
 };
 }

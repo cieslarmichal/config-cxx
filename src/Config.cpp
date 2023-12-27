@@ -5,6 +5,7 @@
 
 #include "ConfigDirectoryPathResolver.h"
 #include "environment/ConfigProvider.h"
+#include "JsonConfigLoader.h"
 
 namespace config
 {
@@ -63,16 +64,13 @@ void Config::initialize()
     std::cout << "Config directory: " << configDirectory << std::endl;
     std::cout << "Env: " << cxxEnv << std::endl;
 
-    // TODO: initialize based on config file extension
-    jsonConfigLoader = std::make_shared<JsonConfigLoader>(values);
-
     const auto defaultConfigFilePath = configDirectory / "default.json";
     const auto cxxEnvConfigFilePath = (configDirectory / cxxEnv).replace_extension(".json");
     const auto customEnvironmentsConfigFilePath = configDirectory / "custom-environment-variables.json";
 
-    jsonConfigLoader->loadConfigFile(defaultConfigFilePath);
-    jsonConfigLoader->loadConfigFile(cxxEnvConfigFilePath);
-    jsonConfigLoader->loadConfigEnvFile(customEnvironmentsConfigFilePath);
+    JsonConfigLoader::loadConfigFile(defaultConfigFilePath, values);
+    JsonConfigLoader::loadConfigFile(cxxEnvConfigFilePath, values);
+    JsonConfigLoader::loadConfigEnvFile(customEnvironmentsConfigFilePath, values);
 
     initialized = true;
 }

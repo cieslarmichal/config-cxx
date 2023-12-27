@@ -9,12 +9,11 @@ namespace config
 namespace
 {
 std::string normalizeConfigKey(const std::string& str);
-std::string normalizeConfigValue(const nlohmann::json& jsonObject);
+std::any normalizeConfigValue(const nlohmann::json& jsonObject);
 }
 
-JsonConfigLoader::JsonConfigLoader(std::unordered_map<std::string, std::any>& valuesRef) : values{valuesRef} {}
-
-void JsonConfigLoader::loadConfigFile(const std::string& configFilePath)
+void JsonConfigLoader::loadConfigFile(const std::string& configFilePath,
+                                      std::unordered_map<std::string, std::any>& configValues)
 {
     const auto configFileExists = filesystem::FileSystemService::exists(configFilePath);
 
@@ -35,11 +34,12 @@ void JsonConfigLoader::loadConfigFile(const std::string& configFilePath)
 
         const auto normalizedValue = normalizeConfigValue(it.value());
 
-        values[normalizedKey] = normalizedValue;
+        configValues[normalizedKey] = normalizedValue;
     }
 }
 
-void JsonConfigLoader::loadConfigEnvFile(const std::string& configFilePath)
+void JsonConfigLoader::loadConfigEnvFile(const std::string& configFilePath,
+                                         std::unordered_map<std::string, std::any>& configValues)
 {
     const auto configEnvironmentVariablesJson = filesystem::FileSystemService::read(configFilePath);
 
@@ -58,7 +58,7 @@ void JsonConfigLoader::loadConfigEnvFile(const std::string& configFilePath)
             throw std::runtime_error("Environment variable " + it.value().get<std::string>() + " not set.");
         }
 
-        values[normalizedKey] = *envValue;
+        configValues[normalizedKey] = *envValue;
     }
 }
 
@@ -73,7 +73,7 @@ std::string normalizeConfigKey(const std::string& str)
     return result;
 }
 
-std::string normalizeConfigValue(const nlohmann::json& jsonObject)
+std::any normalizeConfigValue(const nlohmann::json& jsonObject)
 {
     std::any normalizedValue;
 
@@ -104,14 +104,6 @@ std::string normalizeConfigValue(const nlohmann::json& jsonObject)
             throw std::runtime_error("Empty array config value.");
         }
 
-        if (jsonObject[0].is_string())
-        {
-            normalizedValue = jsonObject.get<std::vector<std::string>>();
-        }
-        else
-        {
-            throw std::runtime_error("Unsupported config value type.");
-        }
         normalizedValue = jsonObject.get<std::vector<std::string>>();
     }
     else

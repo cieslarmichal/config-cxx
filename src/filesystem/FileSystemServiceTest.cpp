@@ -18,6 +18,7 @@ const std::filesystem::path projectRootPath = ProjectRootFinder::getProjectRoot(
 const std::filesystem::path testDirectoryPath = projectRootPath / "tests";
 const std::filesystem::path filesystemTestDirectoryPath = testDirectoryPath / "filesystemData";
 const std::filesystem::path testReadingFilePath = filesystemTestDirectoryPath / "testReading.txt";
+const std::filesystem::path testListingFilePath = filesystemTestDirectoryPath / "testListing.txt";
 const std::string invalidPath = "invalid";
 }
 
@@ -33,6 +34,10 @@ public:
         std::ofstream testReadingFile{testReadingFilePath};
 
         testReadingFile << "example data";
+
+        std::ofstream testListingFile{testListingFilePath};
+
+        testListingFile << "data";
     }
 
     void TearDown() override
@@ -67,4 +72,23 @@ TEST_F(FileSystemServiceTest, givenIncorrectPath_shouldReturnFalse)
     const auto exists = FileSystemService::exists(invalidPath);
 
     ASSERT_FALSE(exists);
+}
+
+TEST_F(FileSystemServiceTest, givenCorrectPath_shouldReturnListOfFiles)
+{
+    const auto actualFileList = FileSystemService::listFiles(filesystemTestDirectoryPath);
+
+    ASSERT_EQ(actualFileList.size(), 2);
+
+    ASSERT_EQ(std::any_of(actualFileList.begin(), actualFileList.end(),
+                          [](const std::string& path) { return path == testReadingFilePath; }),
+              true);
+    ASSERT_EQ(std::any_of(actualFileList.begin(), actualFileList.end(),
+                          [](const std::string& path) { return path == testListingFilePath; }),
+              true);
+}
+
+TEST_F(FileSystemServiceTest, givenIncorrectPath_shouldThrowExceptionWhenListingFiles)
+{
+    ASSERT_THROW(FileSystemService::listFiles(invalidPath), std::runtime_error);
 }
