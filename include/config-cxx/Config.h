@@ -21,8 +21,8 @@ public:
      * @return The value of config key casted to provided type.
      *
      * @code
-     * Config::get<std::string>("db.host") // "localhost"
-     * Config::get<int>("db.port") // 3306
+     * Config().get<std::string>("db.host") // "localhost"
+     * Config().get<int>("db.port") // 3306
      * @endcode
      */
     template <typename T>
@@ -36,8 +36,8 @@ public:
      * @return The value of config key.
      *
      * @code
-     * Config::get("db.host") // "localhost"
-     * Config::get("db.port") // 3306
+     * Config().get("db.host") // "localhost"
+     * Config().get("db.port") // 3306
      * @endcode
      */
     std::any get(const std::string& keyPath);

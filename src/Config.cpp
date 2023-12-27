@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <regex>
 #include <stdexcept>
 #include <vector>
 
@@ -23,27 +24,101 @@ const auto normalizeConfigKey = [](const std::string& str)
 
     return result;
 };
+
+const auto normalizeConfigValue = [](const nlohmann::json& jsonObject)
+{
+    std::any normalizedValue;
+
+    if (jsonObject.is_string())
+    {
+        normalizedValue = jsonObject.get<std::string>();
+    }
+    else if (jsonObject.is_number_integer())
+    {
+        normalizedValue = jsonObject.get<int>();
+    }
+    else if (jsonObject.is_number_float())
+    {
+        normalizedValue = jsonObject.get<float>();
+    }
+    else if (jsonObject.is_boolean())
+    {
+        normalizedValue = jsonObject.get<bool>();
+    }
+    else if (jsonObject.is_null())
+    {
+        normalizedValue = nullptr;
+    }
+    //    else if (jsonObject.is_array())
+    //    {
+    //        if (jsonObject.empty())
+    //        {
+    //            throw std::runtime_error("Empty array config value.");
+    //        }
+    //
+    //        if (jsonObject[0].is_string())
+    //        {
+    //            normalizedValue = jsonObject.get<std::vector<std::string>>();
+    //        }
+    //        else
+    //        {
+    //            throw std::runtime_error("Unsupported config value type.");
+    //        }
+    //        normalizedValue = jsonObject.get<std::vector<std::string>>();
+    //    }
+    else
+    {
+        throw std::runtime_error("Unsupported config value type.");
+    }
+
+    return normalizedValue;
+};
 }
 
 template <typename T>
-T Config::get(const std::string& path)
+T Config::get(const std::string& keyPath)
 {
     if (!initialized)
     {
         initialize();
     }
 
-    return std::any_cast<T>(path);
+    const auto value = values[keyPath];
+
+    if (!value.has_value())
+    {
+        throw std::runtime_error("Config key " + keyPath + " not found.");
+    }
+
+    if constexpr (std::is_same_v<T, std::string>)
+    {
+        try
+        {
+            return std::to_string(std::any_cast<int>(value));
+        }
+        catch (const std::bad_any_cast& e)
+        {
+        }
+    }
+
+    return std::any_cast<T>(value);
 }
 
-std::any Config::get(const std::string& path)
+std::any Config::get(const std::string& keyPath)
 {
     if (!initialized)
     {
         initialize();
     }
 
-    return path;
+    const auto value = values[keyPath];
+
+    if (!value.has_value())
+    {
+        throw std::runtime_error("Config key " + keyPath + " not found.");
+    }
+
+    return value;
 }
 
 void Config::initialize()
@@ -109,11 +184,15 @@ void Config::loadConfigFiles(const std::vector<std::string>& configFilesPaths)
 
         const auto config = nlohmann::json::parse(configJson);
 
-        for (const auto& [key, value] : config.items())
-        {
-            const auto normalizedKey = normalizeConfigKey(key);
+        const auto flattenedConfig = config.flatten();
 
-            values[normalizedKey] = value;
+        for (auto it = flattenedConfig.begin(); it != flattenedConfig.end(); ++it)
+        {
+            const auto normalizedKey = normalizeConfigKey(it.key());
+
+            const auto normalizedValue = normalizeConfigValue(it.value());
+
+            values[normalizedKey] = normalizedValue;
         }
     }
 }
@@ -124,23 +203,26 @@ void Config::loadConfigEnvironmentVariablesFile(const std::string& configEnviron
 
     const auto configEnvironmentVariables = nlohmann::json::parse(configEnvironmentVariablesJson);
 
-    for (const auto& [key, value] : configEnvironmentVariables.items())
-    {
-        const auto normalizedKey = normalizeConfigKey(key);
+    const auto flattenedConfig = configEnvironmentVariables.flatten();
 
-        const auto envValue = environment::EnvironmentParser::parseString(value.get<std::string>());
+    for (auto it = flattenedConfig.begin(); it != flattenedConfig.end(); ++it)
+    {
+        const auto normalizedKey = normalizeConfigKey(it.key());
+
+        const auto envValue = environment::EnvironmentParser::parseString(it.value().get<std::string>());
 
         if (!envValue)
         {
-            throw std::runtime_error("Environment variable " + value.get<std::string>() + " not set.");
+            throw std::runtime_error("Environment variable " + it.value().get<std::string>() + " not set.");
         }
 
-        values[normalizedKey] = envValue;
+        values[normalizedKey] = *envValue;
     }
 }
 
 template int Config::get<int>(const std::string&);
 template float Config::get<float>(const std::string&);
+template bool Config::get<bool>(const std::string&);
 template std::string Config::get<std::string>(const std::string&);
 template std::vector<std::string> Config::get<std::vector<std::string>>(const std::string&);
 }
