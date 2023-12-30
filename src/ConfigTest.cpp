@@ -5,17 +5,18 @@
 
 #include "gtest/gtest.h"
 
+#include "filesystem/ExecutableFinder.h"
 #include "tests/EnvironmentSetter.h"
-#include "tests/ProjectRootFinder.h"
 
 using namespace ::testing;
 using namespace config;
 using namespace config::tests;
+using namespace config::filesystem;
 
 namespace
 {
-const auto projectRootPath = ProjectRootFinder::getProjectRoot();
-const auto testDirectoryPath = projectRootPath / "tests" / "configData";
+const auto projectRootPath = ExecutableFinder::getExecutablePath();
+const auto testDirectoryPath = projectRootPath.parent_path() / "tests" / "configData";
 const auto testConfigDirectory = testDirectoryPath / "config";
 const auto testEnvConfigFilePath = testConfigDirectory / "test.json";
 const auto defaultConfigFilePath = testConfigDirectory / "default.json";
@@ -122,7 +123,7 @@ public:
         otherDefaultConfigFile << defaultJson;
         developmentConfigFile << developmentJson;
 
-        std::filesystem::remove_all(emptyConfigPath);
+        std::filesystem::remove_all(nestedPath);
 
         std::filesystem::create_directories(emptyConfigPath);
     }
@@ -138,11 +139,12 @@ public:
 
         std::filesystem::remove_all(otherConfigPath);
 
-        std::filesystem::remove_all(emptyConfigPath);
+        std::filesystem::remove_all(nestedPath);
     }
 
     std::filesystem::path otherConfigPath = "./config";
-    std::filesystem::path emptyConfigPath = "./nested/config";
+    std::filesystem::path nestedPath = "./nested";
+    std::filesystem::path emptyConfigPath = nestedPath / "config";
 };
 
 TEST_F(ConfigTest, givenCxxEnvAndConfigDir_returnsKeyValues)

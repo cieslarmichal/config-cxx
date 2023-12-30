@@ -6,20 +6,19 @@
 
 #include "gtest/gtest.h"
 
-#include "../tests/ProjectRootFinder.h"
+#include "ExecutableFinder.h"
 
 using namespace ::testing;
 using namespace config::filesystem;
-using namespace config::tests;
 
 namespace
 {
-const std::filesystem::path projectRootPath = ProjectRootFinder::getProjectRoot();
-const std::filesystem::path testDirectoryPath = projectRootPath / "tests";
-const std::filesystem::path filesystemTestDirectoryPath = testDirectoryPath / "filesystemData";
-const std::filesystem::path testReadingFilePath = filesystemTestDirectoryPath / "testReading.txt";
-const std::filesystem::path testListingFilePath = filesystemTestDirectoryPath / "testListing.txt";
-const std::string invalidPath = "invalid";
+const auto projectRootPath = ExecutableFinder::getExecutablePath();
+const auto testDirectoryPath = projectRootPath.parent_path() / "tests";
+const auto filesystemTestDirectoryPath = testDirectoryPath / "filesystemData";
+const auto testReadingFilePath = filesystemTestDirectoryPath / "testReading.txt";
+const auto testListingFilePath = filesystemTestDirectoryPath / "testListing.txt";
+const std::filesystem::path invalidPath = "invalid";
 }
 
 class FileSystemServiceTest : public Test

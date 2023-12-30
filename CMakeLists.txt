@@ -37,8 +37,6 @@ set(UT_SOURCES
     src/filesystem/ExecutableFinderTest.cpp
     src/tests/EnvironmentSetter.cpp
     src/tests/EnvironmentSetterTest.cpp
-    src/tests/ProjectRootFinder.cpp
-    src/tests/ProjectRootFinderTest.cpp
 )
 
 add_library(${LIBRARY_NAME} ${SOURCES})
