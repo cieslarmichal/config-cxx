@@ -23,5 +23,7 @@ TEST_F(ExecutableFinderTest, shouldReturnAbsolutePathToTestExecutable)
 {
     const auto executablePath = ExecutableFinder::getExecutablePath();
 
+    std::cerr << executablePath << std::endl;
+    
     ASSERT_TRUE(executablePath.string().ends_with(testExecutableName));
 }
