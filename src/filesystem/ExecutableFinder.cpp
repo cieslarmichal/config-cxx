@@ -1,5 +1,7 @@
 #include "ExecutableFinder.h"
 
+#include <iostream>
+
 #ifdef _WIN32
 #include <windows.h>
 #elif __APPLE__
@@ -33,7 +35,6 @@ std::filesystem::path ExecutableFinder::getExecutablePath()
     }
     else
     {
-        std::cerr << "Error getting executable path on macOS." << std::endl;
         return {};
     }
 #else
@@ -43,6 +44,8 @@ std::filesystem::path ExecutableFinder::getExecutablePath()
 
     const std::filesystem::path path = std::string(result, (count > 0) ? static_cast<unsigned long>(count) : 0);
 
+    std::cout << "Executable path: " << path << std::endl;
+    
     return path;
 #endif
 }
