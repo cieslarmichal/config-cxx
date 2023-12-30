@@ -16,8 +16,9 @@ using namespace config::filesystem;
 namespace
 {
 const auto projectRootPath = ExecutableFinder::getExecutablePath();
-const auto testDirectoryPath = projectRootPath.parent_path() / "tests" / "configData";
-const auto testConfigDirectory = testDirectoryPath / "config";
+const auto fallbackConfigDirectory = projectRootPath.parent_path() / "config";
+const auto emptyConfigDirectory = projectRootPath.parent_path() / "emptyConfig";
+const auto testConfigDirectory = projectRootPath.parent_path() / "testConfig";
 const auto testEnvConfigFilePath = testConfigDirectory / "test.json";
 const auto defaultConfigFilePath = testConfigDirectory / "default.json";
 const auto customEnvironmentsConfigFilePath = testConfigDirectory / "custom-environment-variables.json";
@@ -97,9 +98,9 @@ public:
         EnvironmentSetter::setEnvironmentVariable("AWS_ACCOUNT_ID", "");
         EnvironmentSetter::setEnvironmentVariable("AWS_ACCOUNT_KEY", "");
 
-        std::filesystem::remove_all(testDirectoryPath);
+        std::filesystem::remove_all(testConfigDirectory);
 
-        std::filesystem::create_directories(testConfigDirectory);
+        std::filesystem::create_directory(testConfigDirectory);
 
         std::ofstream testEnvConfigFile{testEnvConfigFilePath};
 
@@ -113,19 +114,19 @@ public:
 
         customEnvironmentsConfigFile << envVariablesJson;
 
-        std::filesystem::remove_all(otherConfigPath);
+        std::filesystem::remove_all(fallbackConfigDirectory);
 
-        std::filesystem::create_directory(otherConfigPath);
+        std::filesystem::create_directory(fallbackConfigDirectory);
 
-        std::ofstream otherDefaultConfigFile{otherConfigPath / "default.json"};
-        std::ofstream developmentConfigFile{otherConfigPath / "development.json"};
+        std::ofstream fallbackDefaultConfigFile{fallbackConfigDirectory / "default.json"};
+        std::ofstream fallbackDevelopmentConfigFile{fallbackConfigDirectory / "development.json"};
 
-        otherDefaultConfigFile << defaultJson;
-        developmentConfigFile << developmentJson;
+        fallbackDefaultConfigFile << defaultJson;
+        fallbackDevelopmentConfigFile << developmentJson;
 
-        std::filesystem::remove_all(nestedPath);
+        std::filesystem::remove_all(emptyConfigDirectory);
 
-        std::filesystem::create_directories(emptyConfigPath);
+        std::filesystem::create_directory(emptyConfigDirectory);
     }
 
     void TearDown() override
@@ -135,16 +136,12 @@ public:
         EnvironmentSetter::setEnvironmentVariable("AWS_ACCOUNT_ID", "");
         EnvironmentSetter::setEnvironmentVariable("AWS_ACCOUNT_KEY", "");
 
-        std::filesystem::remove_all(testDirectoryPath);
+        std::filesystem::remove_all(testConfigDirectory);
 
-        std::filesystem::remove_all(otherConfigPath);
+        std::filesystem::remove_all(fallbackConfigDirectory);
 
-        std::filesystem::remove_all(nestedPath);
+        std::filesystem::remove_all(emptyConfigDirectory);
     }
-
-    std::filesystem::path otherConfigPath = "./config";
-    std::filesystem::path nestedPath = "./nested";
-    std::filesystem::path emptyConfigPath = nestedPath / "config";
 };
 
 TEST_F(ConfigTest, givenCxxEnvAndConfigDir_returnsKeyValues)
@@ -240,7 +237,7 @@ TEST_F(ConfigTest, givenNoCxxEnvAndNoConfigDir_returnsDevelopmentKeyValues)
 
 TEST_F(ConfigTest, givenConfigDirWithoutConfigFiles_shouldThrow)
 {
-    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", emptyConfigPath.string());
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", emptyConfigDirectory.string());
 
     Config config;
 

@@ -22,11 +22,6 @@ std::filesystem::path ConfigDirectoryPathResolver::getConfigDirectoryPath()
             throw std::runtime_error("Config directory not found: CXX_CONFIG_DIR=" + *configDirectoryPath);
         }
 
-        if (!configDirectoryPath->ends_with("config"))
-        {
-            throw std::runtime_error("Config directory must be named `config`: CXX_CONFIG_DIR=" + *configDirectoryPath);
-        }
-
         return configDirectoryFsPath;
     }
 
