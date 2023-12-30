@@ -7,7 +7,7 @@
 
 namespace config::filesystem
 {
-std::string FileSystemService::read(const std::string& absolutePath)
+std::string FileSystemService::read(const std::filesystem::path& absolutePath)
 {
     std::ifstream fileStream{absolutePath};
 
@@ -15,7 +15,7 @@ std::string FileSystemService::read(const std::string& absolutePath)
 
     if (!fileStream.is_open())
     {
-        throw std::runtime_error("File not found: " + absolutePath);
+        throw std::runtime_error("File not found: " + absolutePath.string());
     }
 
     buffer << fileStream.rdbuf();
@@ -23,12 +23,12 @@ std::string FileSystemService::read(const std::string& absolutePath)
     return buffer.str();
 }
 
-bool FileSystemService::exists(const std::string& absolutePath)
+bool FileSystemService::exists(const std::filesystem::path& absolutePath)
 {
     return std::filesystem::exists(absolutePath);
 }
 
-std::vector<std::string> FileSystemService::listFiles(const std::string& absolutePath)
+std::vector<std::string> FileSystemService::listFiles(const std::filesystem::path& absolutePath)
 {
     std::vector<std::string> files;
 

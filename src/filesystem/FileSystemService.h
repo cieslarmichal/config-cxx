@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -8,8 +9,8 @@ namespace config::filesystem
 class FileSystemService
 {
 public:
-    static std::string read(const std::string& absolutePath);
-    static bool exists(const std::string& absolutePath);
-    static std::vector<std::string> listFiles(const std::string& absolutePath);
+    static std::string read(const std::filesystem::path& absolutePath);
+    static bool exists(const std::filesystem::path& absolutePath);
+    static std::vector<std::string> listFiles(const std::filesystem::path& absolutePath);
 };
 }
