@@ -18,9 +18,9 @@ std::filesystem::path ExecutableFinder::getExecutablePath()
 
     std::wstring wpath(path);
 
-    const std::filesystem::path path = std::string(wpath.begin(), wpath.end());
+    const std::filesystem::path fsPath = std::string(wpath.begin(), wpath.end());
 
-    return path;
+    return fsPath;
 #else
     char result[PATH_MAX];
 
