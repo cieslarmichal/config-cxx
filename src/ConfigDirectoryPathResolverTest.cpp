@@ -47,7 +47,7 @@ TEST_F(ConfigDirectoryPathResolverTest, givenExistingPathNamedConfigInConfigDire
 {
     const auto configDirectoryEnvName = "CXX_CONFIG_DIR";
 
-    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, existingConfigDirectoryPath);
+    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, existingConfigDirectoryPath.string());
 
     const auto configDirectoryPath = ConfigDirectoryPathResolver::getConfigDirectoryPath();
 
@@ -58,7 +58,7 @@ TEST_F(ConfigDirectoryPathResolverTest, givenExistingPathNamedAsNotConfigInConfi
 {
     const auto configDirectoryEnvName = "CXX_CONFIG_DIR";
 
-    std::filesystem::path invalidConfigDirectoryPath = "../cmake";
+    const auto invalidConfigDirectoryPath = "../cmake";
 
     EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, invalidConfigDirectoryPath);
 

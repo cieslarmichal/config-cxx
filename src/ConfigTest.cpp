@@ -148,7 +148,7 @@ public:
 TEST_F(ConfigTest, givenCxxEnvAndConfigDir_returnsKeyValues)
 {
     EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
-    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory);
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
 
     const auto awsAccountId = "9999999999";
     const auto awsAccountKey = "806223445";
@@ -191,7 +191,7 @@ TEST_F(ConfigTest, givenCxxEnvAndConfigDir_returnsKeyValues)
 TEST_F(ConfigTest, givenCxxEnvAndConfigDirWithoutEnvVarsSets_throws)
 {
     EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
-    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory);
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
 
     Config config;
 
@@ -238,7 +238,7 @@ TEST_F(ConfigTest, givenNoCxxEnvAndNoConfigDir_returnsDevelopmentKeyValues)
 
 TEST_F(ConfigTest, givenConfigDirWithoutConfigFiles_shouldThrow)
 {
-    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", emptyConfigPath);
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", emptyConfigPath.string());
 
     Config config;
 
@@ -248,7 +248,7 @@ TEST_F(ConfigTest, givenConfigDirWithoutConfigFiles_shouldThrow)
 TEST_F(ConfigTest, givenCxxEnvAndConfigDirAndNotExistingKey_shouldThrow)
 {
     EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
-    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory);
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
 
     Config config;
 
@@ -260,7 +260,7 @@ TEST_F(ConfigTest, givenCxxEnvAndConfigDirAndNotExistingKey_shouldThrow)
 TEST_F(ConfigTest, returnsKeyValueAsAny)
 {
     EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
-    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory);
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
 
     const auto awsAccountId = "9999999999";
     const auto awsAccountKey = "806223445";
