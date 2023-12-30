@@ -115,6 +115,11 @@ void Config::initialize()
     JsonConfigLoader::loadConfigFile(cxxEnvConfigFilePath, values);
     JsonConfigLoader::loadConfigEnvFile(customEnvironmentsConfigFilePath, values);
 
+    if (values.empty())
+    {
+        throw std::runtime_error("Config values are empty.");
+    }
+
     initialized = true;
 }
 

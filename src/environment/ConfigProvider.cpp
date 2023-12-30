@@ -8,7 +8,7 @@ std::string ConfigProvider::getCxxEnv()
 {
     const auto cxxEnv = EnvironmentParser::parseString("CXX_ENV");
 
-    if (!cxxEnv)
+    if (!cxxEnv || cxxEnv->empty())
     {
         return "development";
     }
@@ -18,6 +18,13 @@ std::string ConfigProvider::getCxxEnv()
 
 std::optional<std::string> ConfigProvider::getCxxConfigDir()
 {
-    return EnvironmentParser::parseString("CXX_CONFIG_DIR");
+    const auto configPath = EnvironmentParser::parseString("CXX_CONFIG_DIR");
+
+    if (!configPath || configPath->empty())
+    {
+        return std::nullopt;
+    }
+
+    return *configPath;
 }
 }

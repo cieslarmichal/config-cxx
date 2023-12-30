@@ -30,8 +30,6 @@ void JsonConfigLoader::loadConfigFile(const std::string& configFilePath,
 
     const auto flattenedConfig = config.flatten();
 
-    std::cout << flattenedConfig << std::endl;
-
     for (auto it = flattenedConfig.begin(); it != flattenedConfig.end(); ++it)
     {
         const auto normalizedKey = normalizeConfigKey(it.key());
@@ -45,6 +43,13 @@ void JsonConfigLoader::loadConfigFile(const std::string& configFilePath,
 void JsonConfigLoader::loadConfigEnvFile(const std::string& configFilePath,
                                          std::unordered_map<std::string, std::any>& configValues)
 {
+    const auto configFileExists = filesystem::FileSystemService::exists(configFilePath);
+
+    if (!configFileExists)
+    {
+        return;
+    }
+
     const auto configEnvironmentVariablesJson = filesystem::FileSystemService::read(configFilePath);
 
     const auto configEnvironmentVariables = nlohmann::json::parse(configEnvironmentVariablesJson);
