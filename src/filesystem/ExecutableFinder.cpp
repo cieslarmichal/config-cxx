@@ -2,6 +2,9 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#elif __APPLE__
+#include <limits.h>
+#include <mach-o/dyld.h>
 #else
 #include <climits>
 #include <unistd.h>
@@ -21,6 +24,18 @@ std::filesystem::path ExecutableFinder::getExecutablePath()
     const std::filesystem::path fsPath = std::string(wpath.begin(), wpath.end());
 
     return fsPath;
+#elif __APPLE__
+    char path[PATH_MAX];
+    uint32_t size = sizeof(path);
+    if (_NSGetExecutablePath(path, &size) == 0)
+    {
+        return std::filesystem::path(path);
+    }
+    else
+    {
+        std::cerr << "Error getting executable path on macOS." << std::endl;
+        return {};
+    }
 #else
     char result[PATH_MAX];
 
