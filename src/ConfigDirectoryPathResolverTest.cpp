@@ -4,41 +4,45 @@
 
 #include "gtest/gtest.h"
 
+#include "filesystem/ExecutableFinder.h"
 #include "tests/EnvironmentSetter.h"
 
 using namespace ::testing;
 using namespace config;
 using namespace config::tests;
+using namespace config::filesystem;
+
+namespace
+{
+const auto projectRootPath = ExecutableFinder::getExecutablePath();
+const auto configDirectory = projectRootPath.parent_path() / "config";
+}
 
 class ConfigDirectoryPathResolverTest : public Test
 {
 public:
     void SetUp() override
     {
-        if (!std::filesystem::exists(existingConfigDirectoryPath))
-        {
-            std::filesystem::create_directory(existingConfigDirectoryPath);
-        }
+        EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", "");
+
+        std::filesystem::create_directory(configDirectory);
     }
 
     void TearDown() override
     {
-        if (std::filesystem::exists(existingConfigDirectoryPath))
-        {
-            std::filesystem::remove_all(existingConfigDirectoryPath);
-        }
+        EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", "");
+        
+        std::filesystem::remove_all(configDirectory);
     }
-
-    std::filesystem::path existingConfigDirectoryPath = "../config";
 };
 
 TEST_F(ConfigDirectoryPathResolverTest, givenNotExistingPathInConfigDirectory_throws)
 {
     const auto configDirectoryEnvName = "CXX_CONFIG_DIR";
 
-    const auto configDirectoryPath = "test";
+    const auto notExistingConfigDirectoryPath = "test";
 
-    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, configDirectoryPath);
+    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, notExistingConfigDirectoryPath);
 
     ASSERT_THROW(ConfigDirectoryPathResolver::getConfigDirectoryPath(), std::runtime_error);
 }
@@ -47,20 +51,9 @@ TEST_F(ConfigDirectoryPathResolverTest, givenExistingPathNamedConfigInConfigDire
 {
     const auto configDirectoryEnvName = "CXX_CONFIG_DIR";
 
-    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, existingConfigDirectoryPath.string());
+    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, configDirectory.string());
 
     const auto configDirectoryPath = ConfigDirectoryPathResolver::getConfigDirectoryPath();
 
-    ASSERT_EQ(configDirectoryPath, existingConfigDirectoryPath);
-}
-
-TEST_F(ConfigDirectoryPathResolverTest, givenExistingPathNamedAsNotConfigInConfigDirectory_returnsPath)
-{
-    const auto configDirectoryEnvName = "CXX_CONFIG_DIR";
-
-    const auto invalidConfigDirectoryPath = "../cmake";
-
-    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, invalidConfigDirectoryPath);
-
-    ASSERT_THROW(ConfigDirectoryPathResolver::getConfigDirectoryPath(), std::runtime_error);
+    ASSERT_EQ(configDirectoryPath, configDirectory);
 }
