@@ -124,7 +124,7 @@ public:
 
         std::filesystem::remove_all(emptyConfigPath);
 
-        std::filesystem::create_directory(emptyConfigPath);
+        std::filesystem::create_directories(emptyConfigPath);
     }
 
     void TearDown() override
@@ -141,8 +141,8 @@ public:
         std::filesystem::remove_all(emptyConfigPath);
     }
 
-    std::filesystem::path otherConfigPath = "../config";
-    std::filesystem::path emptyConfigPath = "../../config";
+    std::filesystem::path otherConfigPath = "./config";
+    std::filesystem::path emptyConfigPath = "./nested/config";
 };
 
 TEST_F(ConfigTest, givenCxxEnvAndConfigDir_returnsKeyValues)
