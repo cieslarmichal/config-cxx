@@ -15,7 +15,7 @@ std::filesystem::path ConfigDirectoryPathResolver::getConfigDirectoryPath()
     {
         const auto configDirectoryFsPath = std::filesystem::path{*configDirectoryPath};
 
-        const auto envConfigPathExists = exists(std::filesystem::path{configDirectoryFsPath});
+        const auto envConfigPathExists = exists(configDirectoryFsPath);
 
         if (!envConfigPathExists)
         {
@@ -27,7 +27,7 @@ std::filesystem::path ConfigDirectoryPathResolver::getConfigDirectoryPath()
             throw std::runtime_error("Config directory must be named `config`: CXX_CONFIG_DIR=" + *configDirectoryPath);
         }
 
-        return *configDirectoryPath;
+        return configDirectoryFsPath;
     }
 
     const auto executablePath = filesystem::ExecutableFinder::getExecutablePath();

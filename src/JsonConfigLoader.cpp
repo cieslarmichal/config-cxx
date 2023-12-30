@@ -14,7 +14,7 @@ std::string normalizeConfigKey(const std::string& str);
 std::any normalizeConfigValue(const nlohmann::json& jsonObject);
 }
 
-void JsonConfigLoader::loadConfigFile(const std::string& configFilePath,
+void JsonConfigLoader::loadConfigFile(const std::filesystem::path& configFilePath,
                                       std::unordered_map<std::string, std::any>& configValues)
 {
     const auto configFileExists = filesystem::FileSystemService::exists(configFilePath);
@@ -40,7 +40,7 @@ void JsonConfigLoader::loadConfigFile(const std::string& configFilePath,
     }
 }
 
-void JsonConfigLoader::loadConfigEnvFile(const std::string& configFilePath,
+void JsonConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFilePath,
                                          std::unordered_map<std::string, std::any>& configValues)
 {
     const auto configFileExists = filesystem::FileSystemService::exists(configFilePath);
@@ -62,7 +62,7 @@ void JsonConfigLoader::loadConfigEnvFile(const std::string& configFilePath,
 
         const auto envValue = environment::EnvironmentParser::parseString(it.value().get<std::string>());
 
-        if (!envValue)
+        if (!envValue || envValue->empty())
         {
             throw std::runtime_error("Environment variable " + it.value().get<std::string>() + " not set.");
         }

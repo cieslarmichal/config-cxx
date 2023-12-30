@@ -14,13 +14,12 @@ using namespace config::tests;
 
 namespace
 {
-const std::filesystem::path projectRootPath = ProjectRootFinder::getProjectRoot();
-const std::filesystem::path testDirectoryPath = projectRootPath / "tests" / "configData";
-const std::filesystem::path testConfigDirectory = testDirectoryPath / "config";
-const std::filesystem::path testEnvConfigFilePath = testConfigDirectory / "test.json";
-const std::filesystem::path defaultConfigFilePath = testConfigDirectory / "default.json";
-const std::filesystem::path customEnvironmentsConfigFilePath =
-    testConfigDirectory / "custom-environment-variables.json";
+const auto projectRootPath = ProjectRootFinder::getProjectRoot();
+const auto testDirectoryPath = projectRootPath / "tests" / "configData";
+const auto testConfigDirectory = testDirectoryPath / "config";
+const auto testEnvConfigFilePath = testConfigDirectory / "test.json";
+const auto defaultConfigFilePath = testConfigDirectory / "default.json";
+const auto customEnvironmentsConfigFilePath = testConfigDirectory / "custom-environment-variables.json";
 
 const std::string testJson = R"(
 {
@@ -130,6 +129,11 @@ public:
 
     void TearDown() override
     {
+        EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "");
+        EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", "");
+        EnvironmentSetter::setEnvironmentVariable("AWS_ACCOUNT_ID", "");
+        EnvironmentSetter::setEnvironmentVariable("AWS_ACCOUNT_KEY", "");
+
         std::filesystem::remove_all(testDirectoryPath);
 
         std::filesystem::remove_all(otherConfigPath);
@@ -182,6 +186,20 @@ TEST_F(ConfigTest, givenCxxEnvAndConfigDir_returnsKeyValues)
     ASSERT_EQ(authExpiresInValue, 3600);
     ASSERT_EQ(authEnabledValue, true);
     ASSERT_EQ(authRolesValue, expectedAuthRoles);
+};
+
+TEST_F(ConfigTest, givenCxxEnvAndConfigDirWithoutEnvVarsSets_throws)
+{
+    EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory);
+
+    Config config;
+
+    const std::string awsAccountIdKey = "aws.accountId";
+    const std::string awsAccountKeyKey = "aws.accountKey";
+
+    ASSERT_THROW(config.get<std::string>(awsAccountIdKey), std::runtime_error);
+    ASSERT_THROW(config.get<std::string>(awsAccountKeyKey), std::runtime_error);
 };
 
 TEST_F(ConfigTest, givenNoCxxEnvAndNoConfigDir_returnsDevelopmentKeyValues)

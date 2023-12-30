@@ -1,12 +1,12 @@
 #pragma once
 
-#include <string>
+#include <filesystem>
 
 namespace config::filesystem
 {
 class ExecutableFinder
 {
 public:
-    static std::string getExecutablePath();
+    static std::filesystem::path getExecutablePath();
 };
 }

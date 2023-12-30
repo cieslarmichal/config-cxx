@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <string>
 
 namespace config::tests
@@ -7,6 +8,6 @@ namespace config::tests
 class ProjectRootFinder
 {
 public:
-    static std::string getProjectRoot();
+    static std::filesystem::path getProjectRoot();
 };
 }

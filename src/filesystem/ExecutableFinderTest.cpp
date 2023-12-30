@@ -19,5 +19,5 @@ TEST_F(ExecutableFinderTest, shouldReturnAbsolutePathToTestExecutable)
 {
     const auto executablePath = ExecutableFinder::getExecutablePath();
 
-    ASSERT_TRUE(executablePath.ends_with(testExecutableName));
+    ASSERT_TRUE(executablePath.string().ends_with(testExecutableName));
 }

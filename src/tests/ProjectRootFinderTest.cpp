@@ -19,5 +19,5 @@ TEST_F(ProjectRootFinderTest, shouldReturnProjectRootPath)
 {
     const auto projectRootPath = ProjectRootFinder::getProjectRoot();
 
-    ASSERT_TRUE(projectRootPath.ends_with(projectName));
+    ASSERT_TRUE(projectRootPath.string().ends_with(projectName));
 }
