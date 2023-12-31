@@ -1,22 +1,15 @@
 #include "EnvironmentSetter.h"
 
 #include <cstdlib>
-#include <stdexcept>
 
 namespace config::tests
 {
 void EnvironmentSetter::setEnvironmentVariable(const std::string& envName, const std::string& envValue)
 {
 #if defined(_WIN32)
-    if (_putenv_s(envName.c_str(), envValue.c_str()) != 0)
-    {
-        throw std::runtime_error("Failed to set environment variable: " + envName + " with value: " + envValue);
-    }
+    _putenv_s(envName.c_str(), envValue.c_str());
 #else
-    if (setenv(envName.c_str(), envValue.c_str(), 1) != 0)
-    {
-        throw std::runtime_error("Failed to set environment variable: " + envName + " with value: " + envValue);
-    }
+    setenv(envName.c_str(), envValue.c_str(), 1);
 #endif
 }
 }
