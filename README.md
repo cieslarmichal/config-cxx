@@ -1,6 +1,6 @@
 <div align="center">
   <h1>Config C++</h1>
-  <p>Generate fake (but realistic) data for testing and development.</p>
+  <p>Manage your C++ application config.</p>
 
 [![clang++](https://github.com/cieslarmichal/config-cxx/actions/workflows/linux-clang-build.yml/badge.svg?branch=main)](https://github.com/cieslarmichal/config-cxx/actions/workflows/linux-clang-build.yml?query=branch%3Amain)
 [![apple clang++](https://github.com/cieslarmichal/config-cxx/actions/workflows/macos-clang-build.yml/badge.svg?branch=main)](https://github.com/cieslarmichal/config-cxx/actions/workflows/macos-clang-build.yml?query=branch%3Amain)
@@ -16,21 +16,82 @@
 Goal of the Config C++ is to provide a library like [node-config](https://github.com/node-config/node-config) for C++
 community.
 
+## How it works
+
+### Read config process
+
+It reads config from JSON files based on environment and provides access to it via C++ API.
+
+1. Reads config directory path based on `CXX_CONFIG_DIR` environment variable (or tries to find `config` directory
+   automatically in
+   project root).
+2. Loads config values from `default.json` file.
+3. Loads config values from `<environment>.json` config file (based on `CXX_ENV` environment variable).
+4. Reads `custom-environment-variables.json` config file and reads its values from environment variables.
+5. Loads config values from `local.json` config file.
+6. If no config values were found, it throws an error.
+
+### Priority
+
+Priority of config values is as follows (from lowest to highest):
+
+1. `default.json`
+2. `<environment>.json`
+3. `custom-environment-variables.json`
+4. `local.json`
+
+Highest priority config values override lower priority config values.
+
+## Environment variables
+
+- `CXX_CONFIG_DIR` - path to the config directory.
+- `CXX_ENV` - environment name (e.g. `development`, `production`). Defaults to `development`.
+
+## Setup
+
+You don't need to have all types of config files. You need to have at least one of them.
+
+```
+config
+├── custom-environment-variables.json
+├── default.json
+├── development.json
+├── local.json
+```
+
+Example of `default.json`:
+
+```json
+{
+  "db": {
+    "host": "localhost",
+    "port": 3306
+  },
+  "auth": {
+    "enabled": true
+  }
+}
+```
+
 ## Usage
 
 ```cpp
 
+#include "config-cxx/Config.h"
+
 int main()
 {
+    config::Config config;
+    
+    const auto dbHost = config.get<std::string>("db.host"); // localhost
+    const auto dbPort = config.get<int>("db.port"); // 3306
+    const auto authEnabled = config.get<bool>("auth.enabled"); // true
+    
     return 0;
 }
 ```
 
-## 📖 Documentation
-
-https://cieslarmichal.github.io/config-cxx/
-
-## Consuming library with CMake (CMake 3.22 or newer)
+## Consuming library with CMake
 
 1. Add config to git submodules (execute in project root):
 
@@ -51,6 +112,11 @@ https://cieslarmichal.github.io/config-cxx/
     
     target_link_libraries(main config-cxx)
     ```
+   CMake 3.22 or newer is required.
+
+## 📖 Documentation
+
+https://cieslarmichal.github.io/config-cxx/
 
 ## Compiler support
 
@@ -62,8 +128,9 @@ https://cieslarmichal.github.io/config-cxx/
 ## Dependencies
 
 - GTest (```BUILD_CONFIG_CXX_TESTS=OFF``` CMake flag to disable)
+- nlohmann/json
 
-## ✨ Contributing
+## Contributing
 
 Feel free to join Config C++ development! 🚀
 
