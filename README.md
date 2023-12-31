@@ -27,7 +27,7 @@ It reads config from JSON files based on environment and provides access to it v
    project root).
 2. Loads config values from `default.json` file.
 3. Loads config values from `<environment>.json` config file (based on `CXX_ENV` environment variable).
-4. Reads `custom-environment-variables.json` config file and reads its values from environment variables.
+4. Reads `custom-environment-variables.json` config file and loads its values from environment variables.
 5. Loads config values from `local.json` config file.
 6. If no config values were found, it throws an error.
 
@@ -59,7 +59,7 @@ config
 ├── local.json
 ```
 
-Example of `default.json`:
+Example of `default.json` / `development.json` / `local.json`:
 
 ```json
 {
@@ -69,6 +69,20 @@ Example of `default.json`:
   },
   "auth": {
     "enabled": true
+  }
+}
+```
+
+Example of `custom-environment-variables.json`:
+
+```json
+{
+  "db": {
+    "host": "DB_HOST",
+    "port": "DB_PORT"
+  },
+  "auth": {
+    "enabled": "AUTH_ENABLED"
   }
 }
 ```
