@@ -1,0 +1,17 @@
+{
+  "db": {
+    "port": 2000
+  },
+  "aws": {
+    "accountId": "0987654321",
+    "accountKey": "321"
+  },
+  "auth": {
+    "expiresIn": 7200,
+    "enabled": false,
+    "roles": [
+      "anonymous",
+      "user"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "db": {
+    "host": "localhost",
+    "port": 3306
+  },
+  "aws": {
+    "accountId": null,
+    "accountKey": null,
+    "region": "eu-central-2"
+  }
+}

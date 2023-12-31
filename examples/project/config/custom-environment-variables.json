@@ -1,0 +1,6 @@
+{
+  "aws": {
+    "accountId": "AWS_ACCOUNT_ID",
+    "accountKey": "AWS_ACCOUNT_KEY"
+  }
+}

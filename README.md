@@ -91,18 +91,25 @@ Example of `custom-environment-variables.json`:
 
 ```cpp
 
+#include <iostream>
+
 #include "config-cxx/Config.h"
 
 int main()
 {
     config::Config config;
-    
-    const auto dbHost = config.get<std::string>("db.host"); // localhost
-    const auto dbPort = config.get<int>("db.port"); // 3306
-    const auto authEnabled = config.get<bool>("auth.enabled"); // true
+
+    const auto dbHost = config.get<std::string>("db.host");
+    const auto dbPort = config.get<int>("db.port");
+    const auto authEnabled = config.get<bool>("auth.enabled");
+
+    std::cout << dbHost << std::endl;      // localhost
+    std::cout << dbPort << std::endl;      // 3306
+    std::cout << authEnabled << std::endl; // true
     
     return 0;
 }
+
 ```
 
 ## Consuming library with CMake
@@ -113,6 +120,7 @@ int main()
     mkdir externals
     cd externals
     git submodule add https://github.com/cieslarmichal/config-cxx.git
+    git submodule update --init --recursive
     ```
 
 2. Link with library:
@@ -131,6 +139,10 @@ int main()
 ## 📖 Documentation
 
 https://cieslarmichal.github.io/config-cxx/
+
+## Examples
+
+Check out example project in examples directory.
 
 ## Compiler support
 
