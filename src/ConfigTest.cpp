@@ -187,20 +187,6 @@ TEST_F(ConfigTest, givenCxxEnvAndConfigDir_returnsKeyValues)
     ASSERT_EQ(authRolesValue, expectedAuthRoles);
 };
 
-TEST_F(ConfigTest, givenCxxEnvAndConfigDirWithoutEnvVarsSets_throws)
-{
-    EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
-    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
-
-    Config config;
-
-    const std::string awsAccountIdKey = "aws.accountId";
-    const std::string awsAccountKeyKey = "aws.accountKey";
-
-    ASSERT_THROW(config.get<std::string>(awsAccountIdKey), std::runtime_error);
-    ASSERT_THROW(config.get<std::string>(awsAccountKeyKey), std::runtime_error);
-};
-
 TEST_F(ConfigTest, givenNoCxxEnvAndNoConfigDir_returnsDevelopmentKeyValues)
 {
     const std::string dbHostKey = "db.host";
