@@ -28,19 +28,14 @@ bool FileSystemService::exists(const std::filesystem::path& absolutePath)
     return std::filesystem::exists(absolutePath);
 }
 
-std::vector<std::string> FileSystemService::listFiles(const std::filesystem::path& absolutePath)
+bool FileSystemService::isDirectory(const std::filesystem::path& absolutePath)
 {
-    std::vector<std::string> files;
+    return std::filesystem::is_directory(absolutePath);
+}
 
-    for (const auto& entry : std::filesystem::directory_iterator(absolutePath))
-    {
-        if (entry.is_regular_file())
-        {
-            files.push_back(entry.path().string());
-        }
-    }
-
-    return files;
+std::filesystem::path FileSystemService::getCurrentWorkingDirectory()
+{
+    return std::filesystem::current_path();
 }
 
 }

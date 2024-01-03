@@ -17,7 +17,6 @@ const auto projectRootPath = ExecutableFinder::getExecutablePath();
 const auto testDirectoryPath = projectRootPath.parent_path() / "tests";
 const auto filesystemTestDirectoryPath = testDirectoryPath / "filesystemData";
 const auto testReadingFilePath = filesystemTestDirectoryPath / "testReading.txt";
-const auto testListingFilePath = filesystemTestDirectoryPath / "testListing.txt";
 const std::filesystem::path invalidPath = "invalid";
 }
 
@@ -33,10 +32,6 @@ public:
         std::ofstream testReadingFile{testReadingFilePath};
 
         testReadingFile << "example data";
-
-        std::ofstream testListingFile{testListingFilePath};
-
-        testListingFile << "data";
     }
 
     void TearDown() override
@@ -73,21 +68,23 @@ TEST_F(FileSystemServiceTest, givenIncorrectPath_shouldReturnFalse)
     ASSERT_FALSE(exists);
 }
 
-TEST_F(FileSystemServiceTest, givenCorrectPath_shouldReturnListOfFiles)
+TEST_F(FileSystemServiceTest, givenDirectoryPath_shouldReturnTrue)
 {
-    const auto actualFileList = FileSystemService::listFiles(filesystemTestDirectoryPath);
+    const auto isDirectory = FileSystemService::isDirectory(testDirectoryPath);
 
-    ASSERT_EQ(actualFileList.size(), 2);
-
-    ASSERT_EQ(std::any_of(actualFileList.begin(), actualFileList.end(),
-                          [](const std::string& path) { return path == testReadingFilePath; }),
-              true);
-    ASSERT_EQ(std::any_of(actualFileList.begin(), actualFileList.end(),
-                          [](const std::string& path) { return path == testListingFilePath; }),
-              true);
+    ASSERT_TRUE(isDirectory);
 }
 
-TEST_F(FileSystemServiceTest, givenIncorrectPath_shouldThrowExceptionWhenListingFiles)
+TEST_F(FileSystemServiceTest, givenInvalidPath_shouldReturnFalse)
 {
-    ASSERT_THROW(FileSystemService::listFiles(invalidPath), std::runtime_error);
+    const auto isDirectory = FileSystemService::isDirectory(invalidPath);
+
+    ASSERT_FALSE(isDirectory);
+}
+
+TEST_F(FileSystemServiceTest, shouldReturnCurrentWorkingDirectory)
+{
+    const auto currentWorkingDirectory = FileSystemService::getCurrentWorkingDirectory();
+
+    ASSERT_EQ(currentWorkingDirectory, std::filesystem::current_path());
 }

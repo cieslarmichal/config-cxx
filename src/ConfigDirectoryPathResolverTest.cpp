@@ -5,6 +5,7 @@
 #include "gtest/gtest.h"
 
 #include "filesystem/ExecutableFinder.h"
+#include "filesystem/FileSystemService.h"
 #include "tests/EnvironmentSetter.h"
 
 using namespace ::testing;
@@ -14,8 +15,9 @@ using namespace config::filesystem;
 
 namespace
 {
-const auto projectRootPath = ExecutableFinder::getExecutablePath();
-const auto configDirectory = projectRootPath.parent_path() / "config";
+const auto currentWorkingDirectory = filesystem::FileSystemService::getCurrentWorkingDirectory();
+const auto configDirectory = currentWorkingDirectory / "customConfig";
+const auto defaultDirectory = currentWorkingDirectory / "config";
 }
 
 class ConfigDirectoryPathResolverTest : public Test
@@ -26,13 +28,17 @@ public:
         EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", "");
 
         std::filesystem::create_directory(configDirectory);
+
+        std::filesystem::create_directory(defaultDirectory);
     }
 
     void TearDown() override
     {
         EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", "");
-        
+
         std::filesystem::remove_all(configDirectory);
+
+        std::filesystem::remove_all(defaultDirectory);
     }
 };
 
@@ -56,4 +62,11 @@ TEST_F(ConfigDirectoryPathResolverTest, givenExistingPathNamedConfigInConfigDire
     const auto configDirectoryPath = ConfigDirectoryPathResolver::getConfigDirectoryPath();
 
     ASSERT_EQ(configDirectoryPath, configDirectory);
+}
+
+TEST_F(ConfigDirectoryPathResolverTest, givenNoConfigDirPath_andConfigDirExistsInCwd_returnsConfigFromCwd)
+{
+    const auto configDirectoryPath = ConfigDirectoryPathResolver::getConfigDirectoryPath();
+
+    ASSERT_EQ(configDirectoryPath, defaultDirectory);
 }

@@ -44,8 +44,6 @@ std::filesystem::path ExecutableFinder::getExecutablePath()
 
     const std::filesystem::path path = std::string(result, (count > 0) ? static_cast<unsigned long>(count) : 0);
 
-    std::cout << "Executable path: " << path << std::endl;
-    
     return path;
 #endif
 }
