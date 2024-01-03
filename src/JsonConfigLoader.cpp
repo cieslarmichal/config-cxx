@@ -64,7 +64,9 @@ void JsonConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFile
 
         if (!envValue || envValue->empty())
         {
-            throw std::runtime_error("Environment variable " + it.value().get<std::string>() + " not set.");
+            std::cerr << "Environment variable " + it.value().get<std::string>() + " not set." << std::endl;
+
+            continue;
         }
 
         configValues[normalizedKey] = *envValue;
