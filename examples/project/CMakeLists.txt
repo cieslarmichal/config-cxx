@@ -15,10 +15,10 @@ else ()
     )
 endif ()
 
-set(BUILD_FAKER_TESTS OFF)
+set(BUILD_CONFIG_CXX_TESTS OFF)
 
-add_subdirectory(externals/faker-cxx)
+add_subdirectory(externals/config-cxx)
 
 add_executable(example-project src/Main.cpp)
 
-target_link_libraries(example-project faker-cxx)
+target_link_libraries(example-project config-cxx)

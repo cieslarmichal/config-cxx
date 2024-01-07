@@ -162,3 +162,10 @@ Feel free to join Config C++ development! 🚀
 Please check [CONTRIBUTING](https://github.com/cieslarmichal/config-cxx/blob/main/CONTRIBUTING.md) guide.
 
 [Discord Channel](https://discord.gg/h2ur8H6mK6) for contributors.
+
+## 📝 Compilation guides
+
+- [Clang++](./docs/guides/clang-compilation-guide.md)
+- [Apple Clang++](./docs/guides/apple-clang-compilation-guide.md)
+- [G++](./docs/guides/gcc-compilation-guide.md)
+- [MSVC](./docs/guides/msvc-compilation-guide.md)
