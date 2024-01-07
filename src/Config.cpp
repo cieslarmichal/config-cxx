@@ -109,10 +109,12 @@ void Config::initialize()
     const auto defaultConfigFilePath = configDirectory / "default.json";
     const auto cxxEnvConfigFilePath = (configDirectory / cxxEnv).replace_extension(".json");
     const auto customEnvironmentsConfigFilePath = configDirectory / "custom-environment-variables.json";
+    const auto localConfigFilePath = configDirectory / "local.json";
 
     JsonConfigLoader::loadConfigFile(defaultConfigFilePath, values);
     JsonConfigLoader::loadConfigFile(cxxEnvConfigFilePath, values);
     JsonConfigLoader::loadConfigEnvFile(customEnvironmentsConfigFilePath, values);
+    JsonConfigLoader::loadConfigFile(localConfigFilePath, values);
 
     if (values.empty())
     {

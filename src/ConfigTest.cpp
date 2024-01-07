@@ -20,6 +20,7 @@ const auto fallbackConfigDirectory = projectRootPath.parent_path() / "config";
 const auto emptyConfigDirectory = projectRootPath.parent_path() / "emptyConfig";
 const auto testConfigDirectory = projectRootPath.parent_path() / "testConfig";
 const auto testEnvConfigFilePath = testConfigDirectory / "test.json";
+const auto localConfigFilePath = testConfigDirectory / "local.json";
 const auto defaultConfigFilePath = testConfigDirectory / "default.json";
 const auto customEnvironmentsConfigFilePath = testConfigDirectory / "custom-environment-variables.json";
 
@@ -86,6 +87,14 @@ const std::string envVariablesJson = R"(
     }
 }
 )";
+
+const std::string localJson = R"(
+{
+    "aws": {
+        "region": "eu-west-1"
+    }
+}
+)";
 }
 
 class ConfigTest : public Test
@@ -114,14 +123,20 @@ public:
 
         customEnvironmentsConfigFile << envVariablesJson;
 
+        std::ofstream localConfigFile{localConfigFilePath};
+
+        localConfigFile << localJson;
+
         std::filesystem::remove_all(fallbackConfigDirectory);
 
         std::filesystem::create_directory(fallbackConfigDirectory);
 
         std::ofstream fallbackDefaultConfigFile{fallbackConfigDirectory / "default.json"};
-        std::ofstream fallbackDevelopmentConfigFile{fallbackConfigDirectory / "development.json"};
 
         fallbackDefaultConfigFile << defaultJson;
+
+        std::ofstream fallbackDevelopmentConfigFile{fallbackConfigDirectory / "development.json"};
+
         fallbackDevelopmentConfigFile << developmentJson;
 
         std::filesystem::remove_all(emptyConfigDirectory);
@@ -181,7 +196,7 @@ TEST_F(ConfigTest, givenCxxEnvAndConfigDir_returnsKeyValues)
     ASSERT_EQ(dbPortValue, 1996);
     ASSERT_EQ(awsAccountIdValue, awsAccountId);
     ASSERT_EQ(awsAccountKeyValue, awsAccountKey);
-    ASSERT_EQ(awsRegionValue, "eu-central-1");
+    ASSERT_EQ(awsRegionValue, "eu-west-1");
     ASSERT_EQ(authExpiresInValue, 3600);
     ASSERT_EQ(authEnabledValue, true);
     ASSERT_EQ(authRolesValue, expectedAuthRoles);
@@ -279,7 +294,7 @@ TEST_F(ConfigTest, returnsKeyValueAsAny)
     ASSERT_EQ(std::any_cast<int>(dbPortValue), 1996);
     ASSERT_EQ(std::any_cast<std::string>(awsAccountIdValue), awsAccountId);
     ASSERT_EQ(std::any_cast<std::string>(awsAccountKeyValue), awsAccountKey);
-    ASSERT_EQ(std::any_cast<std::string>(awsRegionValue), "eu-central-1");
+    ASSERT_EQ(std::any_cast<std::string>(awsRegionValue), "eu-west-1");
     ASSERT_EQ(std::any_cast<int>(authExpiresInValue), 3600);
     ASSERT_EQ(std::any_cast<bool>(authEnabledValue), true);
     ASSERT_EQ(std::any_cast<std::vector<std::string>>(authRolesValue), expectedAuthRoles);
