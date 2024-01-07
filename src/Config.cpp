@@ -104,8 +104,7 @@ void Config::initialize()
 
     const auto configDirectory = ConfigDirectoryPathResolver::getConfigDirectoryPath();
 
-    std::cout << "Config directory: " << configDirectory << std::endl;
-    std::cout << "Env: " << cxxEnv << std::endl;
+    std::cout << "Config directory: " << configDirectory << " loaded." << std::endl;
 
     const auto defaultConfigFilePath = configDirectory / "default.json";
     const auto cxxEnvConfigFilePath = (configDirectory / cxxEnv).replace_extension(".json");
