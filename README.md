@@ -23,8 +23,7 @@ community.
 It reads config from JSON files based on environment and provides access to it via C++ API.
 
 1. Reads config directory path based on `CXX_CONFIG_DIR` environment variable (or tries to find `config` directory
-   automatically in
-   project root).
+   automatically in current working directory or in executable parents directory).
 2. Loads config values from `default.json` file.
 3. Loads config values from `<environment>.json` config file (based on `CXX_ENV` environment variable).
 4. Reads `custom-environment-variables.json` config file and loads its values from environment variables.
