@@ -1,6 +1,7 @@
 #include "ConfigDirectoryPathResolver.h"
 
 #include <filesystem>
+#include <iostream>
 
 #include "environment/ConfigProvider.h"
 #include "filesystem/ExecutableFinder.h"
@@ -10,60 +11,42 @@ namespace config
 {
 std::filesystem::path ConfigDirectoryPathResolver::getConfigDirectoryPath()
 {
-    const auto configDirectoryPathFromEnv = getConfigDirectoryPathFromEnv();
+    std::filesystem::path configDirectoryPath;
 
-    if (configDirectoryPathFromEnv)
+    const auto configDirectoryEnvPath = environment::ConfigProvider::getCxxConfigDir();
+
+    if (configDirectoryEnvPath && !configDirectoryEnvPath->empty())
     {
-        return *configDirectoryPathFromEnv;
-    }
+        auto configDirectoryFsPath = std::filesystem::path{*configDirectoryEnvPath};
 
-    const auto configDirectoryPathFromExecutable = getConfigDirectoryPathFromExecutable();
-
-    if (configDirectoryPathFromExecutable)
-    {
-        return *configDirectoryPathFromExecutable;
-    }
-
-    const auto configDirectoryPathFromCurrentWorkingDirectory = getConfigDirectoryPathFromCurrentWorkingDirectory();
-
-    if (configDirectoryPathFromCurrentWorkingDirectory)
-    {
-        return *configDirectoryPathFromCurrentWorkingDirectory;
-    }
-
-    throw std::runtime_error("Config directory not found.");
-}
-
-std::optional<std::filesystem::path> ConfigDirectoryPathResolver::getConfigDirectoryPathFromEnv()
-{
-    const auto configDirectoryPath = environment::ConfigProvider::getCxxConfigDir();
-
-    if (configDirectoryPath && !configDirectoryPath->empty())
-    {
-        auto configDirectoryFsPath = std::filesystem::path{*configDirectoryPath};
-
-        const auto envConfigPathExists = filesystem::FileSystemService::exists(configDirectoryFsPath);
-
-        if (!envConfigPathExists)
+        if (!filesystem::FileSystemService::isRelative(configDirectoryFsPath))
         {
-            throw std::runtime_error("Config directory not found: CXX_CONFIG_DIR=" + *configDirectoryPath);
-        }
+            if (!filesystem::FileSystemService::exists(configDirectoryFsPath))
+            {
+                throw std::runtime_error("Config directory not found: CXX_CONFIG_DIR=" + *configDirectoryEnvPath);
+            }
 
-        return configDirectoryFsPath;
+            return configDirectoryFsPath;
+        }
     }
 
-    return std::nullopt;
-}
-
-std::optional<std::filesystem::path> ConfigDirectoryPathResolver::getConfigDirectoryPathFromExecutable()
-{
     const auto executablePath = filesystem::ExecutableFinder::getExecutablePath();
+
+    if (executablePath.empty())
+    {
+        throw std::runtime_error("Executable path not found.");
+    }
 
     std::filesystem::path path(executablePath);
 
-    while (path.has_parent_path())
+    const auto pathSuffix =
+        configDirectoryEnvPath && !configDirectoryEnvPath->empty() ? *configDirectoryEnvPath : "config";
+
+    const auto systemRootPath = filesystem::FileSystemService::getSystemRootPath();
+
+    while (path.has_parent_path() && !equivalent(path, systemRootPath))
     {
-        auto potentialConfigPath = path / "config";
+        auto potentialConfigPath = path / pathSuffix;
 
         if (filesystem::FileSystemService::exists(potentialConfigPath) &&
             filesystem::FileSystemService::isDirectory(potentialConfigPath))
@@ -74,27 +57,12 @@ std::optional<std::filesystem::path> ConfigDirectoryPathResolver::getConfigDirec
         path = path.parent_path();
     }
 
-    if (path.string().ends_with("config"))
+    if (path.string().ends_with(pathSuffix))
     {
         return path;
     }
 
-    return std::nullopt;
-}
-
-std::optional<std::filesystem::path> ConfigDirectoryPathResolver::getConfigDirectoryPathFromCurrentWorkingDirectory()
-{
-    const auto currentWorkingDirectory = filesystem::FileSystemService::getCurrentWorkingDirectory();
-
-    auto potentialConfigPath = currentWorkingDirectory / "config";
-
-    if (filesystem::FileSystemService::exists(potentialConfigPath) &&
-        filesystem::FileSystemService::isDirectory(potentialConfigPath))
-    {
-        return potentialConfigPath;
-    }
-
-    return std::nullopt;
+    throw std::runtime_error("Config directory not found.");
 }
 
 }

@@ -42,9 +42,7 @@ std::filesystem::path ExecutableFinder::getExecutablePath()
 
     ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
 
-    const std::filesystem::path path = std::string(result, (count > 0) ? static_cast<unsigned long>(count) : 0);
-
-    return path;
+    return std::filesystem::path{std::string(result, (count > 0) ? static_cast<unsigned long>(count) : 0)};
 #endif
 }
 }

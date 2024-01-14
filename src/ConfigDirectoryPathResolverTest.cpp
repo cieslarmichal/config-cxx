@@ -5,7 +5,6 @@
 #include "gtest/gtest.h"
 
 #include "filesystem/ExecutableFinder.h"
-#include "filesystem/FileSystemService.h"
 #include "tests/EnvironmentSetter.h"
 
 using namespace ::testing;
@@ -17,9 +16,9 @@ namespace
 {
 const auto executablePath = ExecutableFinder::getExecutablePath();
 const auto configDirectoryFromExecutable = executablePath.parent_path() / "config";
-const auto currentWorkingDirectory = filesystem::FileSystemService::getCurrentWorkingDirectory();
-const auto configDirectory = currentWorkingDirectory / "customConfig";
-const auto defaultDirectory = currentWorkingDirectory / "config";
+const auto configDirectory1RelativePath = "customConfig1";
+const auto configDirectory1AbsolutePath = executablePath.parent_path() / "customConfig1";
+const auto configDirectory2AbsolutePath = executablePath.parent_path() / "customConfig2";
 }
 
 class ConfigDirectoryPathResolverTest : public Test
@@ -29,14 +28,14 @@ public:
     {
         EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", "");
 
-        if (std::filesystem::exists(configDirectory))
+        if (std::filesystem::exists(configDirectory1AbsolutePath))
         {
-            std::filesystem::remove_all(configDirectory);
+            std::filesystem::remove_all(configDirectory1AbsolutePath);
         }
 
-        if (std::filesystem::exists(defaultDirectory))
+        if (std::filesystem::exists(configDirectory2AbsolutePath))
         {
-            std::filesystem::remove_all(defaultDirectory);
+            std::filesystem::remove_all(configDirectory2AbsolutePath);
         }
 
         if (std::filesystem::exists(configDirectoryFromExecutable))
@@ -49,14 +48,14 @@ public:
     {
         EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", "");
 
-        if (std::filesystem::exists(configDirectory))
+        if (std::filesystem::exists(configDirectory1AbsolutePath))
         {
-            std::filesystem::remove_all(configDirectory);
+            std::filesystem::remove_all(configDirectory1AbsolutePath);
         }
 
-        if (std::filesystem::exists(defaultDirectory))
+        if (std::filesystem::exists(configDirectory2AbsolutePath))
         {
-            std::filesystem::remove_all(defaultDirectory);
+            std::filesystem::remove_all(configDirectory2AbsolutePath);
         }
 
         if (std::filesystem::exists(configDirectoryFromExecutable))
@@ -77,28 +76,6 @@ TEST_F(ConfigDirectoryPathResolverTest, givenNotExistingPathInConfigDirectory_th
     ASSERT_THROW(ConfigDirectoryPathResolver::getConfigDirectoryPath(), std::runtime_error);
 }
 
-TEST_F(ConfigDirectoryPathResolverTest, givenExistingPathNamedConfigInConfigDirectory_returnsPath)
-{
-    std::filesystem::create_directory(configDirectory);
-
-    const auto configDirectoryEnvName = "CXX_CONFIG_DIR";
-
-    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, configDirectory.string());
-
-    const auto configDirectoryPath = ConfigDirectoryPathResolver::getConfigDirectoryPath();
-
-    ASSERT_EQ(configDirectoryPath, configDirectory);
-}
-
-TEST_F(ConfigDirectoryPathResolverTest, givenConfigDirectoryInCwd_returnsPath)
-{
-    std::filesystem::create_directory(defaultDirectory);
-
-    const auto configDirectoryPath = ConfigDirectoryPathResolver::getConfigDirectoryPath();
-
-    ASSERT_EQ(configDirectoryPath, defaultDirectory);
-}
-
 TEST_F(ConfigDirectoryPathResolverTest, givenConfigDirectoryInExecutableParents_returnsPath)
 {
     std::filesystem::create_directory(configDirectoryFromExecutable);
@@ -106,4 +83,30 @@ TEST_F(ConfigDirectoryPathResolverTest, givenConfigDirectoryInExecutableParents_
     const auto configDirectoryPath = ConfigDirectoryPathResolver::getConfigDirectoryPath();
 
     ASSERT_EQ(configDirectoryPath, configDirectoryFromExecutable);
+}
+
+TEST_F(ConfigDirectoryPathResolverTest, givenExistingAbsoluteConfigEnvPath_returnsPath)
+{
+    std::filesystem::create_directory(configDirectory2AbsolutePath);
+
+    const auto configDirectoryEnvName = "CXX_CONFIG_DIR";
+
+    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, configDirectory2AbsolutePath.string());
+
+    const auto configDirectoryPath = ConfigDirectoryPathResolver::getConfigDirectoryPath();
+
+    ASSERT_EQ(configDirectoryPath, configDirectory2AbsolutePath);
+}
+
+TEST_F(ConfigDirectoryPathResolverTest, givenExistingRelativeConfigEnvPath_returnsPath)
+{
+    std::filesystem::create_directory(configDirectory1AbsolutePath);
+
+    const auto configDirectoryEnvName = "CXX_CONFIG_DIR";
+
+    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, configDirectory1RelativePath);
+
+    const auto configDirectoryPath = ConfigDirectoryPathResolver::getConfigDirectoryPath();
+
+    ASSERT_EQ(configDirectoryPath, configDirectory1AbsolutePath);
 }

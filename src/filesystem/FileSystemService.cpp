@@ -33,9 +33,23 @@ bool FileSystemService::isDirectory(const std::filesystem::path& absolutePath)
     return std::filesystem::is_directory(absolutePath);
 }
 
+bool FileSystemService::isRelative(const std::filesystem::path& path)
+{
+    return path.is_relative();
+}
+
 std::filesystem::path FileSystemService::getCurrentWorkingDirectory()
 {
     return std::filesystem::current_path();
+}
+
+std::filesystem::path FileSystemService::getSystemRootPath()
+{
+#if defined(_WIN32)
+    return fs::path(path).root_path();
+#else
+    return "/";
+#endif
 }
 
 }

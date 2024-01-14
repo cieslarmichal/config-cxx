@@ -64,7 +64,7 @@ void JsonConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFile
 
         if (!envValue || envValue->empty())
         {
-            std::cerr << "Environment variable " + it.value().get<std::string>() + " not set." << std::endl;
+            std::cout << "Environment variable " + it.value().get<std::string>() + " not set." << std::endl;
 
             continue;
         }
