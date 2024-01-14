@@ -39,8 +39,9 @@ std::filesystem::path ConfigDirectoryPathResolver::getConfigDirectoryPath()
 
     std::filesystem::path path(executablePath);
 
-    const auto pathSuffix =
-        configDirectoryEnvPath && !configDirectoryEnvPath->empty() ? *configDirectoryEnvPath : "config";
+    const auto pathSuffix = configDirectoryEnvPath && !configDirectoryEnvPath->empty() ?
+                                std::filesystem::path{*configDirectoryEnvPath}.lexically_normal().string() :
+                                "config";
 
     const auto systemRootPath = filesystem::FileSystemService::getSystemRootPath();
 

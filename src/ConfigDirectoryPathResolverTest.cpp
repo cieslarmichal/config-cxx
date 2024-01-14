@@ -16,9 +16,11 @@ namespace
 {
 const auto executablePath = ExecutableFinder::getExecutablePath();
 const auto configDirectoryFromExecutable = executablePath.parent_path() / "config";
-const auto configDirectory1RelativePath = "customConfig1";
+const auto configDirectory1RelativePath = "./customConfig1";
 const auto configDirectory1AbsolutePath = executablePath.parent_path() / "customConfig1";
 const auto configDirectory2AbsolutePath = executablePath.parent_path() / "customConfig2";
+const auto configDirectory3AbsolutePath = executablePath.parent_path() / "customConfig3";
+const auto configDirectory3RelativePath = "customConfig3";
 }
 
 class ConfigDirectoryPathResolverTest : public Test
@@ -36,6 +38,11 @@ public:
         if (std::filesystem::exists(configDirectory2AbsolutePath))
         {
             std::filesystem::remove_all(configDirectory2AbsolutePath);
+        }
+
+        if (std::filesystem::exists(configDirectory3AbsolutePath))
+        {
+            std::filesystem::remove_all(configDirectory3AbsolutePath);
         }
 
         if (std::filesystem::exists(configDirectoryFromExecutable))
@@ -56,6 +63,11 @@ public:
         if (std::filesystem::exists(configDirectory2AbsolutePath))
         {
             std::filesystem::remove_all(configDirectory2AbsolutePath);
+        }
+
+        if (std::filesystem::exists(configDirectory3AbsolutePath))
+        {
+            std::filesystem::remove_all(configDirectory3AbsolutePath);
         }
 
         if (std::filesystem::exists(configDirectoryFromExecutable))
@@ -109,4 +121,17 @@ TEST_F(ConfigDirectoryPathResolverTest, givenExistingRelativeConfigEnvPath_retur
     const auto configDirectoryPath = ConfigDirectoryPathResolver::getConfigDirectoryPath();
 
     ASSERT_EQ(configDirectoryPath, configDirectory1AbsolutePath);
+}
+
+TEST_F(ConfigDirectoryPathResolverTest, givenExistingRelativeConfigEnvLexicallyNormalPath_returnsPath)
+{
+    std::filesystem::create_directory(configDirectory3AbsolutePath);
+
+    const auto configDirectoryEnvName = "CXX_CONFIG_DIR";
+
+    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, configDirectory3RelativePath);
+
+    const auto configDirectoryPath = ConfigDirectoryPathResolver::getConfigDirectoryPath();
+
+    ASSERT_EQ(configDirectoryPath, configDirectory3AbsolutePath);
 }
