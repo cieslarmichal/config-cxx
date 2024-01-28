@@ -64,7 +64,7 @@ T Config::get(const std::string& keyPath)
     catch (const std::bad_any_cast& e)
     {
         // Log the error details
-        std::cerr << "Error casting value for Config key '" << keyPath << "': " << e.what() << std::endl;
+        std::cerr << "Cannot resolve value for config key '" << keyPath << "': " << e.what() << std::endl;
         throw; // Re-throw the exception
     }
 }
