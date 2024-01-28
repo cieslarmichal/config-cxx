@@ -16,19 +16,103 @@
 Goal of the Config C++ is to provide a library like [node-config](https://github.com/node-config/node-config) for C++
 community.
 
-## How it works
+## Introduction
 
-### Read config process
+Config C++ organizes hierarchical configurations for your app deployments.
 
-It reads config from JSON files based on environment and provides access to it via C++ API.
+It lets you define a set of default parameters,
+and extend them for different deployment environments (development, testing,
+staging, production, etc.).
 
-1. Reads config directory path based on `CXX_CONFIG_DIR` environment variable (or tries to find `config` directory
-   automatically in current working directory or in executable parents directory).
-2. Loads config values from `default.json` file.
-3. Loads config values from `<environment>.json` config file (based on `CXX_ENV` environment variable).
-4. Reads `custom-environment-variables.json` config file and loads its values from environment variables.
-5. Loads config values from `local.json` config file.
-6. If no config values were found, it throws an error.
+Configurations are stored in json files within your application, and can be overridden and extended by environment variables.
+
+## Quick Start
+
+The following examples are in JSON format (YAML in progress).
+
+### Install in your app directory, and edit the default config file:
+
+1. Add config to git submodules (execute in project root):
+
+```shell
+$ mkdir externals && cd externals
+$ git submodule add https://github.com/cieslarmichal/config-cxx.git
+$ git submodule update --init --recursive
+$ cd ..
+$ mkdir config
+$ vi config/default.json
+```
+
+2. Link with library:
+
+```cmake
+set(BUILD_CONFIG_CXX_TESTS OFF)
+
+add_subdirectory(externals/config-cxx)
+
+add_executable(main Main.cpp)
+
+target_link_libraries(main config-cxx)
+```
+
+```js
+{
+  "db": {
+    "name": "users",
+    "host": "localhost",
+    "port": 3306,
+    "user": "default",
+    "password": "default"
+  }
+}
+```
+
+### Edit config overrides for production deployment:
+
+```shell
+ $ vi config/production.json
+```
+
+```json
+{
+  "db": {
+    "host": "postgres",
+    "user": "admin",
+    "password": "secretpassword"
+  }
+}
+```
+
+### Use configs in your code:
+
+```cpp
+#include <iostream>
+#include "config-cxx/Config.h"
+
+config::Config config;
+
+auto dbName = config.get<std::string>("db.name"); // "users"
+auto dbHost = config.get<std::string>("db.host"); // "postgres"
+auto dbPort = config.get<int>("db.port"); // 3306
+auto dbUser = config.get<int>("db.user"); // "admin"
+auto dbPassword = config.get<int>("db.password"); // "secretpassword"
+auto authEnabled = config.get<bool>("auth.enabled"); // true
+```
+
+
+`config.get()` will throw an exception for undefined keys to help catch typos and missing values.
+Use `config.has()` to test if a configuration value is defined.
+
+### Before starting your app specify target CXX environment:
+
+```shell
+$ export CXX_ENV=production
+```
+
+Running in this configuration, the `port` and `name` elements of `db`
+will come from the `default.json` file, and the `host`, `user` and `password` elements will
+come from the `production.json` override file.
+
 
 ### Priority
 
@@ -41,99 +125,10 @@ Priority of config values is as follows (from lowest to highest):
 
 Highest priority config values override lower priority config values.
 
-## Environment variables
+### Environment variables
 
 - `CXX_CONFIG_DIR` - path to the config directory.
 - `CXX_ENV` - environment name (e.g. `development`, `production`). Defaults to `development`.
-
-## Setup
-
-You don't need to have all types of config files. You need to have at least one of them.
-
-```
-config
-├── custom-environment-variables.json
-├── default.json
-├── development.json
-├── local.json
-```
-
-Example of `default.json` / `development.json` / `local.json`:
-
-```json
-{
-  "db": {
-    "host": "localhost",
-    "port": 3306
-  },
-  "auth": {
-    "enabled": true
-  }
-}
-```
-
-Example of `custom-environment-variables.json`:
-
-```json
-{
-  "db": {
-    "host": "DB_HOST",
-    "port": "DB_PORT"
-  },
-  "auth": {
-    "enabled": "AUTH_ENABLED"
-  }
-}
-```
-
-## Usage
-
-```cpp
-
-#include <iostream>
-
-#include "config-cxx/Config.h"
-
-int main()
-{
-    config::Config config;
-
-    const auto dbHost = config.get<std::string>("db.host");
-    const auto dbPort = config.get<int>("db.port");
-    const auto authEnabled = config.get<bool>("auth.enabled");
-
-    std::cout << dbHost << std::endl;      // localhost
-    std::cout << dbPort << std::endl;      // 3306
-    std::cout << authEnabled << std::endl; // true
-    
-    return 0;
-}
-
-```
-
-## Consuming library with CMake
-
-1. Add config to git submodules (execute in project root):
-
-    ```
-    mkdir externals
-    cd externals
-    git submodule add https://github.com/cieslarmichal/config-cxx.git
-    git submodule update --init --recursive
-    ```
-
-2. Link with library:
-
-    ```cmake
-    set(BUILD_CONFIG_CXX_TESTS OFF)
-    
-    add_subdirectory(externals/config-cxx)
-    
-    add_executable(main Main.cpp)
-    
-    target_link_libraries(main config-cxx)
-    ```
-   CMake 3.22 or newer is required.
 
 ## 📖 Documentation
 
@@ -141,7 +136,7 @@ https://cieslarmichal.github.io/config-cxx/
 
 ## Examples
 
-Check out example project in examples directory.
+Check out example project in examples directory or real-life project that uses `config-cxx`: [chatroom](https://github.com/momentum-devs/chatroom).
 
 ## Compiler support
 
