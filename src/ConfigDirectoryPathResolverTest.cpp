@@ -79,12 +79,10 @@ public:
 
 TEST_F(ConfigDirectoryPathResolverTest, givenNotExistingPathInConfigDirectory_throws)
 {
-    const auto configDirectoryEnvName = "CXX_CONFIG_DIR";
+    // Set CXX_CONFIG_DIR to a non-existing path
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", "/nonexistent/path");
 
-    const auto notExistingConfigDirectoryPath = "test";
-
-    EnvironmentSetter::setEnvironmentVariable(configDirectoryEnvName, notExistingConfigDirectoryPath);
-
+    // Now calling getConfigDirectoryPath should throw an exception
     ASSERT_THROW(ConfigDirectoryPathResolver::getConfigDirectoryPath(), std::runtime_error);
 }
 

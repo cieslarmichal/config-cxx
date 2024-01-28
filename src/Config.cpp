@@ -1,5 +1,6 @@
 #include "config-cxx/Config.h"
 
+#include <cstddef>
 #include <iostream>
 #include <stdexcept>
 
@@ -29,18 +30,21 @@ T Config::get(const std::string& keyPath)
         throw std::runtime_error("Config key " + keyPath + " not found.");
     }
 
-    if constexpr (std::is_same_v<T, std::string>)
+    if (value.type() == typeid(std::nullptr_t))
     {
-        try
-        {
-            return std::to_string(std::any_cast<int>(value));
-        }
-        catch (const std::bad_any_cast& e)
-        {
-        }
+        throw std::runtime_error("Config key " + keyPath + " is of invalid nullptr type.");
     }
 
-    return std::any_cast<T>(value);
+    try
+    {
+        return std::any_cast<T>(value);
+    }
+    catch (const std::bad_any_cast& e)
+    {
+        // Log the error details
+        std::cerr << "Cannot resolve value for config key '" << keyPath << "': " << e.what() << std::endl;
+        throw; // Re-throw the exception
+    }
 }
 
 std::any Config::get(const std::string& keyPath)
@@ -50,8 +54,8 @@ std::any Config::get(const std::string& keyPath)
         initialize();
     }
 
-    const auto keyOccurrences = std::count_if(values.begin(), values.end(), [&](auto& value)
-                                              { return value.first.find(keyPath) != std::string::npos; });
+    const auto keyOccurrences = std::count_if(
+        values.begin(), values.end(), [&](auto& value) { return value.first.find(keyPath) != std::string::npos; });
 
     if (keyOccurrences == 0)
     {
