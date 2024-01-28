@@ -1,5 +1,6 @@
 #include "config-cxx/Config.h"
 
+#include <cstddef>
 #include <iostream>
 #include <stdexcept>
 
@@ -29,32 +30,9 @@ T Config::get(const std::string& keyPath)
         throw std::runtime_error("Config key " + keyPath + " not found.");
     }
 
-    if constexpr (std::is_same_v<T, std::string>)
+    if (value.type() == typeid(std::nullptr_t))
     {
-        // Check if the value is nullptr before casting
-        if (value.type() == typeid(std::nullptr_t))
-        {
-            // Handle nullptr case by returning an empty string
-            return std::string();
-        }
-    }
-    else if constexpr (std::is_same_v<T, int>)
-    {
-        // Check if the value is nullptr before casting
-        if (value.type() == typeid(std::nullptr_t))
-        {
-            // Handle nullptr case for int
-            return 0;
-        }
-    }
-    else if constexpr (std::is_same_v<T, bool>)
-    {
-        // Check if the value is nullptr before casting
-        if (value.type() == typeid(std::nullptr_t))
-        {
-            // Handle nullptr case for bool
-            return false;
-        }
+        throw std::runtime_error("Config key " + keyPath + " is of invalid nullptr type.");
     }
 
     try
