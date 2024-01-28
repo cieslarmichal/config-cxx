@@ -34,8 +34,26 @@ T Config::get(const std::string& keyPath)
         // Check if the value is nullptr before casting
         if (value.type() == typeid(std::nullptr_t))
         {
-            // Handle nullptr case by returning an empty string or another default value
-            return std::string(); // or return ""; or return someDefaultValue;
+            // Handle nullptr case by returning an empty string
+            return std::string();
+        }
+    }
+    else if constexpr (std::is_same_v<T, int>)
+    {
+        // Check if the value is nullptr before casting
+        if (value.type() == typeid(std::nullptr_t))
+        {
+            // Handle nullptr case for int
+            return 0;
+        }
+    }
+    else if constexpr (std::is_same_v<T, bool>)
+    {
+        // Check if the value is nullptr before casting
+        if (value.type() == typeid(std::nullptr_t))
+        {
+            // Handle nullptr case for bool
+            return false;
         }
     }
 
