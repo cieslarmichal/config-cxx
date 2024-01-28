@@ -31,16 +31,24 @@ T Config::get(const std::string& keyPath)
 
     if constexpr (std::is_same_v<T, std::string>)
     {
-        try
+        // Check if the value is nullptr before casting
+        if (value.type() == typeid(std::nullptr_t))
         {
-            return std::to_string(std::any_cast<int>(value));
-        }
-        catch (const std::bad_any_cast& e)
-        {
+            // Handle nullptr case by returning an empty string or another default value
+            return std::string(); // or return ""; or return someDefaultValue;
         }
     }
 
-    return std::any_cast<T>(value);
+    try
+    {
+        return std::any_cast<T>(value);
+    }
+    catch (const std::bad_any_cast& e)
+    {
+        // Log the error details
+        std::cerr << "Error casting value for Config key '" << keyPath << "': " << e.what() << std::endl;
+        throw; // Re-throw the exception
+    }
 }
 
 std::any Config::get(const std::string& keyPath)
@@ -50,8 +58,8 @@ std::any Config::get(const std::string& keyPath)
         initialize();
     }
 
-    const auto keyOccurrences = std::count_if(values.begin(), values.end(), [&](auto& value)
-                                              { return value.first.find(keyPath) != std::string::npos; });
+    const auto keyOccurrences = std::count_if(
+        values.begin(), values.end(), [&](auto& value) { return value.first.find(keyPath) != std::string::npos; });
 
     if (keyOccurrences == 0)
     {
