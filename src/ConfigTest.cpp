@@ -308,3 +308,35 @@ TEST_F(ConfigTest, getAny_givenNotExistingKey_shouldThrow)
 
     ASSERT_THROW(config.get(notExistingKey), std::runtime_error);
 }
+
+TEST_F(ConfigTest, configHasTest)
+{
+    EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
+
+    const auto awsAccountId = "9999999999";
+    const auto awsAccountKey = "806223445";
+
+    EnvironmentSetter::setEnvironmentVariable("AWS_ACCOUNT_ID", awsAccountId);
+    EnvironmentSetter::setEnvironmentVariable("AWS_ACCOUNT_KEY", awsAccountKey);
+
+    Config config;
+
+    const std::string dbHostKey = "db.host";
+    const std::string dbPortKey = "db.port";
+    const std::string awsAccountIdKey = "aws.accountId";
+    const std::string awsAccountKeyKey = "aws.accountKey";
+
+    const std::string notExistingKey = "not.existing.key";
+    const std::string notExistingKey2 = "not.existing.key2";
+
+    config.get(dbHostKey); // initialize config
+
+    ASSERT_TRUE(config.has(dbHostKey));
+    ASSERT_TRUE(config.has(dbPortKey));
+    ASSERT_TRUE(config.has(awsAccountIdKey));
+    ASSERT_TRUE(config.has(awsAccountKeyKey));
+
+    ASSERT_FALSE(config.has(notExistingKey));
+    ASSERT_FALSE(config.has(notExistingKey2));
+}
