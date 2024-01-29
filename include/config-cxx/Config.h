@@ -43,6 +43,21 @@ public:
      */
     std::any get(const std::string& keyPath);
 
+    /**
+     * @brief Check if a config key exists.
+     *
+     * @param keyPath The path to config key.
+     *
+     * @return True if config key is not null value false otherwise.
+     *
+     * @code
+     * Config().has("db.host") // true
+     * Config().has("db.port") // true
+     * Config().has("db.user") // false
+     * @endcode
+     */
+    bool has(const std::string& keyPath);
+
 private:
     std::vector<std::string> getArray(const std::string& keyPath);
     void initialize();

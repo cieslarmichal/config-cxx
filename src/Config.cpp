@@ -102,6 +102,11 @@ std::vector<std::string> Config::getArray(const std::string& keyPath)
     return result;
 }
 
+bool Config::has(const std::string& keyPath)
+{
+    return values.find(keyPath) != values.end();
+}
+
 void Config::initialize()
 {
     const auto cxxEnv = environment::ConfigProvider::getCxxEnv();
