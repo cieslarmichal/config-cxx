@@ -330,8 +330,6 @@ TEST_F(ConfigTest, configHasTest)
     const std::string notExistingKey = "not.existing.key";
     const std::string notExistingKey2 = "not.existing.key2";
 
-    config.get(dbHostKey); // initialize config
-
     ASSERT_TRUE(config.has(dbHostKey));
     ASSERT_TRUE(config.has(dbPortKey));
     ASSERT_TRUE(config.has(awsAccountIdKey));

@@ -32,7 +32,7 @@ T Config::get(const std::string& keyPath)
 
     if (value.type() == typeid(std::nullptr_t))
     {
-        throw std::runtime_error("Config key " + keyPath + " is of invalid nullptr type.");
+        throw std::runtime_error("Config key " + keyPath + " has value of nullptr.");
     }
 
     try
@@ -41,9 +41,8 @@ T Config::get(const std::string& keyPath)
     }
     catch (const std::bad_any_cast& e)
     {
-        // Log the error details
         std::cerr << "Cannot resolve value for config key '" << keyPath << "': " << e.what() << std::endl;
-        throw; // Re-throw the exception
+        throw;
     }
 }
 
@@ -54,8 +53,8 @@ std::any Config::get(const std::string& keyPath)
         initialize();
     }
 
-    const auto keyOccurrences = std::count_if(
-        values.begin(), values.end(), [&](auto& value) { return value.first.find(keyPath) != std::string::npos; });
+    const auto keyOccurrences = std::count_if(values.begin(), values.end(), [&](auto& value)
+                                              { return value.first.find(keyPath) != std::string::npos; });
 
     if (keyOccurrences == 0)
     {
@@ -89,8 +88,6 @@ std::vector<std::string> Config::getArray(const std::string& keyPath)
             {
                 throw std::runtime_error("Config key " + keyPath + " has not valid type.");
             }
-
-            std::cout << std::endl;
         }
     }
 
@@ -104,6 +101,11 @@ std::vector<std::string> Config::getArray(const std::string& keyPath)
 
 bool Config::has(const std::string& keyPath)
 {
+    if (!initialized)
+    {
+        initialize();
+    }
+
     return values.find(keyPath) != values.end();
 }
 
