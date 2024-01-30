@@ -24,7 +24,7 @@ It lets you define a set of default parameters,
 and extend them for different deployment environments (development, testing,
 staging, production, etc.).
 
-Configurations are stored in json files within your application, and can be overridden and extended by environment variables.
+Configurations are stored in [configuration files](./docs/wiki/configuration-files.md) within your application, and can be overridden and extended by [environment variables](./docs/wiki/environment-variables.md).
 
 ## Quick Start
 
@@ -130,9 +130,10 @@ Highest priority config values override lower priority config values.
 - `CXX_CONFIG_DIR` - path to the config directory.
 - `CXX_ENV` - environment name (e.g. `development`, `production`). Defaults to `development`.
 
-## 📖 Documentation
+## 📖 Articles
 
-https://cieslarmichal.github.io/config-cxx/
+* [Configuration Files](./docs/wiki/configuration-files.md)
+* [Environment Variables](./docs/wiki/environment-variables.md)
 
 ## Examples
 
