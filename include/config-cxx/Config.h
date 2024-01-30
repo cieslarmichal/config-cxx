@@ -48,11 +48,10 @@ public:
      *
      * @param keyPath The path to config key.
      *
-     * @return True if config key is not null value false otherwise.
+     * @return True if config key is defined, false otherwise.
      *
      * @code
      * Config().has("db.host") // true
-     * Config().has("db.port") // true
      * Config().has("db.user") // false
      * @endcode
      */
