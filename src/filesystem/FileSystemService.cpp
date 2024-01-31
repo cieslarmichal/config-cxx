@@ -46,7 +46,7 @@ std::filesystem::path FileSystemService::getCurrentWorkingDirectory()
 std::filesystem::path FileSystemService::getSystemRootPath()
 {
 #if defined(_WIN32)
-    return fs::path(path).root_path();
+    return std::filesystem::path(path).root_path();
 #else
     return "/";
 #endif
