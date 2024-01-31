@@ -38,9 +38,6 @@ The following examples are in JSON format (YAML in progress).
 $ mkdir externals && cd externals
 $ git submodule add https://github.com/cieslarmichal/config-cxx.git
 $ git submodule update --init --recursive
-$ cd ..
-$ mkdir config
-$ vi config/default.json
 ```
 
 2. Link with library:
@@ -53,6 +50,11 @@ add_subdirectory(externals/config-cxx)
 add_executable(main Main.cpp)
 
 target_link_libraries(main config-cxx)
+```
+
+```
+$ mkdir config
+$ vi config/default.json
 ```
 
 ```js
