@@ -113,23 +113,6 @@ Running in this configuration, the `port` and `name` elements of `db`
 will come from the `default.json` file, and the `host`, `user` and `password` elements will
 come from the `production.json` override file.
 
-
-### Priority
-
-Priority of config values is as follows (from lowest to highest):
-
-1. `default.json`
-2. `<environment>.json`
-3. `custom-environment-variables.json`
-4. `local.json`
-
-Highest priority config values override lower priority config values.
-
-### Environment variables
-
-- `CXX_CONFIG_DIR` - path to the config directory.
-- `CXX_ENV` - environment name (e.g. `development`, `production`). Defaults to `development`.
-
 ## 📖 Articles
 
 * [Configuration Files](./docs/wiki/configuration-files.md)
@@ -137,7 +120,7 @@ Highest priority config values override lower priority config values.
 
 ## Examples
 
-Check out example project in examples directory or real-life project that uses `config-cxx`: [chatroom](https://github.com/momentum-devs/chatroom).
+Check out example project in examples directory.
 
 ## Compiler support
 
