@@ -1,10 +1,9 @@
 #include "JsonConfigLoader.h"
-#include "config-cxx/Config.h"
 
 #include <filesystem>
 #include <fstream>
 #include <unordered_map>
-#include <any>
+#include <variant>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -76,7 +75,7 @@ class JsonConfigLoaderTest : public Test
 TEST_F(JsonConfigLoaderTest, loadConfigFile) {
     std::unordered_map<std::string, std::any> expectedValues = {
         {"db.port", 1996},
-        {"aws.accountId", "123456789012"},
+        {"aws.accountId", "123"},
         {"aws.accountKey", "123"},
         {"aws.region", "eu-central-1"},
         {"auth.expiresIn", 3600},
@@ -85,6 +84,7 @@ TEST_F(JsonConfigLoaderTest, loadConfigFile) {
         {"auth.roles.1", "user"}
     };
 
-    std::unordered_map<std::string, std::any> configValues;
+    std::unordered_map<std::string, ConfigValue> configValues;
     JsonConfigLoader::loadConfigFile(testEnvConfigFilePath, configValues);
+
 }

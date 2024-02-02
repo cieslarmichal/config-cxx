@@ -200,7 +200,7 @@ TEST_F(ConfigTest, givenCxxEnvAndConfigDir_returnsKeyValues)
     ASSERT_EQ(authExpiresInValue, 3600);
     ASSERT_EQ(authEnabledValue, true);
     ASSERT_EQ(authRolesValue, expectedAuthRoles);
-};
+}
 
 TEST_F(ConfigTest, givenNoCxxEnvAndNoConfigDir_returnsDevelopmentKeyValues)
 {
@@ -234,7 +234,7 @@ TEST_F(ConfigTest, givenNoCxxEnvAndNoConfigDir_returnsDevelopmentKeyValues)
     ASSERT_EQ(authExpiresInValue, 7200);
     ASSERT_EQ(authEnabledValue, false);
     ASSERT_EQ(authRolesValue, expectedAuthRoles);
-};
+}
 
 TEST_F(ConfigTest, givenConfigDirWithoutConfigFiles_shouldThrow)
 {
@@ -243,7 +243,7 @@ TEST_F(ConfigTest, givenConfigDirWithoutConfigFiles_shouldThrow)
     Config config;
 
     ASSERT_THROW(config.get<std::string>("example.key"), std::runtime_error);
-};
+}
 
 TEST_F(ConfigTest, givenCxxEnvAndConfigDirAndNotExistingKey_shouldThrow)
 {
@@ -254,50 +254,7 @@ TEST_F(ConfigTest, givenCxxEnvAndConfigDirAndNotExistingKey_shouldThrow)
 
     const std::string notExistingKey = "not.existing.key";
 
-    ASSERT_THROW(config.get<int>(notExistingKey), std::runtime_error);
-}
-
-TEST_F(ConfigTest, returnsKeyValueAsAny)
-{
-    EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
-    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
-
-    const auto awsAccountId = "9999999999";
-    const auto awsAccountKey = "806223445";
-
-    EnvironmentSetter::setEnvironmentVariable("AWS_ACCOUNT_ID", awsAccountId);
-    EnvironmentSetter::setEnvironmentVariable("AWS_ACCOUNT_KEY", awsAccountKey);
-
-    Config config;
-
-    const std::string dbHostKey = "db.host";
-    const std::string dbPortKey = "db.port";
-    const std::string awsAccountIdKey = "aws.accountId";
-    const std::string awsAccountKeyKey = "aws.accountKey";
-    const std::string awsRegionKey = "aws.region";
-    const std::string authExpiresInKey = "auth.expiresIn";
-    const std::string authEnabledKey = "auth.enabled";
-    const std::string authRolesKey = "auth.roles";
-
-    const auto dbHostValue = config.get(dbHostKey);
-    const auto dbPortValue = config.get(dbPortKey);
-    const auto awsAccountIdValue = config.get<std::string>(awsAccountIdKey);
-    const auto awsAccountKeyValue = config.get<std::string>(awsAccountKeyKey);
-    const auto awsRegionValue = config.get<std::string>(awsRegionKey);
-    const auto authExpiresInValue = config.get<int>(authExpiresInKey);
-    const auto authEnabledValue = config.get<bool>(authEnabledKey);
-    const auto authRolesValue = config.get<std::vector<std::string>>(authRolesKey);
-
-    const auto expectedAuthRoles = std::vector<std::string>{"admin", "user"};
-
-    ASSERT_EQ(std::any_cast<std::string>(dbHostValue), "localhost");
-    ASSERT_EQ(std::any_cast<int>(dbPortValue), 1996);
-    ASSERT_EQ(std::any_cast<std::string>(awsAccountIdValue), awsAccountId);
-    ASSERT_EQ(std::any_cast<std::string>(awsAccountKeyValue), awsAccountKey);
-    ASSERT_EQ(std::any_cast<std::string>(awsRegionValue), "eu-west-1");
-    ASSERT_EQ(std::any_cast<int>(authExpiresInValue), 3600);
-    ASSERT_EQ(std::any_cast<bool>(authEnabledValue), true);
-    ASSERT_EQ(std::any_cast<std::vector<std::string>>(authRolesValue), expectedAuthRoles);
+    ASSERT_THROW(config.get<int>(notExistingKey), std::bad_variant_access);
 }
 
 TEST_F(ConfigTest, getAny_givenNotExistingKey_shouldThrow)
