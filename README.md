@@ -19,7 +19,7 @@
     - [Installing config-cxx](#install-in-your-app-directory-and-edit-the-default-config-file)
     - [Editing config overrides](#edit-config-overrides-for-production-deployment)
     - [Usage](#use-configs-in-your-code)
-- [Articles](#📖-articles)
+- [Articles](#-articles)
   - [Configuration Files](./docs/wiki/configuration-files.md)
   - [Environment Variables](./docs/wiki/environment-variables.md)
 - [Examples](#examples)
