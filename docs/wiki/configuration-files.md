@@ -21,7 +21,6 @@ Where
 - `EXT` can be .yml, .yaml or .json depending on the format you prefer (see below).
 - `{deployment}` is the deployment name, from the `$CXX_ENV` environment variable.
 
-
 The `default.EXT` file is designed to contain all configuration parameters from which other files may overwrite. Overwriting is done on a parameter by parameter basis, so subsequent files contain only the parameters unique for that override.
 
 `{deployment}` files allow you to tune configurations for a particular server or deployment. These files are designed to live along with other files in your version control system.
@@ -31,7 +30,7 @@ The `default.EXT` file is designed to contain all configuration parameters from 
 
 The `local` files are intended to not be tracked in your version control system. External configuration management tools can write these files upon application deployment, before application loading.
 
-The best practice for using `local` files is avoid a global `local.EXT` file that would affect all `{deployment}` cases. Instead, choose `local-{deployment}.EXT`. With this design you can avoid a case where tests pass locally due to local overrides but don't pass after you push. Choose a local file variant that is not used for your testing context!
+The best practice for using `local` files is to avoid a global `local.EXT` file that would affect all `{deployment}` cases. Instead, choose `local-{deployment}.EXT`. With this design you can avoid a case where tests pass locally due to local overrides but don't pass in your CI/CD pipelines.
 
 ## Default CXX_ENV
 
