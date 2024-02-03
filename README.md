@@ -11,9 +11,24 @@
 [![Chat on Discord](https://img.shields.io/badge/chat-discord-blue?style=flat&logo=discord)](https://discord.gg/h2ur8H6mK6)
 </div>
 
+## Table of contents
+
+- [Goal](#goal)
+- [Introduction](#introduction)
+- [Quick start](#quick-start)
+    - [Installing config-cxx](#install-in-your-app-directory-and-edit-the-default-config-file)
+    - [Editing config overrides](#edit-config-overrides-for-production-deployment)
+    - [Usage](#use-configs-in-your-code)
+- [Articles](#-articles)
+  - [Configuration Files](./docs/wiki/configuration-files.md)
+  - [Environment Variables](./docs/wiki/environment-variables.md)
+- [Examples](#examples)
+- [Compiler support](#compiler-support)
+
+
 ## 🎯 Goal
 
-Goal of the Config C++ is to provide a library like [node-config](https://github.com/node-config/node-config) for C++
+Goal of the Config C++ is to provide a library like [node-config](https://github.com/node-config/node-config) to the C++
 community.
 
 ## Introduction
@@ -122,7 +137,7 @@ come from the `production.json` override file.
 
 ## Examples
 
-Check out example project in examples directory.
+Check out the example project in [examples directory](https://github.com/cieslarmichal/config-cxx/tree/main/examples/project).
 
 ## Compiler support
 
@@ -133,7 +148,7 @@ Check out example project in examples directory.
 
 ## Dependencies
 
-- GTest (```BUILD_CONFIG_CXX_TESTS=OFF``` CMake flag to disable)
+- GTest (set ```BUILD_CONFIG_CXX_TESTS=OFF``` CMake flag to disable this dependency)
 - nlohmann/json
 
 ## Contributing
@@ -142,7 +157,7 @@ Feel free to join Config C++ development! 🚀
 
 Please check [CONTRIBUTING](https://github.com/cieslarmichal/config-cxx/blob/main/CONTRIBUTING.md) guide.
 
-[Discord Channel](https://discord.gg/h2ur8H6mK6) for contributors.
+Visit us on [discord](https://discord.gg/h2ur8H6mK6) if you want to know more about contributing.
 
 ## 📝 Compilation guides
 
