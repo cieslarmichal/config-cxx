@@ -20,6 +20,8 @@ using namespace config::filesystem;
 
 namespace
 {
+using ConfigValue = std::variant<std::nullptr_t, bool, int, double, std::string, float, std::vector<std::string>>;
+
 const auto projectRootPath = ExecutableFinder::getExecutablePath();
 const auto testConfigDirectory = projectRootPath.parent_path() / "testConfig";
 const auto testEnvConfigFilePath = testConfigDirectory / "test.json";
@@ -73,7 +75,7 @@ class JsonConfigLoaderTest : public Test
 };
 
 TEST_F(JsonConfigLoaderTest, loadConfigFile) {
-    std::unordered_map<std::string, std::any> expectedValues = {
+    std::unordered_map<std::string, ConfigValue> expectedValues = {
         {"db.port", 1996},
         {"aws.accountId", "123"},
         {"aws.accountKey", "123"},

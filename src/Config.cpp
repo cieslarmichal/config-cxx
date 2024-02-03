@@ -1,18 +1,19 @@
 #include "config-cxx/Config.h"
 
-#include <cstddef>
 #include <iostream>
 #include <stdexcept>
 #include <variant>
 
 #include "ConfigDirectoryPathResolver.h"
+#include "ConfigValue.h"
 #include "environment/ConfigProvider.h"
 #include "JsonConfigLoader.h"
 
 namespace config
 {
+
 template <typename T>
-T Config::get(const std::string &keyPath)
+T Config::get(const std::string& keyPath)
 {
     if (!initialized)
     {
@@ -21,41 +22,33 @@ T Config::get(const std::string &keyPath)
 
     const auto value = values[keyPath];
 
-    if (value.valueless_by_exception() && value.index() == 0)
+    if (value.index() == 0)
     {
         throw std::runtime_error("Config key " + keyPath + " has value of nullptr.");
     }
 
-    for (int i = 0; i < 7; i++) {
-        std::cout << value.index() << std::endl;
-    }
-    try
+    std::optional<T> castedValue = config::cast<T>(value);
+
+    if (castedValue)
     {
-        if (std::holds_alternative<T>(value))
-        {
-            return std::get<T>(value);
-        }
-        else
-        {
-            throw std::runtime_error("Config key " + keyPath + " has an unexpected type.");
-        }
+        return castedValue.value();
     }
-    catch (const std::bad_variant_access &e)
+
+    else
     {
-        std::cerr << "Cannot resolve value for config key '" << keyPath << "': " << e.what() << std::endl;
-        throw;
+        throw std::runtime_error("Config key " + keyPath + " has value of wrong type.");
     }
 }
 
-ConfigValue Config::get(const std::string &keyPath)
+ConfigValue Config::get(const std::string& keyPath)
 {
     if (!initialized)
     {
         initialize();
     }
 
-    const auto keyOccurrences = std::count_if(values.begin(), values.end(), [&](auto &value)
-                                              { return value.first.find(keyPath) != std::string::npos; });
+    const auto keyOccurrences = std::count_if(
+        values.begin(), values.end(), [&](auto& value) { return value.first.find(keyPath) != std::string::npos; });
 
     if (keyOccurrences == 0)
     {
@@ -70,18 +63,26 @@ ConfigValue Config::get(const std::string &keyPath)
     return values[keyPath];
 }
 
-std::vector<std::string> Config::getArray(const std::string &keyPath)
+std::vector<std::string> Config::getArray(const std::string& keyPath)
 {
     std::vector<std::string> result;
 
-    for (const auto &pair : values)
+    for (const auto& pair : values)
     {
-        const std::string &key = pair.first;
-        const ConfigValue &value = pair.second;
+        const std::string& key = pair.first;
+        const ConfigValue& value = pair.second;
 
         if (key.find(keyPath) == 0)
         {
-            result.push_back(std::get<std::string>(value));
+            std::optional<std::string> castedValue = config::cast<std::string>(value);
+            if (castedValue)
+            {
+                result.push_back(castedValue.value());
+            }
+            else
+            {
+                throw std::runtime_error("Config key " + keyPath + " has value of wrong type.");
+            }
         }
     }
 
@@ -93,7 +94,7 @@ std::vector<std::string> Config::getArray(const std::string &keyPath)
     return result;
 }
 
-bool Config::has(const std::string &keyPath)
+bool Config::has(const std::string& keyPath)
 {
     if (!initialized)
     {
@@ -134,4 +135,4 @@ template bool Config::get<bool>(const std::string&);
 template std::string Config::get<std::string>(const std::string&);
 template std::vector<std::string> Config::get<std::vector<std::string>>(const std::string&);
 template float Config::get<float>(const std::string&);
-};
+}
