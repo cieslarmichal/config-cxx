@@ -28,7 +28,7 @@
 
 ## 🎯 Goal
 
-Goal of the Config C++ is to provide a library like [node-config](https://github.com/node-config/node-config) for C++
+Goal of the Config C++ is to provide a library like [node-config](https://github.com/node-config/node-config) to the C++
 community.
 
 ## Introduction
