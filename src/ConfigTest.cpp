@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <stdexcept>
 
 #include "gtest/gtest.h"
 
@@ -254,7 +255,7 @@ TEST_F(ConfigTest, givenCxxEnvAndConfigDirAndNotExistingKey_shouldThrow)
 
     const std::string notExistingKey = "not.existing.key";
 
-    ASSERT_THROW(config.get<int>(notExistingKey), std::bad_variant_access);
+    ASSERT_THROW(config.get<int>(notExistingKey), std::runtime_error);
 }
 
 TEST_F(ConfigTest, getAny_givenNotExistingKey_shouldThrow)

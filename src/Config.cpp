@@ -20,7 +20,18 @@ T Config::get(const std::string& keyPath)
         initialize();
     }
 
-    const auto value = values[keyPath];
+    if constexpr (std::is_same_v<T, std::vector<std::string>>)
+    {
+        return getArray(keyPath);
+    }
+
+    auto it = values.find(keyPath);
+    if (it == values.end())
+    {
+        throw std::runtime_error("Config key " + keyPath + " not found.");
+    }
+
+    const auto& value = it->second;
 
     if (value.index() == 0)
     {
