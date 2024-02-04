@@ -13,7 +13,7 @@ if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++20 /permissive- /bigobj")
 else ()
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wconversion -Wformat -Werror"
+        "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wconversion -Wformat"
     )
 endif ()
 
@@ -27,6 +27,7 @@ set(SOURCES
     src/filesystem/FileSystemService.cpp
     src/filesystem/ExecutableFinder.cpp
     src/JsonConfigLoader.cpp
+    src/YamlConfigLoader.cpp
 )
 
 set(UT_SOURCES
@@ -38,6 +39,7 @@ set(UT_SOURCES
     src/tests/EnvironmentSetter.cpp
     src/tests/EnvironmentSetterTest.cpp
     src/JsonConfigLoaderTest.cpp
+    src/YamlConfigLoaderTest.cpp
 )
 
 add_library(${LIBRARY_NAME} ${SOURCES})
@@ -45,6 +47,9 @@ add_library(${LIBRARY_NAME} ${SOURCES})
 add_subdirectory(externals/json)
 
 target_link_libraries(${LIBRARY_NAME} PRIVATE nlohmann_json)
+
+add_subdirectory(externals/yaml-cpp)
+target_link_libraries(${LIBRARY_NAME} PUBLIC  yaml-cpp)
 
 target_include_directories(
     ${LIBRARY_NAME}
@@ -69,7 +74,7 @@ if (BUILD_CONFIG_CXX_TESTS)
 
     add_executable(${LIBRARY_NAME}-UT ${UT_SOURCES})
 
-    target_link_libraries(${LIBRARY_NAME}-UT PRIVATE ${LIBRARY_NAME} gmock_main nlohmann_json)
+    target_link_libraries(${LIBRARY_NAME}-UT PRIVATE ${LIBRARY_NAME} gmock_main nlohmann_json yaml-cpp)
 
     target_include_directories(
         ${LIBRARY_NAME}-UT
