@@ -37,6 +37,7 @@ set(UT_SOURCES
     src/filesystem/ExecutableFinderTest.cpp
     src/tests/EnvironmentSetter.cpp
     src/tests/EnvironmentSetterTest.cpp
+    src/JsonConfigLoaderTest.cpp
 )
 
 add_library(${LIBRARY_NAME} ${SOURCES})

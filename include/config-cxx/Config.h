@@ -1,6 +1,6 @@
 #pragma once
 
-#include <any>
+#include <variant>
 #include <functional>
 #include <optional>
 #include <string>
@@ -9,6 +9,8 @@
 
 namespace config
 {
+using ConfigValue = std::variant<std::nullptr_t, bool, int, double, std::string, float, std::vector<std::string>>;
+
 class Config
 {
 public:
@@ -41,7 +43,7 @@ public:
      * Config().get("db.port") // 3306
      * @endcode
      */
-    std::any get(const std::string& keyPath);
+    ConfigValue get(const std::string& keyPath);
 
     /**
      * @brief Check if a config key exists.
@@ -63,6 +65,6 @@ private:
 
     bool initialized = false;
 
-    std::unordered_map<std::string, std::any> values;
+    std::unordered_map<std::string, ConfigValue> values;
 };
 }

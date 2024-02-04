@@ -1,6 +1,7 @@
 #include "JsonConfigLoader.h"
 
 #include <iostream>
+#include <variant>
 
 #include "environment/EnvironmentParser.h"
 #include "filesystem/FileSystemService.h"
@@ -11,11 +12,11 @@ namespace config
 namespace
 {
 std::string normalizeConfigKey(const std::string& str);
-std::any normalizeConfigValue(const nlohmann::json& jsonObject);
+ConfigValue normalizeConfigValue(const nlohmann::json& jsonObject);
 }
 
 void JsonConfigLoader::loadConfigFile(const std::filesystem::path& configFilePath,
-                                      std::unordered_map<std::string, std::any>& configValues)
+                                      std::unordered_map<std::string, ConfigValue>& configValues)
 {
     const auto configFileExists = filesystem::FileSystemService::exists(configFilePath);
 
@@ -41,7 +42,7 @@ void JsonConfigLoader::loadConfigFile(const std::filesystem::path& configFilePat
 }
 
 void JsonConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFilePath,
-                                         std::unordered_map<std::string, std::any>& configValues)
+                                         std::unordered_map<std::string, ConfigValue>& configValues)
 {
     const auto configFileExists = filesystem::FileSystemService::exists(configFilePath);
 
@@ -84,9 +85,9 @@ std::string normalizeConfigKey(const std::string& str)
     return result;
 }
 
-std::any normalizeConfigValue(const nlohmann::json& jsonObject)
+ConfigValue normalizeConfigValue(const nlohmann::json& jsonObject)
 {
-    std::any normalizedValue;
+    ConfigValue normalizedValue;
 
     if (jsonObject.is_string())
     {
@@ -116,5 +117,4 @@ std::any normalizeConfigValue(const nlohmann::json& jsonObject)
     return normalizedValue;
 }
 }
-
-}
+} // namespace config
