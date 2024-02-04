@@ -118,4 +118,3 @@ ConfigValue normalizeConfigValue(const nlohmann::json& jsonObject)
 }
 }
 } // namespace config
-
