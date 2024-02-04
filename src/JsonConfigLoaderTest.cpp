@@ -2,7 +2,6 @@
 
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <variant>
@@ -10,8 +9,8 @@
 
 #include "gtest/gtest.h"
 
-#include "config-cxx/Config.h"
 #include "filesystem/ExecutableFinder.h"
+#include "nlohmann/json.hpp"
 #include "tests/EnvironmentSetter.h"
 
 using namespace ::testing;
@@ -26,6 +25,7 @@ using ConfigValue = std::variant<std::nullptr_t, bool, int, double, std::string,
 const auto projectRootPath = ExecutableFinder::getExecutablePath();
 const auto testConfigDirectory = projectRootPath.parent_path() / "testConfig";
 const auto testEnvConfigFilePath = testConfigDirectory / "test.json";
+const auto invalidConfigFilePath = testConfigDirectory / "invalid.json";
 const auto customEnvironmentsConfigFilePath = testConfigDirectory / "custom-environment-variables.json";
 
 const std::string testJson = R"(
@@ -53,6 +53,21 @@ const std::string envVariablesJson = R"(
 }
 )";
 
+const std::string invalidJson = R"(
+{
+    "db": {
+        "port": 1996
+    },
+    "auth": {
+        "expiresIn": 3600,
+        "enabled": true,
+        "roles": [
+            "admin",
+            "user"
+        
+    }
+)";
+
 class JsonConfigLoaderTest : public Test
 {
 public:
@@ -74,6 +89,10 @@ public:
         std::ofstream customEnvironmentsConfigFile{customEnvironmentsConfigFilePath};
 
         customEnvironmentsConfigFile << envVariablesJson;
+
+        std::ofstream invalidConfigFile{invalidConfigFilePath};
+
+        invalidConfigFile << invalidJson;
     }
 
     void TearDown() override
@@ -138,5 +157,15 @@ TEST_F(JsonConfigLoaderTest, loadConfigFileWithEnv)
         // Check the actual value against the expected value
         EXPECT_EQ(it->second, expectedValue) << "Mismatch for key: " << key;
     }
+}
+
+TEST_F(JsonConfigLoaderTest, loadConfigFileWithInvalidJson)
+{
+    EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
+
+    std::unordered_map<std::string, ConfigValue> configValues;
+
+    ASSERT_THROW(JsonConfigLoader::loadConfigFile(invalidConfigFilePath, configValues), nlohmann::json::parse_error);
 }
 } // namespace
