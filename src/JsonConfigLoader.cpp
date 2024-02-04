@@ -1,7 +1,6 @@
 #include "JsonConfigLoader.h"
 
 #include <iostream>
-#include <variant>
 
 #include "environment/EnvironmentParser.h"
 #include "filesystem/FileSystemService.h"
@@ -26,6 +25,18 @@ void JsonConfigLoader::loadConfigFile(const std::filesystem::path& configFilePat
     }
 
     const auto configJson = filesystem::FileSystemService::read(configFilePath);
+
+    try
+    {
+        const auto config = nlohmann::json::parse(configJson);
+    }
+
+    catch (const std::exception& e)
+    {
+        std::cout << "File " << configFilePath.filename() << " has no valid JSON"
+                  << "\n";
+        throw;
+    }
 
     const auto config = nlohmann::json::parse(configJson);
 
@@ -52,6 +63,17 @@ void JsonConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFile
     }
 
     const auto configEnvironmentVariablesJson = filesystem::FileSystemService::read(configFilePath);
+
+    try
+    {
+        const auto configEnvironmentVariables = nlohmann::json::parse(configEnvironmentVariablesJson);
+    }
+    catch (const std::exception& e)
+    {
+        std::cout << "File " << configFilePath.filename() << " has no valid JSON"
+                  << "\n";
+        throw;
+    }
 
     const auto configEnvironmentVariables = nlohmann::json::parse(configEnvironmentVariablesJson);
 
