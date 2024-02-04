@@ -168,4 +168,14 @@ TEST_F(JsonConfigLoaderTest, loadConfigFileWithInvalidJson)
 
     ASSERT_THROW(JsonConfigLoader::loadConfigFile(invalidConfigFilePath, configValues), nlohmann::json::parse_error);
 }
+
+TEST_F(JsonConfigLoaderTest, loadConfigEnvFileWithInvalidJson)
+{
+    EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
+
+    std::unordered_map<std::string, ConfigValue> configValues;
+
+    ASSERT_THROW(JsonConfigLoader::loadConfigEnvFile(invalidConfigFilePath, configValues), nlohmann::json::parse_error);
+}
 } // namespace
