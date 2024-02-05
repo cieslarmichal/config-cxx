@@ -151,7 +151,6 @@ void Config::initialize()
     std::vector<std::filesystem::path> filePaths;
     for (const auto& entry : std::filesystem::directory_iterator(configDirectory)) {
         if (entry.is_regular_file()) {
-            std::cout<< entry.path().string() << std::endl;
             filePaths.push_back(entry.path());
         }
     }
@@ -160,7 +159,6 @@ void Config::initialize()
     std::sort(filePaths.begin(), filePaths.end(), customFileOrder);
 
     for (const auto& filePath: filePaths) {
-        std::cout << filePath.string() << std::endl;
         if (filePath.extension() == ".json") 
         {
             if (filePath.string().find("environment") != std::string::npos)
