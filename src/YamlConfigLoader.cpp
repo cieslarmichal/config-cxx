@@ -1,12 +1,11 @@
 #include "YamlConfigLoader.h"
-#include <iostream>
 
+#include <iostream>
+#include <variant>
 
 #include "environment/EnvironmentParser.h"
 #include "filesystem/FileSystemService.h"
 #include "yaml-cpp/yaml.h"
-
-
 
 namespace config 
 {
@@ -31,7 +30,7 @@ void YamlConfigLoader::loadConfigFile(const std::filesystem::path& configFilePat
 
 }
 
-void loadConfigEnvFile(const std::filesystem::path& configFilePath,
+void YamlConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFilePath,
                                   std::unordered_map<std::string, ConfigValue>& configValues)
 {
     const auto configFileExists = filesystem::FileSystemService::exists(configFilePath);
@@ -112,18 +111,17 @@ ConfigValue getScalarValue(YAML::Node node)
      ConfigValue node_value;
      try
      {
-         node_value = node.as<double>();
-         set = true;
-     } catch (const YAML::BadConversion& e) {}
-
-     if (!set)
-     {    
-         try
+         double num = node.as<double>();
+         if (num != static_cast<double>(static_cast<int>(num)))
+         {
+             node_value = num;
+         }
+         else
          {
              node_value = node.as<int>();
-             set = true;
-         } catch (const YAML::BadConversion& e) {}
-     }
+         }
+         set = true;
+     } catch (const YAML::BadConversion& e) {}
 
      if (!set)
      {    
