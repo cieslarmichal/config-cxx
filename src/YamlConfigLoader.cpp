@@ -26,7 +26,7 @@ void YamlConfigLoader::loadConfigFile(const std::filesystem::path& configFilePat
         return;
     }
 
-    YAML::Node configNode = YAML::LoadFile(configFilePath);
+    YAML::Node configNode = YAML::LoadFile(configFilePath.string());
     flattenConfig(configNode, configValues);
 
 }
@@ -41,7 +41,7 @@ void YamlConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFile
         return;
     }
 
-    YAML::Node configNode = YAML::LoadFile(configFilePath);
+    YAML::Node configNode = YAML::LoadFile(configFilePath.string());
     flattenConfig(configNode, configValues);
 
     for (auto it = configValues.begin(); it != configValues.end(); ++it)
