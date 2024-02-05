@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <variant>
+#include <functional>
 
 #include "environment/EnvironmentParser.h"
 #include "filesystem/FileSystemService.h"
@@ -67,7 +68,7 @@ namespace
 {
 void flattenConfig(YAML::Node& configNode, std::unordered_map<std::string, ConfigValue>& configValues)
 {
-    std::function<void(const YAML::Node&, std::string, std::unordered_map<std::string, ConfigValue>&)> flatten_recursive =
+    std::function<void(const YAML::Node&, std::string, std::unordered_map<std::string, ConfigValue>&)> flattenRecursive =
         [&](const YAML::Node& node, std::string prefix, std::unordered_map<std::string, ConfigValue>& configValues) 
     {
             if (node.IsScalar()) 
@@ -80,7 +81,7 @@ void flattenConfig(YAML::Node& configNode, std::unordered_map<std::string, Confi
                 {
                     std::string prefixKey = prefix.length() == 0 ? 
                           pair.first.as<std::string>() : prefix + "." + pair.first.as<std::string>();
-                    flatten_recursive(pair.second, prefixKey, configValues);
+                    flattenRecursive(pair.second, prefixKey, configValues);
                 }
             } 
             else if (node.IsSequence()) 
@@ -102,23 +103,23 @@ void flattenConfig(YAML::Node& configNode, std::unordered_map<std::string, Confi
             } 
     };
     
-    flatten_recursive(configNode, "", configValues);
+    flattenRecursive(configNode, "", configValues);
 }
 
 ConfigValue getScalarValue(YAML::Node node) 
 {
      bool set = false;
-     ConfigValue node_value;
+     ConfigValue nodeValue;
      try
      {
          double num = node.as<double>();
          if (num != static_cast<double>(static_cast<int>(num)))
          {
-             node_value = num;
+             nodeValue = num;
          }
          else
          {
-             node_value = node.as<int>();
+             nodeValue = node.as<int>();
          }
          set = true;
      } catch (const YAML::BadConversion& e) {}
@@ -127,7 +128,7 @@ ConfigValue getScalarValue(YAML::Node node)
      {    
          try
          {
-             node_value = node.as<bool>();
+             nodeValue = node.as<bool>();
              set = true;
          } catch (const YAML::BadConversion& e) {}
      }
@@ -135,10 +136,10 @@ ConfigValue getScalarValue(YAML::Node node)
 
      if (!set)
      {
-         node_value = node.as<std::string>();
+         nodeValue = node.as<std::string>();
      }
 
-     return node_value;
+     return nodeValue;
 }
 
 }
