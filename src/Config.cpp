@@ -3,11 +3,13 @@
 #include <iostream>
 #include <stdexcept>
 #include <variant>
+#include <filesystem>
 
 #include "ConfigDirectoryPathResolver.h"
 #include "ConfigValue.h"
 #include "environment/ConfigProvider.h"
 #include "JsonConfigLoader.h"
+#include "YamlConfigLoader.h"
 
 namespace config
 {
@@ -122,16 +124,66 @@ void Config::initialize()
     const auto configDirectory = ConfigDirectoryPathResolver::getConfigDirectoryPath();
 
     std::cout << "Config directory: " << configDirectory << " loaded." << std::endl;
+    
+    std::vector<std::string> order = {"default", cxxEnv, "local", "local-"+cxxEnv, "custom-environment-variables"};
+    auto customFileOrder = [order](const std::filesystem::path& path1, const std::filesystem::path& path2) {
+        auto filename1 = path1.stem().string();
+        auto filename2 = path2.stem().string();
 
-    const auto defaultConfigFilePath = configDirectory / "default.json";
-    const auto cxxEnvConfigFilePath = (configDirectory / cxxEnv).replace_extension(".json");
-    const auto customEnvironmentsConfigFilePath = configDirectory / "custom-environment-variables.json";
-    const auto localConfigFilePath = configDirectory / "local.json";
+        auto it1 = std::find(order.begin(), order.end(), filename1);
+        auto it2 = std::find(order.begin(), order.end(), filename2);
 
-    JsonConfigLoader::loadConfigFile(defaultConfigFilePath, values);
-    JsonConfigLoader::loadConfigFile(cxxEnvConfigFilePath, values);
-    JsonConfigLoader::loadConfigEnvFile(customEnvironmentsConfigFilePath, values);
-    JsonConfigLoader::loadConfigFile(localConfigFilePath, values);
+        if (it1 == order.end() && it2 == order.end()) {
+            // If both filenames are not in the order list, order them alphabetically
+            return path1 < path2;
+        } else if (it1 == order.end()) {
+            // If only path1 is not in the order list, it comes after path2
+            return false;
+        } else if (it2 == order.end()) {
+            // If only path2 is not in the order list, it comes after path1
+            return true;
+        } else {
+            // If both filenames are in the order list, order them based on their position in the list
+            return std::distance(order.begin(), it1) < std::distance(order.begin(), it2);
+        }
+    };
+
+    std::vector<std::filesystem::path> filePaths;
+    for (const auto& entry : std::filesystem::directory_iterator(configDirectory)) {
+        if (entry.is_regular_file()) {
+            std::cout<< entry.path().string() << std::endl;
+            filePaths.push_back(entry.path());
+        }
+    }
+
+    // Sort file paths according to custom order
+    std::sort(filePaths.begin(), filePaths.end(), customFileOrder);
+
+    for (const auto& filePath: filePaths) {
+        std::cout << filePath.string() << std::endl;
+        if (filePath.extension() == ".json") 
+        {
+            if (filePath.string().find("environment") != std::string::npos)
+            {
+                JsonConfigLoader::loadConfigEnvFile(filePath, values);
+            }
+            else
+            {
+                JsonConfigLoader::loadConfigFile(filePath, values);
+            }
+        }
+        else if (filePath.extension() == ".yaml" || filePath.extension() == ".yml") 
+        {
+            if (filePath.string().find("environment") != std::string::npos)
+            {
+                YamlConfigLoader::loadConfigEnvFile(filePath, values);
+            }
+            else
+            {
+                YamlConfigLoader::loadConfigFile(filePath, values);
+            }
+        }
+    }
 
     if (values.empty())
     {
