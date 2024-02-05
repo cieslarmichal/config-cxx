@@ -31,12 +31,12 @@ const auto customEnvironmentsConfigFilePath = testConfigDirectory / "custom-envi
 const std::string testYaml = R"(
 db:
     port: 1996
-    auth:
-        expiresIn: 3600
-        enabled: true
-        roles:
-            - admin
-            - user
+auth:
+    expiresIn: 3600
+    enabled: true
+    roles:
+        - admin
+        - user
 )";
 
 const std::string envVariablesYaml = R"(
@@ -46,14 +46,9 @@ aws:
 )";
 
 const std::string invalidYaml = R"(
-db:
-    port:
-    auth:
-        expiresIn: 3600
-        enabled: true
-        roles:
-            - admin
-            - user
+invalid_key:
+    value1: 10
+    - value2: 20
 )";
 
 
@@ -102,9 +97,9 @@ TEST_F(YamlConfigLoaderTest, loadConfigFile)
 
     std::unordered_map<std::string, ConfigValue> expectedValues = {{"db.port", 1996},
                                                                    {"auth.expiresIn", 3600},
-                                                                   {"auth.enabled", true},
-                                                                   {"auth.roles.0", "admin"},
-                                                                   {"auth.roles.1", "user"}};
+                                                                   {"auth.enabled", true}};
+    std::vector<std::string> roles = {"admin", "user"};
+    expectedValues["auth.roles"] = roles;
 
     std::unordered_map<std::string, ConfigValue> configValues;
     YamlConfigLoader::loadConfigFile(testEnvConfigFilePath, configValues);
