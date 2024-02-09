@@ -132,7 +132,7 @@ void Config::initialize()
     std::cout << "Config directory: " << configDirectory << " loaded." << std::endl;
 
     std::vector<std::string> order = {"default", cxxEnv, "local", "local-" + cxxEnv, "custom-environment-variables"};
-    
+
     auto customFileOrder = [order](const std::filesystem::path& path1, const std::filesystem::path& path2)
     {
         auto filename1 = path1.stem().string();
