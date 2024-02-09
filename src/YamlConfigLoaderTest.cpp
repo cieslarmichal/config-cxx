@@ -10,8 +10,8 @@
 #include "gtest/gtest.h"
 
 #include "filesystem/ExecutableFinder.h"
-#include "yaml-cpp/yaml.h"
 #include "tests/EnvironmentSetter.h"
+#include "yaml-cpp/yaml.h"
 
 using namespace ::testing;
 using namespace config;
@@ -50,7 +50,6 @@ invalid_key:
     value1: 10
     - value2: 20
 )";
-
 
 class YamlConfigLoaderTest : public Test
 {
@@ -95,9 +94,8 @@ TEST_F(YamlConfigLoaderTest, loadConfigFile)
     EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
     EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
 
-    std::unordered_map<std::string, ConfigValue> expectedValues = {{"db.port", 1996},
-                                                                   {"auth.expiresIn", 3600},
-                                                                   {"auth.enabled", true}};
+    std::unordered_map<std::string, ConfigValue> expectedValues = {
+        {"db.port", 1996}, {"auth.expiresIn", 3600}, {"auth.enabled", true}};
     std::vector<std::string> roles = {"admin", "user"};
     expectedValues["auth.roles"] = roles;
 

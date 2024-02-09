@@ -134,7 +134,7 @@ public:
         std::ofstream localConfigFile{localConfigFilePath};
 
         localConfigFile << localJson;
-        
+
         std::ofstream testYamlEnvConfigFile{testYamlEnvConfigFilePath};
 
         testYamlEnvConfigFile << testYaml;
@@ -310,7 +310,7 @@ TEST_F(ConfigTest, configHasTest)
 
 TEST_F(ConfigTest, configWorksWithJsonAndYaml)
 {
-    
+
     EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
     EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
 
@@ -356,5 +356,4 @@ TEST_F(ConfigTest, configWorksWithJsonAndYaml)
     ASSERT_EQ(authRolesValue, expectedAuthRoles);
     ASSERT_EQ(loggingLevelValue, "debug");
     ASSERT_EQ(loggingFileValue, "/var/log/myapp.log");
-
 }

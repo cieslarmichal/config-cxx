@@ -1,9 +1,9 @@
 #include "config-cxx/Config.h"
 
+#include <filesystem>
 #include <iostream>
 #include <stdexcept>
 #include <variant>
-#include <filesystem>
 
 #include "ConfigDirectoryPathResolver.h"
 #include "ConfigValue.h"
@@ -17,6 +17,8 @@ namespace config
 template <typename T>
 T Config::get(const std::string& keyPath)
 {
+    std::lock_guard<std::mutex> lockGuard(lock);
+
     if (!initialized)
     {
         initialize();
@@ -55,13 +57,15 @@ T Config::get(const std::string& keyPath)
 
 ConfigValue Config::get(const std::string& keyPath)
 {
+    std::lock_guard<std::mutex> lockGuard(lock);
+
     if (!initialized)
     {
         initialize();
     }
 
-    const auto keyOccurrences = std::count_if(
-        values.begin(), values.end(), [&](auto& value) { return value.first.find(keyPath) != std::string::npos; });
+    const auto keyOccurrences = std::count_if(values.begin(), values.end(), [&](auto& value)
+                                              { return value.first.find(keyPath) != std::string::npos; });
 
     if (keyOccurrences == 0)
     {
@@ -109,6 +113,8 @@ std::vector<std::string> Config::getArray(const std::string& keyPath)
 
 bool Config::has(const std::string& keyPath)
 {
+    std::lock_guard<std::mutex> lockGuard(lock);
+
     if (!initialized)
     {
         initialize();
@@ -124,33 +130,44 @@ void Config::initialize()
     const auto configDirectory = ConfigDirectoryPathResolver::getConfigDirectoryPath();
 
     std::cout << "Config directory: " << configDirectory << " loaded." << std::endl;
-    
-    std::vector<std::string> order = {"default", cxxEnv, "local", "local-"+cxxEnv, "custom-environment-variables"};
-    auto customFileOrder = [order](const std::filesystem::path& path1, const std::filesystem::path& path2) {
+
+    std::vector<std::string> order = {"default", cxxEnv, "local", "local-" + cxxEnv, "custom-environment-variables"};
+
+    auto customFileOrder = [order](const std::filesystem::path& path1, const std::filesystem::path& path2)
+    {
         auto filename1 = path1.stem().string();
         auto filename2 = path2.stem().string();
 
         auto it1 = std::find(order.begin(), order.end(), filename1);
         auto it2 = std::find(order.begin(), order.end(), filename2);
 
-        if (it1 == order.end() && it2 == order.end()) {
+        if (it1 == order.end() && it2 == order.end())
+        {
             // If both filenames are not in the order list, order them alphabetically
             return path1 < path2;
-        } else if (it1 == order.end()) {
+        }
+        else if (it1 == order.end())
+        {
             // If only path1 is not in the order list, it comes after path2
             return false;
-        } else if (it2 == order.end()) {
+        }
+        else if (it2 == order.end())
+        {
             // If only path2 is not in the order list, it comes after path1
             return true;
-        } else {
+        }
+        else
+        {
             // If both filenames are in the order list, order them based on their position in the list
             return std::distance(order.begin(), it1) < std::distance(order.begin(), it2);
         }
     };
 
     std::vector<std::filesystem::path> filePaths;
-    for (const auto& entry : std::filesystem::directory_iterator(configDirectory)) {
-        if (entry.is_regular_file()) {
+    for (const auto& entry : std::filesystem::directory_iterator(configDirectory))
+    {
+        if (entry.is_regular_file())
+        {
             filePaths.push_back(entry.path());
         }
     }
@@ -158,8 +175,9 @@ void Config::initialize()
     // Sort file paths according to custom order
     std::sort(filePaths.begin(), filePaths.end(), customFileOrder);
 
-    for (const auto& filePath: filePaths) {
-        if (filePath.extension() == ".json") 
+    for (const auto& filePath : filePaths)
+    {
+        if (filePath.extension() == ".json")
         {
             if (filePath.string().find("environment") != std::string::npos)
             {
@@ -170,7 +188,7 @@ void Config::initialize()
                 JsonConfigLoader::loadConfigFile(filePath, values);
             }
         }
-        else if (filePath.extension() == ".yaml" || filePath.extension() == ".yml") 
+        else if (filePath.extension() == ".yaml" || filePath.extension() == ".yml")
         {
             if (filePath.string().find("environment") != std::string::npos)
             {

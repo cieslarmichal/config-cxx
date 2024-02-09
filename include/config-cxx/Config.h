@@ -1,10 +1,11 @@
 #pragma once
 
-#include <variant>
 #include <functional>
+#include <mutex>
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <variant>
 #include <vector>
 
 namespace config
@@ -66,5 +67,6 @@ private:
     bool initialized = false;
 
     std::unordered_map<std::string, ConfigValue> values;
+    mutable std::mutex lock;
 };
 }
