@@ -167,4 +167,4 @@ TEST_F(XmlConfigLoaderTest, loadConfigFileWithInvalidXml)
     ASSERT_THROW(XmlConfigLoader::loadConfigFile(invalidConfigFilePath, configValues), std::runtime_error);
 }
 
-}
+} // anonymous namespace
