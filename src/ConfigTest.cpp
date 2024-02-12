@@ -22,6 +22,7 @@ const auto emptyConfigDirectory = projectRootPath.parent_path() / "emptyConfig";
 const auto testConfigDirectory = projectRootPath.parent_path() / "testConfig";
 const auto testEnvConfigFilePath = testConfigDirectory / "test.json";
 const auto testYamlEnvConfigFilePath = testConfigDirectory / "test.yml";
+const auto testXmlEnvConfigFilePath = testConfigDirectory / "test.xml";
 const auto localConfigFilePath = testConfigDirectory / "local.json";
 const auto defaultConfigFilePath = testConfigDirectory / "default.json";
 const auto customEnvironmentsConfigFilePath = testConfigDirectory / "custom-environment-variables.json";
@@ -103,7 +104,17 @@ logging:
     level: debug
     file: /var/log/myapp.log
 )";
-}
+
+const std::string testXml = R"(
+<configuration>
+    <user>
+        <name>Koko</name>
+        <active>false</active>
+    </user>
+</configuration>
+)";
+
+} // anonymous namespace
 
 class ConfigTest : public Test
 {
@@ -138,6 +149,10 @@ public:
         std::ofstream testYamlEnvConfigFile{testYamlEnvConfigFilePath};
 
         testYamlEnvConfigFile << testYaml;
+
+        std::ofstream testXmlEnvConfigFile(testXmlEnvConfigFilePath);
+
+        testXmlEnvConfigFile << testXml;
 
         std::filesystem::remove_all(fallbackConfigDirectory);
 
@@ -356,4 +371,54 @@ TEST_F(ConfigTest, configWorksWithJsonAndYaml)
     ASSERT_EQ(authRolesValue, expectedAuthRoles);
     ASSERT_EQ(loggingLevelValue, "debug");
     ASSERT_EQ(loggingFileValue, "/var/log/myapp.log");
+}
+
+
+TEST_F(ConfigTest, configWorksWithJsonAndXml)
+{
+    EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
+
+    const auto awsAccountId = "9999999999";
+    const auto awsAccountKey = "806223445";
+
+    EnvironmentSetter::setEnvironmentVariable("AWS_ACCOUNT_ID", awsAccountId);
+    EnvironmentSetter::setEnvironmentVariable("AWS_ACCOUNT_KEY", awsAccountKey);
+
+    Config config;
+
+    const std::string dbHostKey = "db.host";
+    const std::string dbPortKey = "db.port";
+    const std::string awsAccountIdKey = "aws.accountId";
+    const std::string awsAccountKeyKey = "aws.accountKey";
+    const std::string awsRegionKey = "aws.region";
+    const std::string authExpiresInKey = "auth.expiresIn";
+    const std::string authEnabledKey = "auth.enabled";
+    const std::string authRolesKey = "auth.roles";
+    const std::string userName = "user.name";
+    const std::string userActive = "user.active";
+
+    const auto dbHostValue = config.get<std::string>(dbHostKey);
+    const auto dbPortValue = config.get<int>(dbPortKey);
+    const auto awsAccountIdValue = config.get<std::string>(awsAccountIdKey);
+    const auto awsAccountKeyValue = config.get<std::string>(awsAccountKeyKey);
+    const auto awsRegionValue = config.get<std::string>(awsRegionKey);
+    const auto authExpiresInValue = config.get<int>(authExpiresInKey);
+    const auto authEnabledValue = config.get<bool>(authEnabledKey);
+    const auto authRolesValue = config.get<std::vector<std::string>>(authRolesKey);
+    const auto userNameValue = config.get<std::string>(userName);
+    const auto userActiveValue = config.get<bool>(userActive);
+
+    const auto expectedAuthRoles = std::vector<std::string>{"admin", "user"};
+
+    ASSERT_EQ(dbHostValue, "localhost");
+    ASSERT_EQ(dbPortValue, 1996);
+    ASSERT_EQ(awsAccountIdValue, awsAccountId);
+    ASSERT_EQ(awsAccountKeyValue, awsAccountKey);
+    ASSERT_EQ(awsRegionValue, "eu-west-1");
+    ASSERT_EQ(authExpiresInValue, 3600);
+    ASSERT_EQ(authEnabledValue, true);
+    ASSERT_EQ(authRolesValue, expectedAuthRoles);
+    ASSERT_EQ(userNameValue, "Koko");
+    ASSERT_EQ(userActiveValue, false);
 }

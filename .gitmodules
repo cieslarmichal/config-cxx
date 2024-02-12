@@ -7,3 +7,6 @@
 [submodule "externals/yaml-cpp"]
 	path = externals/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp
+[submodule "externals/pugixml"]
+	path = externals/pugixml
+	url = git@github.com:zeux/pugixml.git
