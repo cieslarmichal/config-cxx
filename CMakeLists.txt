@@ -28,6 +28,7 @@ set(SOURCES
     src/filesystem/ExecutableFinder.cpp
     src/JsonConfigLoader.cpp
     src/YamlConfigLoader.cpp
+    src/XmlConfigLoader.cpp
 )
 
 set(UT_SOURCES
@@ -40,6 +41,7 @@ set(UT_SOURCES
     src/tests/EnvironmentSetterTest.cpp
     src/JsonConfigLoaderTest.cpp
     src/YamlConfigLoaderTest.cpp
+    src/XmlConfigLoaderTest.cpp
 )
 
 add_library(${LIBRARY_NAME} ${SOURCES})
@@ -50,6 +52,9 @@ target_link_libraries(${LIBRARY_NAME} PRIVATE nlohmann_json)
 
 add_subdirectory(externals/yaml-cpp)
 target_link_libraries(${LIBRARY_NAME} PUBLIC  yaml-cpp)
+
+add_subdirectory(externals/pugixml)
+target_link_libraries(${LIBRARY_NAME} PUBLIC  pugixml)
 
 target_include_directories(
     ${LIBRARY_NAME}
@@ -74,7 +79,7 @@ if (BUILD_CONFIG_CXX_TESTS)
 
     add_executable(${LIBRARY_NAME}-UT ${UT_SOURCES})
 
-    target_link_libraries(${LIBRARY_NAME}-UT PRIVATE ${LIBRARY_NAME} gmock_main nlohmann_json yaml-cpp)
+    target_link_libraries(${LIBRARY_NAME}-UT PRIVATE ${LIBRARY_NAME} gmock_main nlohmann_json yaml-cpp pugixml)
 
     target_include_directories(
         ${LIBRARY_NAME}-UT

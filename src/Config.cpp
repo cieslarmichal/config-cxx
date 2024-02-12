@@ -10,6 +10,7 @@
 #include "environment/ConfigProvider.h"
 #include "JsonConfigLoader.h"
 #include "YamlConfigLoader.h"
+#include "XmlConfigLoader.h"
 
 namespace config
 {
@@ -179,6 +180,17 @@ void Config::initialize()
             else
             {
                 YamlConfigLoader::loadConfigFile(filePath, values);
+            }
+        } 
+        else if (filePath.extension() == ".xml")
+        {
+            if (filePath.string().find("environment") != std::string::npos) 
+            {
+                XmlConfigLoader::loadConfigEnvFile(filePath, values);
+            }
+            else
+            {
+                XmlConfigLoader::loadConfigFile(filePath, values);
             }
         }
     }
