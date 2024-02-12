@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <variant>
-#include <vector> 
+#include <vector>
 
 namespace config
 {

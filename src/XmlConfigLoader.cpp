@@ -20,7 +20,7 @@ void parseConfig(std::unordered_map<std::string, std::vector<std::string>>& flat
 BaseTypes parseValue(const std::string& value);
 
 std::string normalizeConfigListKey(const std::string& key);
-}
+} // anonymous namespace
 
 void XmlConfigLoader::loadConfigFile(const std::filesystem::path& configFilePath,
                                      std::unordered_map<std::string, ConfigValue>& configValues)
@@ -48,12 +48,15 @@ void XmlConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFileP
                                         std::unordered_map<std::string, ConfigValue>& configValues)
 {
     loadConfigFile(configFilePath, configValues);
-    for (auto it = configValues.begin(), end = configValues.end(); it != end; ++it) {
-        if (std::holds_alternative<std::string>(it->second)) {
+    for (auto it = configValues.begin(), end = configValues.end(); it != end; ++it)
+    {
+        if (std::holds_alternative<std::string>(it->second))
+        {
             std::string envKey = std::get<std::string>(it->second);
             const auto envValue = environment::EnvironmentParser::parseString(envKey);
 
-            if (!envValue || envValue->empty()) {
+            if (!envValue || envValue->empty())
+            {
                 std::cout << "Environment variable " + envKey + " not set." << std::endl;
                 continue;
             }
@@ -137,12 +140,13 @@ BaseTypes parseValue(const std::string& value)
     return value;
 }
 
-std::string normalizeConfigListKey(const std::string& key) {
+std::string normalizeConfigListKey(const std::string& key)
+{
     size_t last_dot = key.rfind('.');
-    if (last_dot == std::string::npos) 
+    if (last_dot == std::string::npos)
         return key;
-    
+
     return key.substr(0, last_dot);
 }
-}
-} // config
+}// anonymous namespace
+} // config namespace
