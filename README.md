@@ -43,7 +43,7 @@ Configurations are stored in [configuration files](./docs/wiki/configuration-fil
 
 ## Quick Start
 
-The following examples are in JSON format (YAML in progress).
+The following examples are in JSON format (YAML and XML are also supported).
 
 ### Install in your app directory, and edit the default config file:
 
