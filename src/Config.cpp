@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <optional>
 #include <stdexcept>
 #include <variant>
 
@@ -34,6 +35,47 @@ T Config::get(const std::string& keyPath)
     if (it == values.end())
     {
         throw std::runtime_error("Config key " + keyPath + " not found.");
+    }
+
+    const auto& value = it->second;
+
+    if (value.index() == 0)
+    {
+        throw std::runtime_error("Config key " + keyPath + " has value of nullptr.");
+    }
+
+    std::optional<T> castedValue = config::cast<T>(value);
+
+    if (castedValue)
+    {
+        return castedValue.value();
+    }
+
+    else
+    {
+        throw std::runtime_error("Config key " + keyPath + " has value of wrong type.");
+    }
+}
+
+template <typename T>
+std::optional<T> Config::getOptional(const std::string& keyPath)
+{
+    std::lock_guard<std::mutex> lockGuard(lock);
+
+    if (!initialized)
+    {
+        initialize();
+    }
+
+    if constexpr (std::is_same_v<T, std::vector<std::string>>)
+    {
+        return getArray(keyPath);
+    }
+
+    auto it = values.find(keyPath);
+    if (it == values.end())
+    {
+        return std::nullopt;
     }
 
     const auto& value = it->second;
