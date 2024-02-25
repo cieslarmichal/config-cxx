@@ -1,6 +1,7 @@
 #include "config-cxx/Config.h"
 
 #include <filesystem>
+#include <optional>
 #include <fstream>
 #include <stdexcept>
 
@@ -448,9 +449,9 @@ TEST_F(ConfigTest, givenCxxEnvAndConfigDir_returnsOptionalKeyValues)
     const auto awsAccountKeyValue = config.getOptional<std::string>(awsAccountKeyKey);
     const auto nonExistantKeyValue = config.getOptional<std::string>(nonExistantKey);
 
-    ASSERT_EQ(dbHostValue, "localhost");
-    ASSERT_EQ(dbPortValue, 1996);
-    ASSERT_EQ(awsAccountIdValue, awsAccountId);
-    ASSERT_EQ(awsAccountKeyValue, awsAccountKey);
-    ASSERT_EQ(nonExistantKeyValue, std::nullopt);
+    ASSERT_EQ(*dbHostValue, "localhost");
+    ASSERT_EQ(*dbPortValue, 1996);
+    ASSERT_EQ(*awsAccountIdValue, awsAccountId);
+    ASSERT_EQ(*awsAccountKeyValue, awsAccountKey);
+    ASSERT_EQ(nonExistantKeyValue.has_value(), false);
 }
