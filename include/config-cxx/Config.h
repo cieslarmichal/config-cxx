@@ -44,6 +44,7 @@ public:
      * @code
      * Config().getOptional<std::string>("db.host") // "localhost"
      * Config().getOptional<int>("db.port") // 3306
+     * Config().getOptional<std::string>("redis.host") // std::nullopt
      * @endcode
      */
     template <typename T>
