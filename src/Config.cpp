@@ -82,7 +82,7 @@ std::optional<T> Config::getOptional(const std::string& keyPath)
 
     if (value.index() == 0)
     {
-        throw std::runtime_error("Config key " + keyPath + " has value of nullptr.");
+        return std::nullopt;
     }
 
     std::optional<T> castedValue = config::cast<T>(value);
