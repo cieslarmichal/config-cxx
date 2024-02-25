@@ -268,4 +268,10 @@ template bool Config::get<bool>(const std::string&);
 template std::string Config::get<std::string>(const std::string&);
 template std::vector<std::string> Config::get<std::vector<std::string>>(const std::string&);
 template float Config::get<float>(const std::string&);
+
+template std::optional<int> Config::getOptional<int>(const std::string&);
+template std::optional<bool> Config::getOptional<bool>(const std::string&);
+template std::optional<std::string> Config::getOptional<std::string>(const std::string&);
+template std::optional<std::vector<std::string>> Config::getOptional<std::vector<std::string>>(const std::string&);
+template std::optional<float> Config::getOptional<float>(const std::string&);
 }
