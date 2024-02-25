@@ -33,6 +33,24 @@ public:
     T get(const std::string& keyPath);
 
     /**
+     * @brief Get a config value by path if it exists.
+     *
+     * @tparam T The target type of config value.
+     *
+     * @param path The path to config key.
+     *
+     * @return The value of config key casted to provided type or std::nullopt.
+     *
+     * @code
+     * Config().getOptional<std::string>("db.host") // "localhost"
+     * Config().getOptional<int>("db.port") // 3306
+     * Config().getOptional<std::string>("redis.host") // std::nullopt
+     * @endcode
+     */
+    template <typename T>
+    std::optional<T> getOptional(const std::string& keyPath);
+
+    /**
      * @brief Get a config value by path.
      *
      * @param path The path to config key.

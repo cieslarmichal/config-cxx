@@ -1,6 +1,7 @@
 #include "config-cxx/Config.h"
 
 #include <filesystem>
+#include <optional>
 #include <fstream>
 #include <stdexcept>
 
@@ -421,4 +422,36 @@ TEST_F(ConfigTest, configWorksWithJsonAndXml)
     ASSERT_EQ(authRolesValue, expectedAuthRoles);
     ASSERT_EQ(userNameValue, "Koko");
     ASSERT_EQ(userActiveValue, false);
+}
+
+TEST_F(ConfigTest, givenCxxEnvAndConfigDir_returnsOptionalKeyValues)
+{
+    EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
+
+    const auto awsAccountId = "9999999999";
+    const auto awsAccountKey = "806223445";
+
+    EnvironmentSetter::setEnvironmentVariable("AWS_ACCOUNT_ID", awsAccountId);
+    EnvironmentSetter::setEnvironmentVariable("AWS_ACCOUNT_KEY", awsAccountKey);
+
+    Config config;
+
+    const std::string dbHostKey = "db.host";
+    const std::string dbPortKey = "db.port";
+    const std::string awsAccountIdKey = "aws.accountId";
+    const std::string awsAccountKeyKey = "aws.accountKey";
+    const std::string nonExistantKey = "redis.host";
+
+    const auto dbHostValue = config.getOptional<std::string>(dbHostKey);
+    const auto dbPortValue = config.getOptional<int>(dbPortKey);
+    const auto awsAccountIdValue = config.getOptional<std::string>(awsAccountIdKey);
+    const auto awsAccountKeyValue = config.getOptional<std::string>(awsAccountKeyKey);
+    const auto nonExistantKeyValue = config.getOptional<std::string>(nonExistantKey);
+
+    ASSERT_EQ(*dbHostValue, "localhost");
+    ASSERT_EQ(*dbPortValue, 1996);
+    ASSERT_EQ(*awsAccountIdValue, awsAccountId);
+    ASSERT_EQ(*awsAccountKeyValue, awsAccountKey);
+    ASSERT_EQ(nonExistantKeyValue.has_value(), false);
 }

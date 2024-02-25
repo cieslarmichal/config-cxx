@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <optional>
 #include <stdexcept>
 #include <variant>
 
@@ -41,6 +42,47 @@ T Config::get(const std::string& keyPath)
     if (value.index() == 0)
     {
         throw std::runtime_error("Config key " + keyPath + " has value of nullptr.");
+    }
+
+    std::optional<T> castedValue = config::cast<T>(value);
+
+    if (castedValue)
+    {
+        return castedValue.value();
+    }
+
+    else
+    {
+        throw std::runtime_error("Config key " + keyPath + " has value of wrong type.");
+    }
+}
+
+template <typename T>
+std::optional<T> Config::getOptional(const std::string& keyPath)
+{
+    std::lock_guard<std::mutex> lockGuard(lock);
+
+    if (!initialized)
+    {
+        initialize();
+    }
+
+    if constexpr (std::is_same_v<T, std::vector<std::string>>)
+    {
+        return getArray(keyPath);
+    }
+
+    auto it = values.find(keyPath);
+    if (it == values.end())
+    {
+        return std::nullopt;
+    }
+
+    const auto& value = it->second;
+
+    if (value.index() == 0)
+    {
+        return std::nullopt;
     }
 
     std::optional<T> castedValue = config::cast<T>(value);
@@ -226,4 +268,10 @@ template bool Config::get<bool>(const std::string&);
 template std::string Config::get<std::string>(const std::string&);
 template std::vector<std::string> Config::get<std::vector<std::string>>(const std::string&);
 template float Config::get<float>(const std::string&);
+
+template std::optional<int> Config::getOptional<int>(const std::string&);
+template std::optional<bool> Config::getOptional<bool>(const std::string&);
+template std::optional<std::string> Config::getOptional<std::string>(const std::string&);
+template std::optional<std::vector<std::string>> Config::getOptional<std::vector<std::string>>(const std::string&);
+template std::optional<float> Config::getOptional<float>(const std::string&);
 }
