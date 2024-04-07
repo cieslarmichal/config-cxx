@@ -168,9 +168,27 @@ bool Config::has(const std::string& keyPath)
 
 void Config::initialize()
 {
-    const auto cxxEnv = environment::ConfigProvider::getCxxEnv();
+    // Find if no config warning is enabled or disabled
+    const auto suppressWarning = std::getenv("SUPPRESS_NO_CONFIG_WARNING");
 
+    // Get the path to the configuration directory
     const auto configDirectory = ConfigDirectoryPathResolver::getConfigDirectoryPath();
+
+    // Check if the configuration directory is empty
+    bool isEmpty = true;
+    for (const auto& entry : std::filesystem::directory_iterator(configDirectory)) {
+        if (entry.is_regular_file()) {
+            isEmpty = false;
+            break;
+        }
+    }
+
+    // If the configuration directory is empty, log a message and return
+    if (isEmpty && suppressWarning != nullptr) {
+        std::cout << "WARNING: No configurations found in configuration directory." << std::endl;
+        return;
+    }
+    const auto cxxEnv = environment::ConfigProvider::getCxxEnv();
 
     std::cout << "Config directory: " << configDirectory << " loaded." << std::endl;
 
