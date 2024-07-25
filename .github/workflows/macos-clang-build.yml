@@ -15,8 +15,14 @@ jobs:
 
     steps:
       - name: Install clang
-        run: brew install llvm@16 && echo 'export PATH="/usr/local/opt/llvm@16/bin:$PATH"' >> /Users/runner/.bash_profile && source /Users/runner/.bash_profile && which clang++
-        
+        run: |
+          brew install llvm@16
+          echo 'export PATH="/usr/local/opt/llvm@16/bin:$PATH"' >> $GITHUB_ENV
+          echo 'export LDFLAGS="-L/usr/local/opt/llvm@16/lib"' >> $GITHUB_ENV
+          echo 'export CPPFLAGS="-I/usr/local/opt/llvm@16/include"' >> $GITHUB_ENV
+          echo 'export CC=/usr/local/opt/llvm@16/bin/clang' >> $GITHUB_ENV
+          echo 'export CXX=/usr/local/opt/llvm@16/bin/clang++' >> $GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v3
         with:
