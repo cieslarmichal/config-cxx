@@ -14,14 +14,13 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Install clang
+      - name: Install llvm
         run: |
           brew install llvm@16
-          echo 'export PATH="/usr/local/opt/llvm@16/bin:$PATH"' >> $GITHUB_ENV
-          echo 'export LDFLAGS="-L/usr/local/opt/llvm@16/lib"' >> $GITHUB_ENV
-          echo 'export CPPFLAGS="-I/usr/local/opt/llvm@16/include"' >> $GITHUB_ENV
-          echo 'export CC=/usr/local/opt/llvm@16/bin/clang' >> $GITHUB_ENV
-          echo 'export CXX=/usr/local/opt/llvm@16/bin/clang++' >> $GITHUB_ENV
+          echo 'export PATH="/usr/local/opt/llvm@16/bin:$PATH"' >> $HOME/.zshrc
+          echo 'export LDFLAGS="-L/usr/local/opt/llvm@16/lib"' >> $HOME/.zshrc
+          echo 'export CPPFLAGS="-I/usr/local/opt/llvm@16/include"' >> $HOME/.zshrc
+          source $HOME/.zshrc
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -32,10 +31,11 @@ jobs:
         run: |
           cmake -B ${{github.workspace}}/build \
             -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-            -DCMAKE_CXX_COMPILER=/usr/local/opt/llvm@16/bin/clang++
+            -DCMAKE_CXX_COMPILER=$(which clang++)
 
       - name: Build
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
-      - working-directory: build/
+      - name: Run Tests
+        working-directory: build/
         run: ./config-cxx-UT
