@@ -56,8 +56,6 @@ target_link_libraries(${LIBRARY_NAME} PUBLIC  yaml-cpp)
 add_subdirectory(externals/pugixml)
 target_link_libraries(${LIBRARY_NAME} PUBLIC  pugixml)
 
-target_compile_options(${LIBRARY_NAME} PRIVATE -Wno-sign-conversion)
-
 target_include_directories(
     ${LIBRARY_NAME}
     INTERFACE "${CMAKE_CURRENT_LIST_DIR}/include"
