@@ -55,8 +55,8 @@ target_link_libraries(${LIBRARY_NAME} PUBLIC  yaml-cpp)
 
 add_subdirectory(externals/pugixml)
 target_link_libraries(${LIBRARY_NAME} PUBLIC  pugixml)
-# Supress warnings of sign conversion while compiling pugixml
-target_compile_options(pugixml PRIVATE -Wno-sign-conversion)
+
+target_compile_options(${LIBRARY_NAME} PRIVATE -Wno-sign-conversion)
 
 target_include_directories(
     ${LIBRARY_NAME}
