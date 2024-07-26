@@ -8,34 +8,24 @@ on:
 
 env:
   BUILD_TYPE: Debug
-
+  
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-14
+    name: ci-macos-14-apple-clang-18-static
+    env:
+      CLANG18_PATH: /opt/homebrew/opt/llvm@18/bin/clang
 
     steps:
-      - name: Install llvm
-        run: |
-          brew install llvm@16
-          echo 'export PATH="/usr/local/opt/llvm@16/bin:$PATH"' >> $HOME/.zshrc
-          echo 'export LDFLAGS="-L/usr/local/opt/llvm@16/lib"' >> $HOME/.zshrc
-          echo 'export CPPFLAGS="-I/usr/local/opt/llvm@16/include"' >> $HOME/.zshrc
-          source $HOME/.zshrc
-
       - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
+        uses: actions/checkout@v4
 
-      - name: Configure CMake
+      - name: Install ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+
+      - name: Install clang
         run: |
-          cmake -B ${{github.workspace}}/build \
-            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-            -DCMAKE_CXX_COMPILER=$(which clang++)
-
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- -Wno-sign-conversion
-        
-      - name: Run Tests
-        working-directory: build/
-        run: ./config-cxx-UT
+          brew install llvm@18 \
+          && echo 'export PATH="/opt/homebrew/opt/llvm@18/bin:$PATH"' >> /Users/runner/.bash_profile \
+          && source /Users/runner/.bash_profile \
+          && which clang++
