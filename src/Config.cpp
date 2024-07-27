@@ -10,8 +10,8 @@
 #include "ConfigValue.h"
 #include "environment/ConfigProvider.h"
 #include "JsonConfigLoader.h"
-#include "YamlConfigLoader.h"
 #include "XmlConfigLoader.h"
+#include "YamlConfigLoader.h"
 
 namespace config
 {
@@ -176,15 +176,18 @@ void Config::initialize()
 
     // Check if the configuration directory is empty
     bool isEmpty = true;
-    for (const auto& entry : std::filesystem::directory_iterator(configDirectory)) {
-        if (entry.is_regular_file()) {
+    for (const auto& entry : std::filesystem::directory_iterator(configDirectory))
+    {
+        if (entry.is_regular_file())
+        {
             isEmpty = false;
             break;
         }
     }
 
     // If the configuration directory is empty, log a message and return
-    if (isEmpty && suppressWarning != nullptr) {
+    if (isEmpty && suppressWarning != nullptr)
+    {
         std::cout << "WARNING: No configurations found in configuration directory." << std::endl;
         return;
     }
@@ -192,6 +195,13 @@ void Config::initialize()
 
     std::cout << "Config directory: " << configDirectory << " loaded." << std::endl;
 
+    const auto strictMode = std::getenv("CXX_CONFIG_STRICT_MODE");
+    bool foundCxxEnvFile = false;
+
+    if (strictMode != nullptr && (cxxEnv == "local" || cxxEnv == "default"))
+    {
+        throw std::runtime_error("ERROR: CXX_ENV must not be 'default' or 'local' under strict mode");
+    }
     std::vector<std::string> order = {"default", cxxEnv, "local", "local-" + cxxEnv, "custom-environment-variables"};
 
     auto customFileOrder = [order](const std::filesystem::path& path1, const std::filesystem::path& path2)
@@ -243,6 +253,10 @@ void Config::initialize()
             if (filePath.string().find("environment") != std::string::npos)
             {
                 JsonConfigLoader::loadConfigEnvFile(filePath, values);
+                if (filePath.stem().string() == cxxEnv)
+                {
+                    foundCxxEnvFile = true;
+                }
             }
             else
             {
@@ -254,17 +268,25 @@ void Config::initialize()
             if (filePath.string().find("environment") != std::string::npos)
             {
                 YamlConfigLoader::loadConfigEnvFile(filePath, values);
+                if (filePath.stem().string() == cxxEnv)
+                {
+                    foundCxxEnvFile = true;
+                }
             }
             else
             {
                 YamlConfigLoader::loadConfigFile(filePath, values);
             }
-        } 
+        }
         else if (filePath.extension() == ".xml")
         {
-            if (filePath.string().find("environment") != std::string::npos) 
+            if (filePath.string().find("environment") != std::string::npos)
             {
                 XmlConfigLoader::loadConfigEnvFile(filePath, values);
+                if (filePath.stem().string() == cxxEnv)
+                {
+                    foundCxxEnvFile = true;
+                }
             }
             else
             {
@@ -276,6 +298,11 @@ void Config::initialize()
     if (values.empty())
     {
         throw std::runtime_error("Config values are empty.");
+    }
+
+    if (!foundCxxEnvFile && !cxxEnv.empty() && strictMode != nullptr)
+    {
+        throw std::runtime_error("ERROR: No configuraiton file matching CXX_ENV");
     }
 
     initialized = true;
