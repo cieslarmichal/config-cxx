@@ -1,4 +1,4 @@
-#include "config-cxx/Config.h"
+#include "config-cxx/config.h"
 
 #include <atomic>
 #include <filesystem>
@@ -9,8 +9,8 @@
 
 #include "gtest/gtest.h"
 
-#include "filesystem/ExecutableFinder.h"
-#include "tests/EnvironmentSetter.h"
+#include "file_system_service.h"
+#include "environment_setter.h"
 
 using namespace ::testing;
 using namespace config;
@@ -19,7 +19,7 @@ using namespace config::filesystem;
 
 namespace
 {
-const auto projectRootPath = ExecutableFinder::getExecutablePath();
+const auto projectRootPath = FileSystemService::getExecutablePath();
 const auto fallbackConfigDirectory = projectRootPath.parent_path() / "config";
 const auto emptyConfigDirectory = projectRootPath.parent_path() / "emptyConfig";
 const auto testConfigDirectory = projectRootPath.parent_path() / "testConfig";

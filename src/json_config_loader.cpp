@@ -1,9 +1,9 @@
-#include "JsonConfigLoader.h"
+#include "json_config_loader.h"
 
 #include <iostream>
 
-#include "environment/EnvironmentParser.h"
-#include "filesystem/FileSystemService.h"
+#include "config_provider.h"
+#include "file_system_service.h"
 #include "nlohmann/json.hpp"
 
 namespace config
@@ -26,16 +26,15 @@ void JsonConfigLoader::loadConfigFile(const std::filesystem::path& configFilePat
 
     const auto configJson = filesystem::FileSystemService::read(configFilePath);
 
+    nlohmann::json config;
     try
     {
-        const auto config = nlohmann::json::parse(configJson);
+        config = nlohmann::json::parse(configJson);
     }
     catch (const std::exception& e)
     {
         throw std::runtime_error("Failed to parse JSON file: " + configFilePath.string() + " - " + e.what());
     }
-
-    const auto config = nlohmann::json::parse(configJson);
 
     const auto flattenedConfig = config.flatten();
 
@@ -61,16 +60,15 @@ void JsonConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFile
 
     const auto configEnvironmentVariablesJson = filesystem::FileSystemService::read(configFilePath);
 
+    nlohmann::json configEnvironmentVariables;
     try
     {
-        const auto configEnvironmentVariables = nlohmann::json::parse(configEnvironmentVariablesJson);
+        configEnvironmentVariables = nlohmann::json::parse(configEnvironmentVariablesJson);
     }
     catch (const std::exception& e)
     {
         throw std::runtime_error("Failed to parse JSON env file: " + configFilePath.string() + " - " + e.what());
     }
-
-    const auto configEnvironmentVariables = nlohmann::json::parse(configEnvironmentVariablesJson);
 
     const auto flattenedConfig = configEnvironmentVariables.flatten();
 
@@ -78,7 +76,7 @@ void JsonConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFile
     {
         const auto normalizedKey = normalizeConfigKey(it.key());
 
-        const auto envValue = environment::EnvironmentParser::parseString(it.value().get<std::string>());
+        const auto envValue = environment::ConfigProvider::parseEnvironmentVariable(it.value().get<std::string>());
 
         if (!envValue || envValue->empty())
         {

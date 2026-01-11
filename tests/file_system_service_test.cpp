@@ -1,4 +1,4 @@
-#include "FileSystemService.h"
+#include "file_system_service.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -6,14 +6,12 @@
 
 #include "gtest/gtest.h"
 
-#include "ExecutableFinder.h"
-
 using namespace ::testing;
 using namespace config::filesystem;
 
 namespace
 {
-const auto projectRootPath = ExecutableFinder::getExecutablePath();
+const auto projectRootPath = FileSystemService::getExecutablePath();
 const auto testDirectoryPath = projectRootPath.parent_path() / "tests";
 const auto filesystemTestDirectoryPath = testDirectoryPath / "filesystemData";
 const auto testReadingFilePath = filesystemTestDirectoryPath / "testReading.txt";
@@ -87,4 +85,58 @@ TEST_F(FileSystemServiceTest, shouldReturnCurrentWorkingDirectory)
     const auto currentWorkingDirectory = FileSystemService::getCurrentWorkingDirectory();
 
     ASSERT_EQ(currentWorkingDirectory, std::filesystem::current_path());
+}
+
+TEST_F(FileSystemServiceTest, givenFilePath_shouldReturnFalseForIsDirectory)
+{
+    const auto isDirectory = FileSystemService::isDirectory(testReadingFilePath);
+
+    ASSERT_FALSE(isDirectory);
+}
+
+TEST_F(FileSystemServiceTest, getSystemRootPath_returnsValidPath)
+{
+    const auto rootPath = FileSystemService::getSystemRootPath();
+
+    ASSERT_FALSE(rootPath.empty());
+#ifdef _WIN32
+    ASSERT_TRUE(rootPath.string().ends_with(":\\"));
+#else
+    ASSERT_EQ(rootPath.string(), "/");
+#endif
+}
+
+TEST_F(FileSystemServiceTest, isRelative_withRelativePath_returnsTrue)
+{
+    const std::filesystem::path relativePath = "config/test.json";
+    
+    ASSERT_TRUE(FileSystemService::isRelative(relativePath));
+}
+
+TEST_F(FileSystemServiceTest, isRelative_withAbsolutePath_returnsFalse)
+{
+    const auto absolutePath = std::filesystem::absolute("config");
+    
+    ASSERT_FALSE(FileSystemService::isRelative(absolutePath));
+}
+
+TEST_F(FileSystemServiceTest, isRelative_withCurrentDirectory_returnsTrue)
+{
+    const std::filesystem::path currentDir = ".";
+    
+    ASSERT_TRUE(FileSystemService::isRelative(currentDir));
+}
+
+TEST_F(FileSystemServiceTest, isRelative_withParentDirectory_returnsTrue)
+{
+    const std::filesystem::path parentDir = "..";
+    
+    ASSERT_TRUE(FileSystemService::isRelative(parentDir));
+}
+
+TEST_F(FileSystemServiceTest, isRelative_withRootPath_returnsFalse)
+{
+    const auto rootPath = FileSystemService::getSystemRootPath();
+    
+    ASSERT_FALSE(FileSystemService::isRelative(rootPath));
 }

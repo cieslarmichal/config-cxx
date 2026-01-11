@@ -1,11 +1,11 @@
-#include "YamlConfigLoader.h"
+#include "yaml_config_loader.h"
 
 #include <functional>
 #include <iostream>
 #include <variant>
 
-#include "environment/EnvironmentParser.h"
-#include "filesystem/FileSystemService.h"
+#include "config_provider.h"
+#include "file_system_service.h"
 #include "yaml-cpp/yaml.h"
 
 namespace config
@@ -48,7 +48,7 @@ void YamlConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFile
         if (std::holds_alternative<std::string>(it->second))
         {
             std::string envKey = std::get<std::string>(it->second);
-            const auto envValue = environment::EnvironmentParser::parseString(envKey);
+            const auto envValue = environment::ConfigProvider::parseEnvironmentVariable(envKey);
 
             if (!envValue || envValue->empty())
             {
@@ -84,7 +84,12 @@ void flattenConfig(YAML::Node& configNode, std::unordered_map<std::string, Confi
         else if (node.IsSequence())
         {
             std::vector<std::string> seq;
-            if (node[0].IsScalar())
+            if (node.size() == 0)
+            {
+                // Empty sequence
+                configValues[prefix] = seq;
+            }
+            else if (node[0].IsScalar())
             {
                 for (size_t i = 0; i < node.size(); ++i)
                 {

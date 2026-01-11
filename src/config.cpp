@@ -1,17 +1,18 @@
-#include "config-cxx/Config.h"
+#include "config-cxx/config.h"
 
 #include <algorithm>
 #include <filesystem>
+#include <iostream>
 #include <optional>
 #include <stdexcept>
 #include <variant>
 
-#include "ConfigDirectoryPathResolver.h"
-#include "ConfigValue.h"
-#include "environment/ConfigProvider.h"
-#include "JsonConfigLoader.h"
-#include "XmlConfigLoader.h"
-#include "YamlConfigLoader.h"
+#include "config_directory_path_resolver.h"
+#include "config_provider.h"
+#include "config_value.h"
+#include "json_config_loader.h"
+#include "xml_config_loader.h"
+#include "yaml_config_loader.h"
 
 namespace config
 {
@@ -21,7 +22,11 @@ T Config::get(const std::string& keyPath)
 {
     std::lock_guard<std::mutex> lockGuard(lock);
 
-    std::call_once(initFlag, [this]() { initialize(); });
+    if (!initialized)
+    {
+        initialize();
+        initialized = true;
+    }
 
     if constexpr (std::is_same_v<T, std::vector<std::string>>)
     {
@@ -58,8 +63,8 @@ T Config::get(const std::string& keyPath)
     }
     else
     {
-        std::string errorMsg = "Configuration key '" + keyPath + "' has wrong type. Expected: " + 
-                              typeid(T).name() + ", Actual: " + getTypeString(value);
+        std::string errorMsg = "Configuration key '" + keyPath + "' has wrong type. Expected: " + typeid(T).name() +
+                               ", Actual: " + getTypeString(value);
         log(LogLevel::Error, errorMsg);
         throw std::runtime_error(errorMsg);
     }
@@ -70,7 +75,11 @@ std::optional<T> Config::getOptional(const std::string& keyPath)
 {
     std::lock_guard<std::mutex> lockGuard(lock);
 
-    std::call_once(initFlag, [this]() { initialize(); });
+    if (!initialized)
+    {
+        initialize();
+        initialized = true;
+    }
 
     if constexpr (std::is_same_v<T, std::vector<std::string>>)
     {
@@ -98,8 +107,8 @@ std::optional<T> Config::getOptional(const std::string& keyPath)
     }
     else
     {
-        std::string errorMsg = "Configuration key '" + keyPath + "' has wrong type. Expected: " +
-                              typeid(T).name() + ", Actual: " + getTypeString(value);
+        std::string errorMsg = "Configuration key '" + keyPath + "' has wrong type. Expected: " + typeid(T).name() +
+                               ", Actual: " + getTypeString(value);
         log(LogLevel::Error, errorMsg);
         throw std::runtime_error(errorMsg);
     }
@@ -116,10 +125,21 @@ ConfigValue Config::get(const std::string& keyPath)
 {
     std::lock_guard<std::mutex> lockGuard(lock);
 
-    std::call_once(initFlag, [this]() { initialize(); });
+    if (!initialized)
+    {
+        initialize();
+        initialized = true;
+    }
 
-    const auto keyOccurrences = std::count_if(values.begin(), values.end(), [&](auto& value)
-                                              { return value.first.find(keyPath) != std::string::npos; });
+    const auto keyOccurrences =
+        std::count_if(values.begin(), values.end(),
+                      [&keyPath](const auto& value)
+                      {
+                          const auto& key = value.first;
+                          // Match exact key or keys that start with keyPath followed by a dot
+                          return key == keyPath || (key.find(keyPath) == 0 && key.length() > keyPath.length() &&
+                                                    key[keyPath.length()] == '.');
+                      });
 
     if (keyOccurrences == 0)
     {
@@ -150,7 +170,8 @@ std::vector<std::string> Config::getArray(const std::string& keyPath)
         const std::string& key = pair.first;
         const ConfigValue& value = pair.second;
 
-        if (key.find(keyPath) == 0)
+        // Match keys that start with keyPath followed by a dot
+        if (key.find(keyPath) == 0 && key.length() > keyPath.length() && key[keyPath.length()] == '.')
         {
             std::optional<std::string> castedValue = config::cast<std::string>(value);
             if (castedValue)
@@ -185,7 +206,11 @@ bool Config::has(const std::string& keyPath)
 {
     std::lock_guard<std::mutex> lockGuard(lock);
 
-    std::call_once(initFlag, [this]() { initialize(); });
+    if (!initialized)
+    {
+        initialize();
+        initialized = true;
+    }
 
     return values.find(keyPath) != values.end();
 }
@@ -210,9 +235,12 @@ void Config::initialize()
     }
 
     // If the configuration directory is empty, log a message and return
-    if (isEmpty && suppressWarning != nullptr)
+    if (isEmpty)
     {
-        log(LogLevel::Warning, "No configurations found in configuration directory.");
+        if (suppressWarning == nullptr)
+        {
+            log(LogLevel::Warning, "No configurations found in configuration directory.");
+        }
         return;
     }
     const auto cxxEnv = environment::ConfigProvider::getCxxEnv();
@@ -326,7 +354,7 @@ void Config::initialize()
 
     if (!foundCxxEnvFile && !cxxEnv.empty() && strictMode != nullptr)
     {
-        throw std::runtime_error("ERROR: No configuraiton file matching CXX_ENV");
+        throw std::runtime_error("ERROR: No configuration file matching CXX_ENV");
     }
 }
 
@@ -342,47 +370,66 @@ void Config::log(LogLevel level, const std::string& message) const
     {
         logCallback(level, message);
     }
+    else
+    {
+        // Default logging to stderr for errors and warnings
+        switch (level)
+        {
+        case LogLevel::Error:
+            std::cerr << "[CONFIG ERROR] " << message << std::endl;
+            break;
+        case LogLevel::Warning:
+            std::cerr << "[CONFIG WARNING] " << message << std::endl;
+            break;
+        case LogLevel::Info:
+        case LogLevel::Debug:
+            // Silent by default for info/debug to avoid clutter
+            break;
+        }
+    }
 }
 
 std::string Config::getSimilarKeys(const std::string& keyPath) const
 {
     std::vector<std::pair<std::string, int>> similarities;
-    
+
     for (const auto& [key, _] : values)
     {
         // Simple Levenshtein-like similarity check
         int distance = 0;
         size_t minLen = std::min(key.length(), keyPath.length());
-        
+
         for (size_t i = 0; i < minLen; ++i)
         {
-            if (key[i] != keyPath[i]) distance++;
+            if (key[i] != keyPath[i])
+                distance++;
         }
         distance += std::abs(static_cast<int>(key.length()) - static_cast<int>(keyPath.length()));
-        
-        if (distance < 5)  // Only suggest if relatively similar
+
+        if (distance < 5) // Only suggest if relatively similar
         {
             similarities.push_back({key, distance});
         }
     }
-    
+
     if (similarities.empty())
     {
         return "";
     }
-    
+
     // Sort by similarity (lowest distance first)
     std::sort(similarities.begin(), similarities.end(),
               [](const auto& a, const auto& b) { return a.second < b.second; });
-    
+
     // Return top 3 suggestions
     std::string result;
     for (size_t i = 0; i < std::min(size_t(3), similarities.size()); ++i)
     {
-        if (i > 0) result += ", ";
+        if (i > 0)
+            result += ", ";
         result += "'" + similarities[i].first + "'";
     }
-    
+
     return result;
 }
 
@@ -390,14 +437,22 @@ std::string Config::getTypeString(const ConfigValue& value) const
 {
     switch (value.index())
     {
-        case 0: return "null";
-        case 1: return "bool";
-        case 2: return "int";
-        case 3: return "double";
-        case 4: return "string";
-        case 5: return "float";
-        case 6: return "vector<string>";
-        default: return "unknown";
+    case 0:
+        return "null";
+    case 1:
+        return "bool";
+    case 2:
+        return "int";
+    case 3:
+        return "double";
+    case 4:
+        return "string";
+    case 5:
+        return "float";
+    case 6:
+        return "vector<string>";
+    default:
+        return "unknown";
     }
 }
 

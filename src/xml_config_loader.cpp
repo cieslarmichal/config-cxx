@@ -1,10 +1,10 @@
-#include "XmlConfigLoader.h"
+#include "xml_config_loader.h"
 
 #include <iostream>
 #include <variant>
 
-#include "environment/EnvironmentParser.h"
-#include "filesystem/FileSystemService.h"
+#include "config_provider.h"
+#include "file_system_service.h"
 #include "pugixml.hpp"
 
 namespace config
@@ -35,8 +35,8 @@ void XmlConfigLoader::loadConfigFile(const std::filesystem::path& configFilePath
     pugi::xml_parse_result result = doc.load_file(configFilePath.c_str());
     if (!result)
     {
-        throw std::runtime_error("Failed to parse XML file: " + configFilePath.string() + 
-                               " - " + std::string(result.description()));
+        throw std::runtime_error("Failed to parse XML file: " + configFilePath.string() + " - " +
+                                 std::string(result.description()));
     }
     std::unordered_map<std::string, std::vector<std::string>> flattenedConfig;
     flattenConfig(doc.child(configTagName.c_str()), "", flattenedConfig);
@@ -52,7 +52,7 @@ void XmlConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFileP
         if (std::holds_alternative<std::string>(it->second))
         {
             std::string envKey = std::get<std::string>(it->second);
-            const auto envValue = environment::EnvironmentParser::parseString(envKey);
+            const auto envValue = environment::ConfigProvider::parseEnvironmentVariable(envKey);
 
             if (!envValue || envValue->empty())
             {
@@ -147,5 +147,5 @@ std::string normalizeConfigListKey(const std::string& key)
 
     return key.substr(0, last_dot);
 }
-}// anonymous namespace
+} // anonymous namespace
 } // config namespace

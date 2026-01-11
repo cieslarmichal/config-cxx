@@ -1,9 +1,19 @@
-#include "FileSystemService.h"
+#include "file_system_service.h"
 
 #include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+
+#ifdef _WIN32
+#include <windows.h>
+#elif __APPLE__
+#include <limits.h>
+#include <mach-o/dyld.h>
+#else
+#include <climits>
+#include <unistd.h>
+#endif
 
 namespace config::filesystem
 {
@@ -49,6 +59,35 @@ std::filesystem::path FileSystemService::getSystemRootPath()
     return std::filesystem::current_path().root_path();
 #else
     return "/";
+#endif
+}
+
+std::filesystem::path FileSystemService::getExecutablePath()
+{
+#ifdef _WIN32
+    wchar_t path[MAX_PATH] = {0};
+
+    GetModuleFileNameW(NULL, path, MAX_PATH);
+
+    // Use filesystem::path constructor that properly handles wide strings
+    return std::filesystem::path(path);
+#elif __APPLE__
+    char path[PATH_MAX];
+    uint32_t size = sizeof(path);
+    if (_NSGetExecutablePath(path, &size) == 0)
+    {
+        return std::filesystem::path(path);
+    }
+    else
+    {
+        return {};
+    }
+#else
+    char result[PATH_MAX];
+
+    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+
+    return std::filesystem::path{std::string(result, (count > 0) ? static_cast<unsigned long>(count) : 0)};
 #endif
 }
 
