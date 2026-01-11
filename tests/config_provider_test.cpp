@@ -34,6 +34,9 @@ TEST_F(ConfigProviderTest, parseEnvironmentVariable_returnsValueIfEnvVariableExi
     ASSERT_EQ(envValue, expectedEnvValue);
 }
 
+#ifndef _WIN32
+// On Windows, setting an environment variable to an empty string unsets it
+// So this test only makes sense on Unix-like systems
 TEST_F(ConfigProviderTest, parseEnvironmentVariable_returnsEmptyStringWhenEnvIsEmpty)
 {
     const auto envName = "CONFIG_CXX_EMPTY_TEST";
@@ -45,6 +48,7 @@ TEST_F(ConfigProviderTest, parseEnvironmentVariable_returnsEmptyStringWhenEnvIsE
     ASSERT_TRUE(envValue);
     ASSERT_EQ(*envValue, "");
 }
+#endif
 
 
 
