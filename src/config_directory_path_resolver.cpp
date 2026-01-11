@@ -44,8 +44,21 @@ std::filesystem::path ConfigDirectoryPathResolver::getConfigDirectoryPath()
 
     const auto systemRootPath = filesystem::FileSystemService::getSystemRootPath();
 
-    while (path.has_parent_path() && !equivalent(path, systemRootPath))
+    while (path.has_parent_path())
     {
+        // Check if we've reached system root (equivalent() can throw, so use try-catch)
+        try
+        {
+            if (equivalent(path, systemRootPath))
+            {
+                break;
+            }
+        }
+        catch (const std::filesystem::filesystem_error&)
+        {
+            // Paths may not exist or be on different filesystems, continue search
+        }
+
         auto potentialConfigPath = path / pathSuffix;
 
         if (filesystem::FileSystemService::exists(potentialConfigPath) &&

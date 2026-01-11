@@ -131,8 +131,13 @@ ConfigValue Config::get(const std::string& keyPath)
         initialized = true;
     }
 
-    const auto keyOccurrences = std::count_if(values.begin(), values.end(), [&](auto& value)
-                                              { return value.first.find(keyPath) != std::string::npos; });
+    const auto keyOccurrences = std::count_if(values.begin(), values.end(), 
+        [&keyPath](const auto& value) {
+            const auto& key = value.first;
+            // Match exact key or keys that start with keyPath followed by a dot
+            return key == keyPath || 
+                   (key.find(keyPath) == 0 && key.length() > keyPath.length() && key[keyPath.length()] == '.');
+        });
 
     if (keyOccurrences == 0)
     {
@@ -163,7 +168,8 @@ std::vector<std::string> Config::getArray(const std::string& keyPath)
         const std::string& key = pair.first;
         const ConfigValue& value = pair.second;
 
-        if (key.find(keyPath) == 0)
+        // Match keys that start with keyPath followed by a dot
+        if (key.find(keyPath) == 0 && key.length() > keyPath.length() && key[keyPath.length()] == '.')
         {
             std::optional<std::string> castedValue = config::cast<std::string>(value);
             if (castedValue)

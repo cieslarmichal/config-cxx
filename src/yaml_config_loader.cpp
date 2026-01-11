@@ -84,7 +84,12 @@ void flattenConfig(YAML::Node& configNode, std::unordered_map<std::string, Confi
         else if (node.IsSequence())
         {
             std::vector<std::string> seq;
-            if (node[0].IsScalar())
+            if (node.size() == 0)
+            {
+                // Empty sequence
+                configValues[prefix] = seq;
+            }
+            else if (node[0].IsScalar())
             {
                 for (size_t i = 0; i < node.size(); ++i)
                 {

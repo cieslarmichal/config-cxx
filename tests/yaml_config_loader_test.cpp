@@ -248,4 +248,29 @@ level1:
     ASSERT_EQ(std::get<std::string>(configValues["level1.level2.level3.level4.value"]), "deep");
 }
 
+TEST_F(YamlConfigLoaderTest, loadConfigFile_withEmptyArray_doesNotCrash)
+{
+    const std::string emptyArrayYaml = R"(
+items: []
+empty_list: []
+name: "test"
+values:
+  nested_empty: []
+)";
+    
+    const auto emptyArrayPath = testConfigDirectory / "empty_array.yaml";
+    std::ofstream file{emptyArrayPath};
+    file << emptyArrayYaml;
+    file.close();
+    
+    std::unordered_map<std::string, ConfigValue> configValues;
+    
+    // Should not crash when encountering empty arrays
+    ASSERT_NO_THROW(YamlConfigLoader::loadConfigFile(emptyArrayPath, configValues));
+    
+    // Non-empty values should still be loaded
+    ASSERT_TRUE(configValues.find("name") != configValues.end());
+    ASSERT_EQ(std::get<std::string>(configValues["name"]), "test");
+}
+
 }
