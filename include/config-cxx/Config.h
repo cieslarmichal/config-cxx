@@ -12,6 +12,16 @@ namespace config
 {
 using ConfigValue = std::variant<std::nullptr_t, bool, int, double, std::string, float, std::vector<std::string>>;
 
+enum class LogLevel
+{
+    Debug,
+    Info,
+    Warning,
+    Error
+};
+
+using LogCallback = std::function<void(LogLevel, const std::string&)>;
+
 class Config
 {
 public:
@@ -51,6 +61,24 @@ public:
     std::optional<T> getOptional(const std::string& keyPath);
 
     /**
+     * @brief Get a config value by path with a default value.
+     *
+     * @tparam T The target type of config value.
+     *
+     * @param path The path to config key.
+     * @param defaultValue The default value to return if key doesn't exist.
+     *
+     * @return The value of config key or defaultValue if not found.
+     *
+     * @code
+     * Config().getOrDefault<int>("db.port", 3306) // 3306 if not found
+     * Config().getOrDefault<std::string>("redis.host", "localhost")
+     * @endcode
+     */
+    template <typename T>
+    T getOrDefault(const std::string& keyPath, T defaultValue);
+
+    /**
      * @brief Get a config value by path.
      *
      * @param path The path to config key.
@@ -78,11 +106,30 @@ public:
      */
     bool has(const std::string& keyPath);
 
+    /**
+     * @brief Set a logging callback for config operations.
+     *
+     * @param callback Function to call for log messages.
+     *
+     * @code
+     * config.setLogCallback([](LogLevel level, const std::string& msg) {
+     *     if (level == LogLevel::Error) {
+     *         std::cerr << "[ERROR] " << msg << std::endl;
+     *     }
+     * });
+     * @endcode
+     */
+    void setLogCallback(LogCallback callback);
+
 private:
     std::vector<std::string> getArray(const std::string& keyPath);
     void initialize();
+    void log(LogLevel level, const std::string& message) const;
+    std::string getSimilarKeys(const std::string& keyPath) const;
+    std::string getTypeString(const ConfigValue& value) const;
 
-    bool initialized = false;
+    std::once_flag initFlag;
+    LogCallback logCallback;
 
     std::unordered_map<std::string, ConfigValue> values;
     mutable std::mutex lock;

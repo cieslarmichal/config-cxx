@@ -1,7 +1,7 @@
 #include "config-cxx/Config.h"
 
+#include <algorithm>
 #include <filesystem>
-#include <iostream>
 #include <optional>
 #include <stdexcept>
 #include <variant>
@@ -21,10 +21,7 @@ T Config::get(const std::string& keyPath)
 {
     std::lock_guard<std::mutex> lockGuard(lock);
 
-    if (!initialized)
-    {
-        initialize();
-    }
+    std::call_once(initFlag, [this]() { initialize(); });
 
     if constexpr (std::is_same_v<T, std::vector<std::string>>)
     {
@@ -34,14 +31,23 @@ T Config::get(const std::string& keyPath)
     auto it = values.find(keyPath);
     if (it == values.end())
     {
-        throw std::runtime_error("Config key " + keyPath + " not found.");
+        std::string errorMsg = "Configuration key '" + keyPath + "' not found.";
+        std::string similar = getSimilarKeys(keyPath);
+        if (!similar.empty())
+        {
+            errorMsg += " Did you mean: " + similar + "?";
+        }
+        log(LogLevel::Error, errorMsg);
+        throw std::runtime_error(errorMsg);
     }
 
     const auto& value = it->second;
 
     if (value.index() == 0)
     {
-        throw std::runtime_error("Config key " + keyPath + " has value of nullptr.");
+        std::string errorMsg = "Configuration key '" + keyPath + "' has null value.";
+        log(LogLevel::Error, errorMsg);
+        throw std::runtime_error(errorMsg);
     }
 
     std::optional<T> castedValue = config::cast<T>(value);
@@ -50,10 +56,12 @@ T Config::get(const std::string& keyPath)
     {
         return castedValue.value();
     }
-
     else
     {
-        throw std::runtime_error("Config key " + keyPath + " has value of wrong type.");
+        std::string errorMsg = "Configuration key '" + keyPath + "' has wrong type. Expected: " + 
+                              typeid(T).name() + ", Actual: " + getTypeString(value);
+        log(LogLevel::Error, errorMsg);
+        throw std::runtime_error(errorMsg);
     }
 }
 
@@ -62,10 +70,7 @@ std::optional<T> Config::getOptional(const std::string& keyPath)
 {
     std::lock_guard<std::mutex> lockGuard(lock);
 
-    if (!initialized)
-    {
-        initialize();
-    }
+    std::call_once(initFlag, [this]() { initialize(); });
 
     if constexpr (std::is_same_v<T, std::vector<std::string>>)
     {
@@ -91,28 +96,41 @@ std::optional<T> Config::getOptional(const std::string& keyPath)
     {
         return castedValue.value();
     }
-
     else
     {
-        throw std::runtime_error("Config key " + keyPath + " has value of wrong type.");
+        std::string errorMsg = "Configuration key '" + keyPath + "' has wrong type. Expected: " +
+                              typeid(T).name() + ", Actual: " + getTypeString(value);
+        log(LogLevel::Error, errorMsg);
+        throw std::runtime_error(errorMsg);
     }
+}
+
+template <typename T>
+T Config::getOrDefault(const std::string& keyPath, T defaultValue)
+{
+    auto optValue = getOptional<T>(keyPath);
+    return optValue.value_or(defaultValue);
 }
 
 ConfigValue Config::get(const std::string& keyPath)
 {
     std::lock_guard<std::mutex> lockGuard(lock);
 
-    if (!initialized)
-    {
-        initialize();
-    }
+    std::call_once(initFlag, [this]() { initialize(); });
 
     const auto keyOccurrences = std::count_if(values.begin(), values.end(), [&](auto& value)
                                               { return value.first.find(keyPath) != std::string::npos; });
 
     if (keyOccurrences == 0)
     {
-        throw std::runtime_error("Config key " + keyPath + " not found.");
+        std::string errorMsg = "Configuration key '" + keyPath + "' not found.";
+        std::string similar = getSimilarKeys(keyPath);
+        if (!similar.empty())
+        {
+            errorMsg += " Did you mean: " + similar + "?";
+        }
+        log(LogLevel::Error, errorMsg);
+        throw std::runtime_error(errorMsg);
     }
 
     if (keyOccurrences > 1)
@@ -141,14 +159,23 @@ std::vector<std::string> Config::getArray(const std::string& keyPath)
             }
             else
             {
-                throw std::runtime_error("Config key " + keyPath + " has value of wrong type.");
+                std::string errorMsg = "Configuration key '" + keyPath + "' array element has wrong type.";
+                log(LogLevel::Error, errorMsg);
+                throw std::runtime_error(errorMsg);
             }
         }
     }
 
     if (result.empty())
     {
-        throw std::runtime_error("Config key " + keyPath + " not found.");
+        std::string errorMsg = "Configuration key '" + keyPath + "' not found.";
+        std::string similar = getSimilarKeys(keyPath);
+        if (!similar.empty())
+        {
+            errorMsg += " Did you mean: " + similar + "?";
+        }
+        log(LogLevel::Error, errorMsg);
+        throw std::runtime_error(errorMsg);
     }
 
     return result;
@@ -158,10 +185,7 @@ bool Config::has(const std::string& keyPath)
 {
     std::lock_guard<std::mutex> lockGuard(lock);
 
-    if (!initialized)
-    {
-        initialize();
-    }
+    std::call_once(initFlag, [this]() { initialize(); });
 
     return values.find(keyPath) != values.end();
 }
@@ -188,12 +212,12 @@ void Config::initialize()
     // If the configuration directory is empty, log a message and return
     if (isEmpty && suppressWarning != nullptr)
     {
-        std::cout << "WARNING: No configurations found in configuration directory." << std::endl;
+        log(LogLevel::Warning, "No configurations found in configuration directory.");
         return;
     }
     const auto cxxEnv = environment::ConfigProvider::getCxxEnv();
 
-    std::cout << "Config directory: " << configDirectory << " loaded." << std::endl;
+    log(LogLevel::Info, "Config directory: " + configDirectory.string() + " loaded.");
 
     const auto strictMode = std::getenv("CXX_CONFIG_STRICT_MODE");
     bool foundCxxEnvFile = false;
@@ -304,8 +328,77 @@ void Config::initialize()
     {
         throw std::runtime_error("ERROR: No configuraiton file matching CXX_ENV");
     }
+}
 
-    initialized = true;
+void Config::setLogCallback(LogCallback callback)
+{
+    std::lock_guard<std::mutex> lockGuard(lock);
+    logCallback = std::move(callback);
+}
+
+void Config::log(LogLevel level, const std::string& message) const
+{
+    if (logCallback)
+    {
+        logCallback(level, message);
+    }
+}
+
+std::string Config::getSimilarKeys(const std::string& keyPath) const
+{
+    std::vector<std::pair<std::string, int>> similarities;
+    
+    for (const auto& [key, _] : values)
+    {
+        // Simple Levenshtein-like similarity check
+        int distance = 0;
+        size_t minLen = std::min(key.length(), keyPath.length());
+        
+        for (size_t i = 0; i < minLen; ++i)
+        {
+            if (key[i] != keyPath[i]) distance++;
+        }
+        distance += std::abs(static_cast<int>(key.length()) - static_cast<int>(keyPath.length()));
+        
+        if (distance < 5)  // Only suggest if relatively similar
+        {
+            similarities.push_back({key, distance});
+        }
+    }
+    
+    if (similarities.empty())
+    {
+        return "";
+    }
+    
+    // Sort by similarity (lowest distance first)
+    std::sort(similarities.begin(), similarities.end(),
+              [](const auto& a, const auto& b) { return a.second < b.second; });
+    
+    // Return top 3 suggestions
+    std::string result;
+    for (size_t i = 0; i < std::min(size_t(3), similarities.size()); ++i)
+    {
+        if (i > 0) result += ", ";
+        result += "'" + similarities[i].first + "'";
+    }
+    
+    return result;
+}
+
+std::string Config::getTypeString(const ConfigValue& value) const
+{
+    switch (value.index())
+    {
+        case 0: return "null";
+        case 1: return "bool";
+        case 2: return "int";
+        case 3: return "double";
+        case 4: return "string";
+        case 5: return "float";
+        case 6: return "vector<string>";
+        default: return "unknown";
+    }
 }
 
 template int Config::get<int>(const std::string&);
@@ -319,4 +412,9 @@ template std::optional<bool> Config::getOptional<bool>(const std::string&);
 template std::optional<std::string> Config::getOptional<std::string>(const std::string&);
 template std::optional<std::vector<std::string>> Config::getOptional<std::vector<std::string>>(const std::string&);
 template std::optional<float> Config::getOptional<float>(const std::string&);
+
+template int Config::getOrDefault<int>(const std::string&, int);
+template bool Config::getOrDefault<bool>(const std::string&, bool);
+template std::string Config::getOrDefault<std::string>(const std::string&, std::string);
+template float Config::getOrDefault<float>(const std::string&, float);
 }

@@ -35,9 +35,8 @@ void XmlConfigLoader::loadConfigFile(const std::filesystem::path& configFilePath
     pugi::xml_parse_result result = doc.load_file(configFilePath.c_str());
     if (!result)
     {
-        std::cerr << "File " << configFilePath << "parsed with errors" << std::endl;
-        std::cerr << "Error description: " << result.description() << "\n";
-        throw std::runtime_error("Invalid XML file");
+        throw std::runtime_error("Failed to parse XML file: " + configFilePath.string() + 
+                               " - " + std::string(result.description()));
     }
     std::unordered_map<std::string, std::vector<std::string>> flattenedConfig;
     flattenConfig(doc.child(configTagName.c_str()), "", flattenedConfig);
@@ -57,7 +56,7 @@ void XmlConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFileP
 
             if (!envValue || envValue->empty())
             {
-                std::cout << "Environment variable " + envKey + " not set." << std::endl;
+                // Environment variable not set, skip silently
                 continue;
             }
             configValues[it->first] = *envValue;

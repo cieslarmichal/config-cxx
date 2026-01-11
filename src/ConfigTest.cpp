@@ -1,9 +1,11 @@
 #include "config-cxx/Config.h"
 
+#include <atomic>
 #include <filesystem>
 #include <optional>
 #include <fstream>
 #include <stdexcept>
+#include <thread>
 
 #include "gtest/gtest.h"
 
@@ -454,4 +456,108 @@ TEST_F(ConfigTest, givenCxxEnvAndConfigDir_returnsOptionalKeyValues)
     ASSERT_EQ(*awsAccountIdValue, awsAccountId);
     ASSERT_EQ(*awsAccountKeyValue, awsAccountKey);
     ASSERT_EQ(nonExistantKeyValue.has_value(), false);
+}
+
+TEST_F(ConfigTest, getOrDefault_givenExistingKey_returnsValue)
+{
+    EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
+
+    Config config;
+
+    const auto dbPort = config.getOrDefault<int>("db.port", 5432);
+    const auto dbHost = config.getOrDefault<std::string>("db.host", "127.0.0.1");
+
+    ASSERT_EQ(dbPort, 1996);  // From test.json
+    ASSERT_EQ(dbHost, "localhost");  // From default.json
+}
+
+TEST_F(ConfigTest, getOrDefault_givenNonExistingKey_returnsDefault)
+{
+    EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
+
+    Config config;
+
+    const auto redisPort = config.getOrDefault<int>("redis.port", 6379);
+    const auto redisHost = config.getOrDefault<std::string>("redis.host", "localhost");
+    const auto cacheEnabled = config.getOrDefault<bool>("cache.enabled", true);
+
+    ASSERT_EQ(redisPort, 6379);
+    ASSERT_EQ(redisHost, "localhost");
+    ASSERT_EQ(cacheEnabled, true);
+}
+
+TEST_F(ConfigTest, logCallback_capturesLogMessages)
+{
+    EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
+
+    std::vector<std::pair<LogLevel, std::string>> logMessages;
+    
+    Config config;
+    config.setLogCallback([&logMessages](LogLevel level, const std::string& msg) {
+        logMessages.push_back({level, msg});
+    });
+
+    // This should log an info message about config directory loaded
+    config.has("db.host");
+
+    ASSERT_FALSE(logMessages.empty());
+    
+    // Try to access non-existent key to trigger error log
+    logMessages.clear();
+    try {
+        config.get<std::string>("nonexistent.key.for.test");
+    } catch (const std::runtime_error&) {
+        // Expected
+    }
+
+    // Should have logged an error
+    bool foundErrorLog = false;
+    for (const auto& [level, msg] : logMessages) {
+        if (level == LogLevel::Error && msg.find("not found") != std::string::npos) {
+            foundErrorLog = true;
+            break;
+        }
+    }
+    ASSERT_TRUE(foundErrorLog);
+}
+
+TEST_F(ConfigTest, betterErrorMessages_suggestsSimilarKeys)
+{
+    EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
+
+    Config config;
+
+    // Try to access "db.prot" which is similar to "db.port"
+    try {
+        config.get<int>("db.prot");
+        FAIL() << "Expected std::runtime_error";
+    } catch (const std::runtime_error& e) {
+        std::string errorMsg = e.what();
+        // Error message should contain suggestion
+        ASSERT_NE(errorMsg.find("Did you mean"), std::string::npos) 
+            << "Error message should suggest similar keys: " << errorMsg;
+    }
+}
+
+TEST_F(ConfigTest, betterErrorMessages_showsTypeInformation)
+{
+    EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
+    EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
+
+    Config config;
+
+    // Try to get string value as int
+    try {
+        config.get<int>("db.host");  // This is a string
+        FAIL() << "Expected std::runtime_error";
+    } catch (const std::runtime_error& e) {
+        std::string errorMsg = e.what();
+        // Error message should contain type information
+        ASSERT_NE(errorMsg.find("wrong type"), std::string::npos) 
+            << "Error message should mention type mismatch: " << errorMsg;
+    }
 }

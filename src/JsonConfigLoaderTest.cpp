@@ -166,7 +166,7 @@ TEST_F(JsonConfigLoaderTest, loadConfigFileWithInvalidJson)
 
     std::unordered_map<std::string, ConfigValue> configValues;
 
-    ASSERT_THROW(JsonConfigLoader::loadConfigFile(invalidConfigFilePath, configValues), nlohmann::json::parse_error);
+    ASSERT_THROW(JsonConfigLoader::loadConfigFile(invalidConfigFilePath, configValues), std::runtime_error);
 }
 
 TEST_F(JsonConfigLoaderTest, loadConfigEnvFileWithInvalidJson)
@@ -176,6 +176,6 @@ TEST_F(JsonConfigLoaderTest, loadConfigEnvFileWithInvalidJson)
 
     std::unordered_map<std::string, ConfigValue> configValues;
 
-    ASSERT_THROW(JsonConfigLoader::loadConfigEnvFile(invalidConfigFilePath, configValues), nlohmann::json::parse_error);
+    ASSERT_THROW(JsonConfigLoader::loadConfigEnvFile(invalidConfigFilePath, configValues), std::runtime_error);
 }
 } // namespace
