@@ -52,8 +52,7 @@ void YamlConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFile
 
             if (!envValue || envValue->empty())
             {
-                std::cout << "Environment variable " + envKey + " not set." << std::endl;
-
+                // Environment variable not set, skip silently
                 continue;
             }
             configValues[it->first] = *envValue;

@@ -1,4 +1,6 @@
-1. [node-config](https://github.com/node-config/node-config)
+# Third Party Licenses
+
+## node-config/node-config
 
 Copyright 2010-2022, Loren West and other contributors
 

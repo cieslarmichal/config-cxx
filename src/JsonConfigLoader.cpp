@@ -30,12 +30,9 @@ void JsonConfigLoader::loadConfigFile(const std::filesystem::path& configFilePat
     {
         const auto config = nlohmann::json::parse(configJson);
     }
-
     catch (const std::exception& e)
     {
-        std::cout << "File " << configFilePath.filename() << " has no valid JSON"
-                  << "\n";
-        throw;
+        throw std::runtime_error("Failed to parse JSON file: " + configFilePath.string() + " - " + e.what());
     }
 
     const auto config = nlohmann::json::parse(configJson);
@@ -70,9 +67,7 @@ void JsonConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFile
     }
     catch (const std::exception& e)
     {
-        std::cout << "File " << configFilePath.filename() << " has no valid JSON"
-                  << "\n";
-        throw;
+        throw std::runtime_error("Failed to parse JSON env file: " + configFilePath.string() + " - " + e.what());
     }
 
     const auto configEnvironmentVariables = nlohmann::json::parse(configEnvironmentVariablesJson);
@@ -87,8 +82,7 @@ void JsonConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFile
 
         if (!envValue || envValue->empty())
         {
-            std::cout << "Environment variable " + it.value().get<std::string>() + " not set." << std::endl;
-
+            // Environment variable not set, skip silently
             continue;
         }
 
