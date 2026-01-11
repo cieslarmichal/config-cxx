@@ -140,27 +140,6 @@ cmake --build .
 ./config-cxx-UT
 ```
 
-### Project Structure
-
-```
-config-cxx/
-├── include/
-│   └── config-cxx/
-│       └── Config.h          # Public API
-├── src/
-│   ├── Config.cpp            # Config implementation
-│   ├── ConfigTest.cpp        # Config tests
-│   ├── *Loader.cpp          # Format-specific loaders
-│   ├── *LoaderTest.cpp      # Loader tests
-│   └── environment/         # Environment variable handling
-├── examples/
-│   └── project/             # Example application
-├── docs/
-│   ├── wiki/                # Documentation
-│   └── guides/              # Compilation guides
-└── externals/               # Dependencies (submodules)
-```
-
 ## Development Workflow
 
 ### 1. Create a Feature Branch

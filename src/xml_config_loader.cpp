@@ -35,8 +35,8 @@ void XmlConfigLoader::loadConfigFile(const std::filesystem::path& configFilePath
     pugi::xml_parse_result result = doc.load_file(configFilePath.c_str());
     if (!result)
     {
-        throw std::runtime_error("Failed to parse XML file: " + configFilePath.string() + 
-                               " - " + std::string(result.description()));
+        throw std::runtime_error("Failed to parse XML file: " + configFilePath.string() + " - " +
+                                 std::string(result.description()));
     }
     std::unordered_map<std::string, std::vector<std::string>> flattenedConfig;
     flattenConfig(doc.child(configTagName.c_str()), "", flattenedConfig);
@@ -147,5 +147,5 @@ std::string normalizeConfigListKey(const std::string& key)
 
     return key.substr(0, last_dot);
 }
-}// anonymous namespace
+} // anonymous namespace
 } // config namespace

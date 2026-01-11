@@ -20,20 +20,20 @@ int findDecimal(T const& t)
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(15) << t;
     std::string str = oss.str();
-    
+
     size_t dotPos = str.find('.');
     if (dotPos == std::string::npos)
     {
         return 0;
     }
-    
+
     // Count non-zero trailing digits after decimal point
     size_t lastNonZero = str.find_last_not_of('0');
     if (lastNonZero <= dotPos)
     {
         return 0;
     }
-    
+
     return static_cast<int>(lastNonZero - dotPos);
 }
 
