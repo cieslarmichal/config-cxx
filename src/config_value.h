@@ -11,15 +11,30 @@ namespace details
 template <typename T>
 int findDecimal(T const& t)
 {
-    int count = 0;
-    T cp = t;
-    while (static_cast<int>(std::floor(cp)) != static_cast<int>(cp))
+    if (t == static_cast<T>(static_cast<int>(t)))
     {
-        cp *= 10;
-        count++;
+        return 0; // No decimal places
     }
 
-    return count;
+    // Use string representation to count decimal places accurately
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(15) << t;
+    std::string str = oss.str();
+    
+    size_t dotPos = str.find('.');
+    if (dotPos == std::string::npos)
+    {
+        return 0;
+    }
+    
+    // Count non-zero trailing digits after decimal point
+    size_t lastNonZero = str.find_last_not_of('0');
+    if (lastNonZero <= dotPos)
+    {
+        return 0;
+    }
+    
+    return static_cast<int>(lastNonZero - dotPos);
 }
 
 template <typename T>

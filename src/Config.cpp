@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <iostream>
 #include <optional>
 #include <stdexcept>
 #include <variant>
@@ -21,7 +22,11 @@ T Config::get(const std::string& keyPath)
 {
     std::lock_guard<std::mutex> lockGuard(lock);
 
-    std::call_once(initFlag, [this]() { initialize(); });
+    if (!initialized)
+    {
+        initialize();
+        initialized = true;
+    }
 
     if constexpr (std::is_same_v<T, std::vector<std::string>>)
     {
@@ -70,7 +75,11 @@ std::optional<T> Config::getOptional(const std::string& keyPath)
 {
     std::lock_guard<std::mutex> lockGuard(lock);
 
-    std::call_once(initFlag, [this]() { initialize(); });
+    if (!initialized)
+    {
+        initialize();
+        initialized = true;
+    }
 
     if constexpr (std::is_same_v<T, std::vector<std::string>>)
     {
@@ -116,7 +125,11 @@ ConfigValue Config::get(const std::string& keyPath)
 {
     std::lock_guard<std::mutex> lockGuard(lock);
 
-    std::call_once(initFlag, [this]() { initialize(); });
+    if (!initialized)
+    {
+        initialize();
+        initialized = true;
+    }
 
     const auto keyOccurrences = std::count_if(values.begin(), values.end(), [&](auto& value)
                                               { return value.first.find(keyPath) != std::string::npos; });
@@ -185,7 +198,11 @@ bool Config::has(const std::string& keyPath)
 {
     std::lock_guard<std::mutex> lockGuard(lock);
 
-    std::call_once(initFlag, [this]() { initialize(); });
+    if (!initialized)
+    {
+        initialize();
+        initialized = true;
+    }
 
     return values.find(keyPath) != values.end();
 }
@@ -210,9 +227,12 @@ void Config::initialize()
     }
 
     // If the configuration directory is empty, log a message and return
-    if (isEmpty && suppressWarning != nullptr)
+    if (isEmpty)
     {
-        log(LogLevel::Warning, "No configurations found in configuration directory.");
+        if (suppressWarning == nullptr)
+        {
+            log(LogLevel::Warning, "No configurations found in configuration directory.");
+        }
         return;
     }
     const auto cxxEnv = environment::ConfigProvider::getCxxEnv();
@@ -326,7 +346,7 @@ void Config::initialize()
 
     if (!foundCxxEnvFile && !cxxEnv.empty() && strictMode != nullptr)
     {
-        throw std::runtime_error("ERROR: No configuraiton file matching CXX_ENV");
+        throw std::runtime_error("ERROR: No configuration file matching CXX_ENV");
     }
 }
 
@@ -341,6 +361,23 @@ void Config::log(LogLevel level, const std::string& message) const
     if (logCallback)
     {
         logCallback(level, message);
+    }
+    else
+    {
+        // Default logging to stderr for errors and warnings
+        switch (level)
+        {
+            case LogLevel::Error:
+                std::cerr << "[CONFIG ERROR] " << message << std::endl;
+                break;
+            case LogLevel::Warning:
+                std::cerr << "[CONFIG WARNING] " << message << std::endl;
+                break;
+            case LogLevel::Info:
+            case LogLevel::Debug:
+                // Silent by default for info/debug to avoid clutter
+                break;
+        }
     }
 }
 

@@ -128,7 +128,7 @@ private:
     std::string getSimilarKeys(const std::string& keyPath) const;
     std::string getTypeString(const ConfigValue& value) const;
 
-    std::once_flag initFlag;
+    bool initialized = false;
     LogCallback logCallback;
 
     std::unordered_map<std::string, ConfigValue> values;

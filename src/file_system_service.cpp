@@ -69,11 +69,8 @@ std::filesystem::path FileSystemService::getExecutablePath()
 
     GetModuleFileNameW(NULL, path, MAX_PATH);
 
-    std::wstring wpath(path);
-
-    const std::filesystem::path fsPath = std::string(wpath.begin(), wpath.end());
-
-    return fsPath;
+    // Use filesystem::path constructor that properly handles wide strings
+    return std::filesystem::path(path);
 #elif __APPLE__
     char path[PATH_MAX];
     uint32_t size = sizeof(path);
