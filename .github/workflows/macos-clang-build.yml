@@ -29,3 +29,15 @@ jobs:
           && echo 'export PATH="/opt/homebrew/opt/llvm@18/bin:$PATH"' >> /Users/runner/.bash_profile \
           && source /Users/runner/.bash_profile \
           && which clang++
+
+      - name: Checkout submodules
+        run: git submodule update --init --recursive
+
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_CONFIG_CXX_TESTS=ON -DCMAKE_CXX_COMPILER=${{env.CLANG18_PATH}}++
+
+      - name: Build
+        run: cmake --build build --config ${{env.BUILD_TYPE}}
+
+      - name: Run tests
+        run: cd build && ctest --output-on-failure
