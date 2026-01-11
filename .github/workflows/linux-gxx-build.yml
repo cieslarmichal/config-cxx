@@ -3,7 +3,7 @@ name: g++
 on:
   push:
     branches:
-      - 'main'
+      - "main"
   pull_request:
 
 env:
@@ -19,8 +19,16 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Build docker image
-        run: docker build -t test .
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ build-essential
 
-      - name: Run docker container
-        run: docker run test
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_CONFIG_CXX_TESTS=ON
+
+      - name: Build
+        run: cmake --build build --config ${{env.BUILD_TYPE}}
+
+      - name: Run tests
+        run: cd build && ./config-cxx-UT
