@@ -151,4 +151,101 @@ TEST_F(YamlConfigLoaderTest, loadConfigFileWithInvalidYaml)
     ASSERT_THROW(YamlConfigLoader::loadConfigFile(invalidConfigFilePath, configValues), YAML::ParserException);
 }
 
+TEST_F(YamlConfigLoaderTest, loadConfigFile_withMultilineString_handlesCorrectly)
+{
+    const std::string multilineYaml = R"(
+description: |
+  This is a multiline
+  string value
+  with multiple lines
+)";
+    
+    const auto multilinePath = testConfigDirectory / "multiline.yaml";
+    std::ofstream file{multilinePath};
+    file << multilineYaml;
+    file.close();
+    
+    std::unordered_map<std::string, ConfigValue> configValues;
+    YamlConfigLoader::loadConfigFile(multilinePath, configValues);
+    
+    ASSERT_TRUE(configValues.find("description") != configValues.end());
+    const auto& value = std::get<std::string>(configValues["description"]);
+    ASSERT_TRUE(value.find("multiline") != std::string::npos);
+}
+
+TEST_F(YamlConfigLoaderTest, loadConfigFile_withBooleanValues_handlesCorrectly)
+{
+    const std::string boolYaml = R"(
+enabled: true
+disabled: false
+yes_value: yes
+no_value: no
+)";
+    
+    const auto boolPath = testConfigDirectory / "bool.yaml";
+    std::ofstream file{boolPath};
+    file << boolYaml;
+    file.close();
+    
+    std::unordered_map<std::string, ConfigValue> configValues;
+    YamlConfigLoader::loadConfigFile(boolPath, configValues);
+    
+    ASSERT_TRUE(configValues.find("enabled") != configValues.end());
+    ASSERT_TRUE(configValues.find("disabled") != configValues.end());
+}
+
+TEST_F(YamlConfigLoaderTest, loadConfigFile_withNumericTypes_handlesCorrectly)
+{
+    const std::string numericYaml = R"(
+integer: 42
+float: 3.14
+scientific: 1.23e-4
+negative: -100
+)";
+    
+    const auto numericPath = testConfigDirectory / "numeric.yaml";
+    std::ofstream file{numericPath};
+    file << numericYaml;
+    file.close();
+    
+    std::unordered_map<std::string, ConfigValue> configValues;
+    YamlConfigLoader::loadConfigFile(numericPath, configValues);
+    
+    ASSERT_TRUE(configValues.find("integer") != configValues.end());
+    ASSERT_TRUE(configValues.find("float") != configValues.end());
+    ASSERT_TRUE(configValues.find("scientific") != configValues.end());
+    ASSERT_TRUE(configValues.find("negative") != configValues.end());
+}
+
+TEST_F(YamlConfigLoaderTest, loadConfigFile_whenFileDoesNotExist_doesNotThrow)
+{
+    const auto nonExistentPath = testConfigDirectory / "nonexistent.yaml";
+    std::unordered_map<std::string, ConfigValue> configValues;
+    
+    ASSERT_NO_THROW(YamlConfigLoader::loadConfigFile(nonExistentPath, configValues));
+    ASSERT_TRUE(configValues.empty());
+}
+
+TEST_F(YamlConfigLoaderTest, loadConfigFile_withDeeplyNestedStructure_handlesCorrectly)
+{
+    const std::string deepYaml = R"(
+level1:
+  level2:
+    level3:
+      level4:
+        value: deep
+)";
+    
+    const auto deepPath = testConfigDirectory / "deep.yaml";
+    std::ofstream file{deepPath};
+    file << deepYaml;
+    file.close();
+    
+    std::unordered_map<std::string, ConfigValue> configValues;
+    YamlConfigLoader::loadConfigFile(deepPath, configValues);
+    
+    ASSERT_TRUE(configValues.find("level1.level2.level3.level4.value") != configValues.end());
+    ASSERT_EQ(std::get<std::string>(configValues["level1.level2.level3.level4.value"]), "deep");
+}
+
 }

@@ -1624,19 +1624,6 @@ if (config.has("redis.host")) {
 **Q: Can I use config-cxx in a library?**  
 A: Yes, but consider accepting configuration as constructor parameters rather than reading directly, to make your library more flexible.
 
-### Migration
-
-**Q: How do I migrate from node-config?**  
-A: Config-cxx is designed to be compatible:
-
-1. Keep the same config directory structure
-2. Keep the same file names and formats
-3. Use `CXX_ENV` instead of `NODE_ENV`
-4. Replace JavaScript code with C++ equivalents
-
-**Q: Can I use the same config files as node-config?**  
-A: Yes, if they're in JSON or YAML format. XML is C++ specific.
-
 ## 🤝 Contributing
 
 We welcome contributions! 🚀

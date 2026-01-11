@@ -178,4 +178,77 @@ TEST_F(JsonConfigLoaderTest, loadConfigEnvFileWithInvalidJson)
 
     ASSERT_THROW(JsonConfigLoader::loadConfigEnvFile(invalidConfigFilePath, configValues), std::runtime_error);
 }
+
+TEST_F(JsonConfigLoaderTest, loadConfigFile_withNullValue_handlesCorrectly)
+{
+    const std::string nullJson = R"({
+        "value": null
+    })";
+    
+    const auto nullPath = testConfigDirectory / "null.json";
+    std::ofstream file{nullPath};
+    file << nullJson;
+    file.close();
+    
+    std::unordered_map<std::string, ConfigValue> configValues;
+    JsonConfigLoader::loadConfigFile(nullPath, configValues);
+    
+    ASSERT_TRUE(configValues.find("value") != configValues.end());
+    ASSERT_TRUE(std::holds_alternative<std::nullptr_t>(configValues["value"]));
+}
+
+TEST_F(JsonConfigLoaderTest, loadConfigFile_withFloatPrecision_handlesCorrectly)
+{
+    const std::string floatJson = R"({
+        "pi": 3.14159,
+        "small": 0.00001
+    })";
+    
+    const auto floatPath = testConfigDirectory / "float.json";
+    std::ofstream file{floatPath};
+    file << floatJson;
+    file.close();
+    
+    std::unordered_map<std::string, ConfigValue> configValues;
+    JsonConfigLoader::loadConfigFile(floatPath, configValues);
+    
+    ASSERT_TRUE(configValues.find("pi") != configValues.end());
+    ASSERT_TRUE(configValues.find("small") != configValues.end());
+}
+
+TEST_F(JsonConfigLoaderTest, loadConfigFile_withDeeplyNestedStructure_handlesCorrectly)
+{
+    const std::string deepJson = R"({
+        "level1": {
+            "level2": {
+                "level3": {
+                    "level4": {
+                        "value": "deep"
+                    }
+                }
+            }
+        }
+    })";
+    
+    const auto deepPath = testConfigDirectory / "deep.json";
+    std::ofstream file{deepPath};
+    file << deepJson;
+    file.close();
+    
+    std::unordered_map<std::string, ConfigValue> configValues;
+    JsonConfigLoader::loadConfigFile(deepPath, configValues);
+    
+    ASSERT_TRUE(configValues.find("level1.level2.level3.level4.value") != configValues.end());
+    ASSERT_EQ(std::get<std::string>(configValues["level1.level2.level3.level4.value"]), "deep");
+}
+
+TEST_F(JsonConfigLoaderTest, loadConfigFile_whenFileDoesNotExist_doesNotThrow)
+{
+    const auto nonExistentPath = testConfigDirectory / "nonexistent.json";
+    std::unordered_map<std::string, ConfigValue> configValues;
+    
+    // Should not throw, just return without loading
+    ASSERT_NO_THROW(JsonConfigLoader::loadConfigFile(nonExistentPath, configValues));
+    ASSERT_TRUE(configValues.empty());
+}
 } // namespace

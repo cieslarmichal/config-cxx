@@ -108,13 +108,13 @@ std::optional<T> cast(ConfigValue const& cv)
 }
 
 template <>
-std::optional<std::string> cast<std::string>(ConfigValue const& cv)
+inline std::optional<std::string> cast<std::string>(ConfigValue const& cv)
 {
     return std::visit([](auto const& value) { return details::to_string(value); }, cv);
 }
 
 template <>
-std::optional<std::vector<std::string>> cast<std::vector<std::string>>(ConfigValue const& cv)
+inline std::optional<std::vector<std::string>> cast<std::vector<std::string>>(ConfigValue const& cv)
 {
     return std::visit([](auto const& value) { return details::to_vector(value); }, cv);
 }
