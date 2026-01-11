@@ -1,9 +1,9 @@
-#include "JsonConfigLoader.h"
+#include "json_config_loader.h"
 
 #include <iostream>
 
-#include "environment/EnvironmentParser.h"
-#include "filesystem/FileSystemService.h"
+#include "config_provider.h"
+#include "file_system_service.h"
 #include "nlohmann/json.hpp"
 
 namespace config
@@ -78,7 +78,7 @@ void JsonConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFile
     {
         const auto normalizedKey = normalizeConfigKey(it.key());
 
-        const auto envValue = environment::EnvironmentParser::parseString(it.value().get<std::string>());
+        const auto envValue = environment::ConfigProvider::parseEnvironmentVariable(it.value().get<std::string>());
 
         if (!envValue || envValue->empty())
         {

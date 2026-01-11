@@ -232,7 +232,7 @@ Use clang-format to maintain consistent code style:
 clang-format -i src/**/*.cpp src/**/*.h include/**/*.h
 
 # Or format specific files
-clang-format -i src/Config.cpp include/config-cxx/Config.h
+clang-format -i src/Config.cpp include/config-cxx/config.h
 ```
 
 **Code style highlights:**

@@ -1,4 +1,4 @@
-#include "FileSystemService.h"
+#include "file_system_service.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -6,14 +6,12 @@
 
 #include "gtest/gtest.h"
 
-#include "ExecutableFinder.h"
-
 using namespace ::testing;
 using namespace config::filesystem;
 
 namespace
 {
-const auto projectRootPath = ExecutableFinder::getExecutablePath();
+const auto projectRootPath = FileSystemService::getExecutablePath();
 const auto testDirectoryPath = projectRootPath.parent_path() / "tests";
 const auto filesystemTestDirectoryPath = testDirectoryPath / "filesystemData";
 const auto testReadingFilePath = filesystemTestDirectoryPath / "testReading.txt";

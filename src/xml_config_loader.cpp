@@ -1,10 +1,10 @@
-#include "XmlConfigLoader.h"
+#include "xml_config_loader.h"
 
 #include <iostream>
 #include <variant>
 
-#include "environment/EnvironmentParser.h"
-#include "filesystem/FileSystemService.h"
+#include "config_provider.h"
+#include "file_system_service.h"
 #include "pugixml.hpp"
 
 namespace config
@@ -52,7 +52,7 @@ void XmlConfigLoader::loadConfigEnvFile(const std::filesystem::path& configFileP
         if (std::holds_alternative<std::string>(it->second))
         {
             std::string envKey = std::get<std::string>(it->second);
-            const auto envValue = environment::EnvironmentParser::parseString(envKey);
+            const auto envValue = environment::ConfigProvider::parseEnvironmentVariable(envKey);
 
             if (!envValue || envValue->empty())
             {

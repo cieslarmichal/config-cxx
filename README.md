@@ -139,7 +139,7 @@ target_link_libraries(myapp config-cxx)
 ### Usage Example
 
 ```cpp
-#include "config-cxx/Config.h"
+#include "config-cxx/config.h"
 #include <iostream>
 
 int main() {
@@ -240,7 +240,7 @@ target_link_libraries(your_target config-cxx)
 The `Config` class is the main entry point for accessing configuration values.
 
 ```cpp
-#include "config-cxx/Config.h"
+#include "config-cxx/config.h"
 
 namespace config {
     class Config {
@@ -1231,7 +1231,7 @@ add_subdirectory(externals/config-cxx)
 target_link_libraries(your_target config-cxx)
 
 # 3. Verify include path
-#include "config-cxx/Config.h"  // ✅ Correct
+#include "config-cxx/config.h"  // ✅ Correct
 #include "Config.h"             // ❌ Wrong
 
 # 4. Check compiler version
@@ -1320,7 +1320,7 @@ examples/project/config/
 **Source:** [`examples/project/src/Main.cpp`](https://github.com/cieslarmichal/config-cxx/blob/main/examples/project/src/Main.cpp)
 
 ```cpp
-#include "config-cxx/Config.h"
+#include "config-cxx/config.h"
 #include <iostream>
 
 int main() {

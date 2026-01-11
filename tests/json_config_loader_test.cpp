@@ -1,4 +1,4 @@
-#include "JsonConfigLoader.h"
+#include "json_config_loader.h"
 
 #include <filesystem>
 #include <fstream>
@@ -9,9 +9,9 @@
 
 #include "gtest/gtest.h"
 
-#include "filesystem/ExecutableFinder.h"
+#include "file_system_service.h"
 #include "nlohmann/json.hpp"
-#include "tests/EnvironmentSetter.h"
+#include "environment_setter.h"
 
 using namespace ::testing;
 using namespace config;
@@ -22,7 +22,7 @@ namespace
 {
 using ConfigValue = std::variant<std::nullptr_t, bool, int, double, std::string, float, std::vector<std::string>>;
 
-const auto projectRootPath = ExecutableFinder::getExecutablePath();
+const auto projectRootPath = FileSystemService::getExecutablePath();
 const auto testConfigDirectory = projectRootPath.parent_path() / "testConfig";
 const auto testEnvConfigFilePath = testConfigDirectory / "test.json";
 const auto invalidConfigFilePath = testConfigDirectory / "invalid.json";

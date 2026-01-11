@@ -1,11 +1,10 @@
-#include "ConfigDirectoryPathResolver.h"
+#include "config_directory_path_resolver.h"
 
 #include <filesystem>
-#include <iostream>
+#include <optional>
 
-#include "environment/ConfigProvider.h"
-#include "filesystem/ExecutableFinder.h"
-#include "filesystem/FileSystemService.h"
+#include "config_provider.h"
+#include "file_system_service.h"
 
 namespace config
 {
@@ -30,7 +29,7 @@ std::filesystem::path ConfigDirectoryPathResolver::getConfigDirectoryPath()
         }
     }
 
-    const auto executablePath = filesystem::ExecutableFinder::getExecutablePath();
+    const auto executablePath = filesystem::FileSystemService::getExecutablePath();
 
     if (executablePath.empty())
     {

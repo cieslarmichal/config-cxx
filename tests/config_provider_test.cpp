@@ -1,8 +1,8 @@
-#include "EnvironmentParser.h"
+#include "config_provider.h"
 
 #include "gtest/gtest.h"
 
-#include "../tests/EnvironmentSetter.h"
+#include "environment_setter.h"
 
 using namespace ::testing;
 using namespace config::environment;
@@ -15,7 +15,7 @@ public:
 
 TEST_F(EnvironmentParserTest, returnsNullOptionalIfEnvVariableDoesNotExist)
 {
-    const auto envValue = EnvironmentParser::parseString("NOT_EXISTING_ENV_VARIABLE");
+    const auto envValue = ConfigProvider::parseEnvironmentVariable("NOT_EXISTING_ENV_VARIABLE");
 
     ASSERT_FALSE(envValue);
 }
@@ -28,7 +28,7 @@ TEST_F(EnvironmentParserTest, returnsValueIfEnvVariableExists)
 
     EnvironmentSetter::setEnvironmentVariable(envName, expectedEnvValue);
 
-    const auto envValue = EnvironmentParser::parseString(envName);
+    const auto envValue = ConfigProvider::parseEnvironmentVariable(envName);
 
     ASSERT_TRUE(envValue);
     ASSERT_EQ(envValue, expectedEnvValue);

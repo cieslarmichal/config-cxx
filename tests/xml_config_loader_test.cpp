@@ -1,4 +1,4 @@
-#include "YamlConfigLoader.h"
+#include "xml_config_loader.h"
 
 #include <filesystem>
 #include <fstream>
@@ -9,9 +9,8 @@
 
 #include "gtest/gtest.h"
 
-#include "filesystem/ExecutableFinder.h"
-#include "tests/EnvironmentSetter.h"
-#include "yaml-cpp/yaml.h"
+#include "file_system_service.h"
+#include "environment_setter.h"
 
 using namespace ::testing;
 using namespace config;
@@ -22,36 +21,54 @@ namespace
 {
 using ConfigValue = std::variant<std::nullptr_t, bool, int, double, std::string, float, std::vector<std::string>>;
 
-const auto projectRootPath = ExecutableFinder::getExecutablePath();
+const auto projectRootPath = FileSystemService::getExecutablePath();
 const auto testConfigDirectory = projectRootPath.parent_path() / "testConfig";
-const auto testEnvConfigFilePath = testConfigDirectory / "test.yml";
-const auto invalidConfigFilePath = testConfigDirectory / "invalid.yml";
-const auto customEnvironmentsConfigFilePath = testConfigDirectory / "custom-environment-variables.yml";
+const auto testEnvConfigFilePath = testConfigDirectory / "test.xml";
+const auto invalidConfigFilePath = testConfigDirectory / "invalid.xml";
+const auto customEnvironmentsConfigFilePath = testConfigDirectory / "custom-environment-variables.xml";
 
-const std::string testYaml = R"(
-db:
-    port: 1996
-auth:
-    expiresIn: 3600
-    enabled: true
-    roles:
-        - admin
-        - user
+const std::string testXml = R"(
+<configuration>
+    <db>
+        <port>1996</port>
+    </db>
+    <auth>
+        <expiresIn>3600</expiresIn>
+        <enabled>true</enabled>
+        <roles>
+            <role>admin</role>
+            <role>user</role>
+        </roles>
+    </auth>
+</configuration>
 )";
 
-const std::string envVariablesYaml = R"(
-aws:
-    accountId: AWS_ACCOUNT_ID
-    accountKey: AWS_ACCOUNT_KEY
+const std::string envVariablesXml = R"(
+<configuration>
+    <aws>
+        <accountId>AWS_ACCOUNT_ID</accountId>
+        <accountKey>AWS_ACCOUNT_KEY</accountKey>
+    </aws>
+</configuration>
 )";
 
-const std::string invalidYaml = R"(
-invalid_key:
-    value1: 10
-    - value2: 20
+const std::string invalidXml = R"(
+<configuration>
+    <db>
+        <port>1996
+    </db>
+    <auth>
+        <expiresIn>3600</expiresIn>
+        <enabled>true</enabled>
+        <roles>
+            <role>admin</role>
+            <role>user</role>
+        </roles>
+    </auth>
+</configuration>
 )";
 
-class YamlConfigLoaderTest : public Test
+class XmlConfigLoaderTest : public Test
 {
 public:
     void SetUp() override
@@ -67,15 +84,15 @@ public:
 
         std::ofstream testEnvConfigFile{testEnvConfigFilePath};
 
-        testEnvConfigFile << testYaml;
+        testEnvConfigFile << testXml;
 
         std::ofstream customEnvironmentsConfigFile{customEnvironmentsConfigFilePath};
 
-        customEnvironmentsConfigFile << envVariablesYaml;
+        customEnvironmentsConfigFile << envVariablesXml;
 
         std::ofstream invalidConfigFile{invalidConfigFilePath};
 
-        invalidConfigFile << invalidYaml;
+        invalidConfigFile << invalidXml;
     }
 
     void TearDown() override
@@ -89,7 +106,7 @@ public:
     }
 };
 
-TEST_F(YamlConfigLoaderTest, loadConfigFile)
+TEST_F(XmlConfigLoaderTest, loadConfigFile)
 {
     EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
     EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
@@ -100,8 +117,7 @@ TEST_F(YamlConfigLoaderTest, loadConfigFile)
     expectedValues["auth.roles"] = roles;
 
     std::unordered_map<std::string, ConfigValue> configValues;
-    YamlConfigLoader::loadConfigFile(testEnvConfigFilePath, configValues);
-
+    XmlConfigLoader::loadConfigFile(testEnvConfigFilePath, configValues);
     for (const auto& [key, value] : expectedValues)
     {
         auto it = configValues.find(key);
@@ -110,7 +126,7 @@ TEST_F(YamlConfigLoaderTest, loadConfigFile)
     }
 }
 
-TEST_F(YamlConfigLoaderTest, loadConfigFileWithEnv)
+TEST_F(XmlConfigLoaderTest, loadConfigFileWithEnv)
 {
     // Set up environment variables and paths
     EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
@@ -128,7 +144,7 @@ TEST_F(YamlConfigLoaderTest, loadConfigFileWithEnv)
 
     // Load configuration using JsonConfigLoader
     std::unordered_map<std::string, ConfigValue> configValues;
-    YamlConfigLoader::loadConfigEnvFile(customEnvironmentsConfigFilePath, configValues);
+    XmlConfigLoader::loadConfigEnvFile(customEnvironmentsConfigFilePath, configValues);
 
     // Verify that the loaded values match the expected values
     for (const auto& [key, expectedValue] : expectedValues)
@@ -141,14 +157,14 @@ TEST_F(YamlConfigLoaderTest, loadConfigFileWithEnv)
     }
 }
 
-TEST_F(YamlConfigLoaderTest, loadConfigFileWithInvalidYaml)
+TEST_F(XmlConfigLoaderTest, loadConfigFileWithInvalidXml)
 {
     EnvironmentSetter::setEnvironmentVariable("CXX_ENV", "test");
     EnvironmentSetter::setEnvironmentVariable("CXX_CONFIG_DIR", testConfigDirectory.string());
 
     std::unordered_map<std::string, ConfigValue> configValues;
 
-    ASSERT_THROW(YamlConfigLoader::loadConfigFile(invalidConfigFilePath, configValues), YAML::ParserException);
+    ASSERT_THROW(XmlConfigLoader::loadConfigFile(invalidConfigFilePath, configValues), std::runtime_error);
 }
 
-}
+} // anonymous namespace

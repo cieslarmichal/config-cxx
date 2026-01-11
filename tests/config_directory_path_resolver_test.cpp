@@ -1,11 +1,11 @@
-#include "ConfigDirectoryPathResolver.h"
+#include "config_directory_path_resolver.h"
 
 #include <filesystem>
 
 #include "gtest/gtest.h"
 
-#include "filesystem/ExecutableFinder.h"
-#include "tests/EnvironmentSetter.h"
+#include "file_system_service.h"
+#include "environment_setter.h"
 
 using namespace ::testing;
 using namespace config;
@@ -14,7 +14,7 @@ using namespace config::filesystem;
 
 namespace
 {
-const auto executablePath = ExecutableFinder::getExecutablePath();
+const auto executablePath = FileSystemService::getExecutablePath();
 const auto configDirectoryFromExecutable = executablePath.parent_path() / "config";
 const auto configDirectory1RelativePath = "./customConfig1";
 const auto configDirectory1AbsolutePath = executablePath.parent_path() / "customConfig1";

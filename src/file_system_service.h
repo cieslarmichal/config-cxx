@@ -15,5 +15,6 @@ public:
     static bool isRelative(const std::filesystem::path& path);
     static std::filesystem::path getSystemRootPath();
     static std::filesystem::path getCurrentWorkingDirectory();
+    static std::filesystem::path getExecutablePath();
 };
 }

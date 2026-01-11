@@ -1,4 +1,4 @@
-#include "config-cxx/Config.h"
+#include "config-cxx/config.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -6,12 +6,12 @@
 #include <stdexcept>
 #include <variant>
 
-#include "ConfigDirectoryPathResolver.h"
-#include "ConfigValue.h"
-#include "environment/ConfigProvider.h"
-#include "JsonConfigLoader.h"
-#include "XmlConfigLoader.h"
-#include "YamlConfigLoader.h"
+#include "config_directory_path_resolver.h"
+#include "config_value.h"
+#include "config_provider.h"
+#include "json_config_loader.h"
+#include "xml_config_loader.h"
+#include "yaml_config_loader.h"
 
 namespace config
 {

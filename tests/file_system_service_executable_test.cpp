@@ -1,4 +1,4 @@
-#include "ExecutableFinder.h"
+#include "file_system_service.h"
 
 #include "gtest/gtest.h"
 
@@ -14,14 +14,14 @@ const std::string testExecutableName{"config-cxx-UT"};
 #endif
 }
 
-class ExecutableFinderTest : public Test
+class FileSystemServiceExecutableTest : public Test
 {
 public:
 };
 
-TEST_F(ExecutableFinderTest, shouldReturnAbsolutePathToTestExecutable)
+TEST_F(FileSystemServiceExecutableTest, shouldReturnAbsolutePathToTestExecutable)
 {
-    const auto executablePath = ExecutableFinder::getExecutablePath();
+    const auto executablePath = FileSystemService::getExecutablePath();
 
     std::cerr << executablePath.string() << std::endl;
 
