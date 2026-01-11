@@ -47,8 +47,10 @@
 - [🤝 Examples](#-examples)
 - [🔨 Compiler Support](#-compiler-support)
 - [📦 Dependencies](#-dependencies)
+- [⚡ Performance](#-performance)
+- [❓ FAQ](#-faq)
 - [🤝 Contributing](#-contributing)
-
+- [📄 License](#-license)
 
 ## 🎯 Goal
 
@@ -91,7 +93,7 @@ git submodule update --init --recursive
 mkdir config
 ```
 
-2. **Create default configuration** (`config/default.json`):
+1. **Create default configuration** (`config/default.json`):
 
 ```json
 {
@@ -109,7 +111,7 @@ mkdir config
 }
 ```
 
-3. **Create production overrides** (`config/production.json`):
+1. **Create production overrides** (`config/production.json`):
 
 ```json
 {
@@ -124,7 +126,7 @@ mkdir config
 }
 ```
 
-4. **Link with your project** (CMakeLists.txt):
+1. **Link with your project** (CMakeLists.txt):
 
 ```cmake
 set(BUILD_CONFIG_CXX_TESTS OFF)
@@ -223,8 +225,8 @@ target_link_libraries(your_target config-cxx)
 ### 3. Manual Installation
 
 1. Download the latest release
-2. Extract to your project
-3. Add to CMake:
+1. Extract to your project
+1. Add to CMake:
 
 ```cmake
 add_subdirectory(path/to/config-cxx)
@@ -266,6 +268,7 @@ T get(const std::string& keyPath);
 ```
 
 **Parameters:**
+
 - `keyPath`: Dot-separated path to the configuration value (e.g., `"db.host"`)
 
 **Returns:** Value cast to type `T`
@@ -309,6 +312,7 @@ std::optional<T> getOptional(const std::string& keyPath);
 ```
 
 **Parameters:**
+
 - `keyPath`: Dot-separated path to the configuration value
 
 **Returns:** `std::optional<T>` containing the value or `std::nullopt`
@@ -347,6 +351,7 @@ bool has(const std::string& keyPath);
 ```
 
 **Parameters:**
+
 - `keyPath`: Dot-separated path to check
 
 **Returns:** `true` if key exists, `false` otherwise
@@ -387,7 +392,7 @@ for (const auto& key : requiredKeys) {
 Config-cxx supports the following types:
 
 | Type | Example | Description |
-|------|---------|-------------|
+| ---- | ------- | ----------- |
 | `std::string` | `"localhost"` | Text values |
 | `int` | `3306` | Integer numbers |
 | `double` | `30.5` | Floating-point numbers |
@@ -415,7 +420,7 @@ export CXX_CONFIG_DIR=../shared-configs
 
 Configuration files are loaded and merged in this order (later files override earlier ones):
 
-```
+```text
 1. default.{EXT}                    # Base configuration
 2. {deployment}.{EXT}               # Environment-specific (e.g., production.json)
 3. local.{EXT}                      # Local overrides (not in version control)
@@ -424,12 +429,13 @@ Configuration files are loaded and merged in this order (later files override ea
 ```
 
 **Where:**
+
 - `{EXT}` can be: `.json`, `.yaml`, `.yml`, or `.xml`
 - `{deployment}` comes from the `CXX_ENV` environment variable (default: `"development"`)
 
 **Example with `CXX_ENV=production`:**
 
-```
+```text
 config/
 ├── default.json              # ✅ Loaded (base)
 ├── development.json          # ❌ Skipped
@@ -569,6 +575,7 @@ export CXX_ENV=production
 ```
 
 **Common values:**
+
 - `development` (default)
 - `test` or `testing`
 - `staging` or `stage`
@@ -980,7 +987,7 @@ int main() {
 
 ### 3. **Use Environment-Specific Files**
 
-```
+```text
 config/
 ├── default.json              # ✅ Base configuration (committed)
 ├── development.json          # ✅ Dev overrides (committed)
@@ -1266,6 +1273,7 @@ cmake --build .
 ### Platform-Specific Instructions
 
 For detailed platform-specific build instructions, including:
+
 - Installing compilers and dependencies
 - Platform-specific configuration options
 - Troubleshooting common build issues
@@ -1301,7 +1309,7 @@ Full example available in [`examples/project`](https://github.com/cieslarmichal/
 
 **Configuration files:**
 
-```
+```text
 examples/project/config/
 ├── default.json
 ├── development.json
@@ -1406,7 +1414,7 @@ int main() {
 ## 🔨 Compiler Support
 
 | Compiler | Minimum Version | Recommended |
-|----------|----------------|-------------|
+| -------- | --------------- | ----------- |
 | **GCC** | 13.0 | 13.2+ |
 | **Clang** | 16.0 | 17.0+ |
 | **Apple Clang** | 16.0 | Latest |
@@ -1428,7 +1436,209 @@ int main() {
 
 All dependencies are included as git submodules - no manual installation required.
 
+## ⚡ Performance
+
+### Thread Safety
+
+Config-cxx is **thread-safe**:
+
+- ✅ Multiple threads can safely call `get()`, `getOptional()`, and `has()` simultaneously
+- ✅ Internal mutex protects configuration data access
+- ✅ No external synchronization needed
+- ✅ Read operations are lock-free after initialization
+
+```cpp
+// Safe to use from multiple threads
+config::Config config;  // Initialize once
+
+// Thread 1
+auto dbHost = config.get<std::string>("db.host");
+
+// Thread 2 (concurrent access is safe)
+auto dbPort = config.get<int>("db.port");
+```
+
+### Performance Characteristics
+
+- **Initialization**: O(n) where n is the number of configuration keys
+- **get() operation**: O(1) average case (hash map lookup)
+- **has() operation**: O(1) average case
+- **Memory usage**: Minimal - configurations are loaded once at startup
+
+### Best Practices for Performance
+
+```cpp
+// ✅ Good: Initialize once, reuse
+config::Config config;
+auto host = config.get<std::string>("db.host");
+auto port = config.get<int>("db.port");
+
+// ❌ Avoid: Creating multiple Config instances
+for (int i = 0; i < 1000; i++) {
+    config::Config config;  // Reloads files each time!
+    auto value = config.get<std::string>("key");
+}
+
+// ✅ Good: Cache frequently accessed values
+struct AppConfig {
+    std::string dbHost;
+    int dbPort;
+    
+    static AppConfig load() {
+        config::Config cfg;
+        return {cfg.get<std::string>("db.host"), cfg.get<int>("db.port")};
+    }
+};
+
+auto appConfig = AppConfig::load();  // Load once
+// Use appConfig.dbHost and appConfig.dbPort
+```
+
+## ❓ FAQ
+
+### General Questions
+
+**Q: Can I use config-cxx in production?**  
+A: Yes! Config-cxx is actively used in production environments. It's stable, well-tested (high code coverage), and actively maintained.
+
+**Q: Is config-cxx thread-safe?**  
+A: Yes, all operations are thread-safe. Multiple threads can safely access configuration simultaneously.
+
+**Q: What's the performance overhead?**  
+A: Minimal. Configuration is loaded once at startup. Each `get()` call is an O(1) hash map lookup.
+
+**Q: Can I reload configuration at runtime?**  
+A: Currently, configuration is loaded once at initialization. Runtime reloading is not supported yet (planned for future releases).
+
+### Configuration Files
+
+**Q: Which file format should I use?**  
+A: All formats (JSON, YAML, XML) work equally well. Choose based on your preference:
+
+- **JSON**: Most common, good tooling support
+- **YAML**: More readable, supports comments
+- **XML**: Good for complex hierarchies
+
+**Q: Can I mix file formats?**  
+A: No, all configuration files must use the same format. Choose one format for consistency.
+
+**Q: Where should I store secrets?**  
+A: Never commit secrets to version control. Use:
+
+1. Environment variables (with `custom-environment-variables.json`)
+2. Local files (added to `.gitignore`)
+3. Secret management services (AWS Secrets Manager, HashiCorp Vault)
+
+**Q: Can I use both YAML and JSON files?**  
+A: No, all config files in a directory must use the same format.
+
+### Environment Variables
+
+**Q: How do I override a nested configuration value with environment variables?**  
+A: Use `custom-environment-variables.json` to map:
+
+```json
+{
+  "db": {
+    "host": "DB_HOST",
+    "credentials": {
+      "password": "DB_PASSWORD"
+    }
+  }
+}
+```
+
+Then: `export DB_HOST=prod.example.com DB_PASSWORD=secret`
+
+**Q: What happens if CXX_ENV is not set?**  
+A: Defaults to `"development"`. Files loaded: `default.json` + `development.json`
+
+**Q: Can I use custom environment names?**  
+A: Yes! Any value works: `export CXX_ENV=staging`, `export CXX_ENV=qa`, etc.
+
+### Integration & Build
+
+**Q: Do I need to install dependencies manually?**  
+A: No. All dependencies (nlohmann/json, yaml-cpp, pugixml) are included as git submodules.
+
+**Q: Can I use config-cxx with CMake FetchContent?**  
+A: Yes! See [Installation Methods](#-installation-methods) for FetchContent example.
+
+**Q: My project uses C++17. Can I use config-cxx?**  
+A: No, config-cxx requires C++20. Consider upgrading or using an older version (if available).
+
+**Q: Does config-cxx work with vcpkg or Conan?**  
+A: Not yet, but it's planned. Currently use git submodules or CMake FetchContent.
+
+### Troubleshooting
+
+**Q: Why is my configuration not loading?**  
+A: Check:
+
+1. `CXX_ENV` environment variable
+2. Config files exist in `./config` or `$CXX_CONFIG_DIR`
+3. File names match: `default.json`, `{CXX_ENV}.json`
+4. File permissions are readable
+
+**Q: I get "Configuration key not found" error**  
+A: The key doesn't exist in any loaded config file. Use `has()` to check first, or `getOptional()` for optional keys.
+
+**Q: Type conversion error when getting a value**  
+A: The value type in config doesn't match requested type:
+
+```json
+{"port": "3306"}  // String
+```
+
+```cpp
+config.get<int>("port");  // ❌ Fails - is string, not int
+```
+
+Fix: Use correct type in config file: `{"port": 3306}`
+
+**Q: Build fails with "C++20 required" error**  
+A: Ensure your compiler supports C++20 and CMakeLists.txt has:
+
+```cmake
+set(CMAKE_CXX_STANDARD 20)
+```
+
+### Advanced Usage
+
+**Q: Can I programmatically set configuration values?**  
+A: No, config-cxx is read-only by design. Configuration should come from files/environment.
+
+**Q: Can I validate configuration at startup?**  
+A: Yes! See [Common Patterns - Configuration Validation](#pattern-1-configuration-validation)
+
+**Q: How do I handle optional configuration sections?**  
+A: Use `has()` or `getOptional()`:
+
+```cpp
+if (config.has("redis.host")) {
+    // Redis is configured
+    setupRedis(config);
+}
+```
+
+**Q: Can I use config-cxx in a library?**  
+A: Yes, but consider accepting configuration as constructor parameters rather than reading directly, to make your library more flexible.
+
+### Migration
+
+**Q: How do I migrate from node-config?**  
+A: Config-cxx is designed to be compatible:
+
+1. Keep the same config directory structure
+2. Keep the same file names and formats
+3. Use `CXX_ENV` instead of `NODE_ENV`
+4. Replace JavaScript code with C++ equivalents
+
+**Q: Can I use the same config files as node-config?**  
+A: Yes, if they're in JSON or YAML format. XML is C++ specific.
+
 ## 🤝 Contributing
+
 We welcome contributions! 🚀
 
 **How to contribute:**
@@ -1454,6 +1664,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🌟 Show Your Support
 
 If you find config-cxx helpful, please:
+
 - ⭐ Star the repository
 - 🐛 Report bugs and issues
 - 💡 Suggest new features
