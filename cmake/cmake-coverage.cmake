@@ -1,5 +1,5 @@
 option(
-    CODE_COVERAGE
+    CONFIG_CODE_COVERAGE
     "Builds targets with code coverage instrumentation. (Requires GCC or Clang)"
     OFF)
 
@@ -12,8 +12,8 @@ mark_as_advanced(FORCE LLVM_COV_PATH LLVM_PROFDATA_PATH LCOV_PATH GENHTML_PATH)
 set(CMAKE_COVERAGE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/ccov)
 set_property(GLOBAL PROPERTY JOB_POOLS ccov_serial_pool=1)
 
-if (CODE_COVERAGE AND NOT CODE_COVERAGE_ADDED)
-    set(CODE_COVERAGE_ADDED ON)
+if (CONFIG_CODE_COVERAGE AND NOT CONFIG_CODE_COVERAGE_ADDED)
+    set(CONFIG_CODE_COVERAGE_ADDED ON)
 
     file(MAKE_DIRECTORY ${CMAKE_COVERAGE_OUTPUT_DIRECTORY})
 
@@ -131,7 +131,7 @@ function(target_code_coverage TARGET_NAME)
         set(target_code_coverage_COVERAGE_TARGET_NAME ${TARGET_NAME})
     endif ()
 
-    if (CODE_COVERAGE)
+    if (CONFIG_CODE_COVERAGE)
 
         if (CMAKE_C_COMPILER_ID MATCHES "(Apple)?[Cc]lang"
             OR CMAKE_CXX_COMPILER_ID MATCHES "(Apple)?[Cc]lang")
@@ -396,7 +396,7 @@ function(target_code_coverage TARGET_NAME)
 endfunction()
 
 function(add_code_coverage)
-    if (CODE_COVERAGE)
+    if (CONFIG_CODE_COVERAGE)
         if (CMAKE_C_COMPILER_ID MATCHES "(Apple)?[Cc]lang"
             OR CMAKE_CXX_COMPILER_ID MATCHES "(Apple)?[Cc]lang")
             add_compile_options(-fprofile-instr-generate -fcoverage-mapping)
@@ -417,7 +417,7 @@ function(add_code_coverage_all_targets)
     cmake_parse_arguments(add_code_coverage_all_targets "" ""
         "${multi_value_keywords}" ${ARGN})
 
-    if (CODE_COVERAGE)
+    if (CONFIG_CODE_COVERAGE)
         if (CMAKE_C_COMPILER_ID MATCHES "(Apple)?[Cc]lang"
             OR CMAKE_CXX_COMPILER_ID MATCHES "(Apple)?[Cc]lang")
 
