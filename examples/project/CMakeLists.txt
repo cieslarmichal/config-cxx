@@ -15,7 +15,7 @@ else ()
     )
 endif ()
 
-set(BUILD_CONFIG_CXX_TESTS OFF)
+set(CONFIG_BUILD_TESTING OFF)
 
 add_subdirectory(externals/config-cxx)
 

@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-option(BUILD_CONFIG_CXX_TESTS "Build tests" ON)
-option(CODE_COVERAGE "Build config-cxx with coverage support" OFF)
+option(CONFIG_BUILD_TESTING "Build tests" ON)
+option(CONFIG_CODE_COVERAGE "Build config-cxx with coverage support" OFF)
 
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++20 /permissive- /bigobj")
@@ -47,17 +47,15 @@ target_include_directories(
     INTERFACE "${CMAKE_CURRENT_LIST_DIR}/include"
     PRIVATE "${CMAKE_CURRENT_LIST_DIR}/include")
 
-if (CODE_COVERAGE)
+if (CONFIG_CODE_COVERAGE)
     set(target_code_coverage_ALL 1)
     include("cmake/cmake-coverage.cmake")
     add_code_coverage_all_targets(EXCLUDE tests/*)
     target_code_coverage(${LIBRARY_NAME} ALL)
 endif ()
 
-if (BUILD_CONFIG_CXX_TESTS)
+if (CONFIG_BUILD_TESTING)
     add_subdirectory(externals/googletest)
-
     enable_testing()
-
     add_subdirectory(tests)
 endif ()

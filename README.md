@@ -129,7 +129,7 @@ mkdir config
 1. **Link with your project** (CMakeLists.txt):
 
 ```cmake
-set(BUILD_CONFIG_CXX_TESTS OFF)
+set(CONFIG_BUILD_TESTING OFF)
 
 add_subdirectory(externals/config-cxx)
 add_executable(myapp main.cpp)
@@ -198,7 +198,7 @@ git submodule update --init --recursive
 **CMakeLists.txt**:
 
 ```cmake
-set(BUILD_CONFIG_CXX_TESTS OFF)
+set(CONFIG_BUILD_TESTING OFF)
 add_subdirectory(externals/config-cxx)
 target_link_libraries(your_target config-cxx)
 ```
@@ -216,7 +216,7 @@ FetchContent_Declare(
     GIT_TAG main  # or specific version tag
 )
 
-set(BUILD_CONFIG_CXX_TESTS OFF CACHE BOOL "" FORCE)
+set(CONFIG_BUILD_TESTING OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(config-cxx)
 
 target_link_libraries(your_target config-cxx)
@@ -1286,14 +1286,14 @@ For detailed platform-specific build instructions, including:
 
 ```cmake
 # Disable tests (reduces dependencies)
-set(BUILD_CONFIG_CXX_TESTS OFF)
+set(CONFIG_BUILD_TESTING OFF)
 
 # Example CMakeLists.txt
 cmake_minimum_required(VERSION 3.14)
 project(MyApp)
 
 set(CMAKE_CXX_STANDARD 20)
-set(BUILD_CONFIG_CXX_TESTS OFF)
+set(CONFIG_BUILD_TESTING OFF)
 
 add_subdirectory(externals/config-cxx)
 
@@ -1432,7 +1432,7 @@ int main() {
 
 ### Test Dependencies
 
-- **Google Test** (optional, disable with `BUILD_CONFIG_CXX_TESTS=OFF`)
+- **Google Test** (optional, disable with `CONFIG_BUILD_TESTING=OFF`)
 
 All dependencies are included as git submodules - no manual installation required.
 

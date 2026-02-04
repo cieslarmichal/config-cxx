@@ -38,6 +38,6 @@ add_test(
     COMMAND ${CMAKE_PROJECT_NAME}-UT
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-if (CODE_COVERAGE)
+if (CONFIG_CODE_COVERAGE)
     target_code_coverage(${CMAKE_PROJECT_NAME}-UT ALL)
 endif ()

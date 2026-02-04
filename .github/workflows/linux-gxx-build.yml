@@ -25,7 +25,7 @@ jobs:
           sudo apt-get install -y cmake g++ build-essential
 
       - name: Configure CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_CONFIG_CXX_TESTS=ON
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCONFIG_BUILD_TESTING=ON
 
       - name: Build
         run: cmake --build build --config ${{env.BUILD_TYPE}}

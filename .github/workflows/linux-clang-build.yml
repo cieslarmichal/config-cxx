@@ -3,7 +3,7 @@ name: clang++
 on:
   push:
     branches:
-      - 'main'
+      - "main"
   pull_request:
 
 env:
@@ -37,7 +37,7 @@ jobs:
           cmake -B ${{github.workspace}}/build \
             -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
             -DCMAKE_CXX_COMPILER=/usr/bin/clang++-16 \
-            -DCODE_COVERAGE:BOOL=ON \
+            -DCONFIG_CODE_COVERAGE:BOOL=ON \
             -GNinja
 
       - name: Build
